@@ -14,6 +14,9 @@ import { WordSearch } from "./word-search";
 import { Reversi } from "./reversi";
 import { Checkers } from "./checkers";
 import { Scribble } from "./scribble";
+import { Solitaire } from "./solitaire";
+import { SpiderSolitaire } from "./spider-solitaire";
+import { FreeCell } from "./freecell";
 
 /**
  * Central registry of implemented game components, keyed by `game.component`.
@@ -33,6 +36,9 @@ const GAME_COMPONENTS: Record<string, React.ComponentType<{ game: GameDefinition
   "reversi": Reversi,
   "checkers": Checkers,
   "scribble": Scribble,
+  "solitaire": Solitaire,
+  "spider-solitaire": SpiderSolitaire,
+  "freecell": FreeCell,
 };
 
 export function GameRouter({ game }: { game: GameDefinition }) {
