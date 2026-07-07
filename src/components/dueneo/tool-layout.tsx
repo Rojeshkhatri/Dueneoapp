@@ -66,16 +66,13 @@ export function ToolLayout({
       <Breadcrumbs items={crumbs} />
 
       <header className="mt-4">
-        <div className="flex flex-wrap items-center gap-2">
-          {category && (
+        {category && (
+          <div className="flex flex-wrap items-center gap-2">
             <span className="inline-flex items-center gap-1 rounded-full bg-primary/10 px-2.5 py-0.5 text-xs font-medium text-primary">
               {category.name}
             </span>
-          )}
-          <span className="inline-flex items-center gap-1 rounded-full bg-muted px-2.5 py-0.5 text-xs font-medium text-muted-foreground">
-            {tool.difficulty}
-          </span>
-        </div>
+          </div>
+        )}
         <h1 className="mt-3 text-3xl font-bold tracking-tight sm:text-4xl">{tool.name}</h1>
         <p className="mt-3 max-w-2xl text-base text-muted-foreground">{content.intro}</p>
       </header>

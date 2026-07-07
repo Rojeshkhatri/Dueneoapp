@@ -37,8 +37,7 @@ export function ToolCard({ tool, className }: { tool: ToolDefinition; className?
             </span>
           )}
         </div>
-        <div className="mt-3 flex items-center justify-between text-xs">
-          <span className="text-muted-foreground">{tool.difficulty}</span>
+        <div className="mt-3 flex items-center justify-end text-xs">
           <span className="inline-flex items-center gap-1 text-primary opacity-0 transition-opacity group-hover:opacity-100">
             Open <ArrowRight className="h-3 w-3" />
           </span>
