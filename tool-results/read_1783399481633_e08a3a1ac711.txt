@@ -1,0 +1,702 @@
+  2300→- The tool must not require a backend API.
+  2301→- User input must not be logged to analytics.
+  2302→- Heavy processing must run in a Web Worker when it can block the main thread.
+  2303→- Large file tools must show progress, cancellation, and memory warnings.
+  2304→- Use lazy-loaded libraries so unrelated pages do not download this tool's code.
+  2305→
+  2306→**SEO content requirements**
+  2307→
+  2308→- Explain what the tool does in one short paragraph.
+  2309→- Include a practical “How to use” section.
+  2310→- Include at least three common use cases.
+  2311→- Include a privacy FAQ answer.
+  2312→- Link to the listed related pages.
+  2313→
+  2314→**Acceptance tests**
+  2315→
+  2316→- Page builds statically.
+  2317→- Metadata exists and matches the tool registry.
+  2318→- Tool works on desktop and mobile.
+  2319→- Tool handles empty input and invalid input gracefully.
+  2320→- No tool data is sent outside the browser.
+  2321→- Related links resolve.
+  2322→- Lighthouse performance remains within budget.
+  2323→
+  2324→### 11. WebP to JPG
+  2325→
+  2326→| Field | Specification |
+  2327→|---|---|
+  2328→| URL | `/webp-to-jpg/` |
+  2329→| Category | Image |
+  2330→| Difficulty | Easy |
+  2331→| Browser-only status | Required |
+  2332→| Primary technology | Canvas |
+  2333→| Primary search intent | User wants to complete **webp to jpg** immediately without signing up or uploading data. |
+  2334→| Target keywords | webp to jpg, webp to jpeg, convert webp to jpg |
+  2335→| SEO title | Free WebP to JPG - Browser-Based, Private & Fast | Dueneo |
+  2336→| Meta description | Use Dueneo's free webp to jpg to convert WebP images to JPG. No upload, no signup, browser-based. |
+  2337→| Related pages | `/jpg-to-webp/`, `/webp-to-png/`, `/image-resizer/` |
+  2338→
+  2339→**Purpose**  
+  2340→Convert WebP images to JPG.
+  2341→
+  2342→**Required UI**
+  2343→
+  2344→- H1, short description, and privacy note above the working area.
+  2345→- Main input area with clear empty state.
+  2346→- Primary action button and reset/clear option.
+  2347→- Result preview where appropriate.
+  2348→- Copy, download, or export action where appropriate.
+  2349→- Clear error messages for invalid input or unsupported files.
+  2350→- Related tools section using the shared card component.
+  2351→
+  2352→**Browser-only implementation rules**
+  2353→
+  2354→- The tool must not require a backend API.
+  2355→- User input must not be logged to analytics.
+  2356→- Heavy processing must run in a Web Worker when it can block the main thread.
+  2357→- Large file tools must show progress, cancellation, and memory warnings.
+  2358→- Use lazy-loaded libraries so unrelated pages do not download this tool's code.
+  2359→
+  2360→**SEO content requirements**
+  2361→
+  2362→- Explain what the tool does in one short paragraph.
+  2363→- Include a practical “How to use” section.
+  2364→- Include at least three common use cases.
+  2365→- Include a privacy FAQ answer.
+  2366→- Link to the listed related pages.
+  2367→
+  2368→**Acceptance tests**
+  2369→
+  2370→- Page builds statically.
+  2371→- Metadata exists and matches the tool registry.
+  2372→- Tool works on desktop and mobile.
+  2373→- Tool handles empty input and invalid input gracefully.
+  2374→- No tool data is sent outside the browser.
+  2375→- Related links resolve.
+  2376→- Lighthouse performance remains within budget.
+  2377→
+  2378→### 12. HEIC to JPG
+  2379→
+  2380→| Field | Specification |
+  2381→|---|---|
+  2382→| URL | `/heic-to-jpg/` |
+  2383→| Category | Image |
+  2384→| Difficulty | Hard |
+  2385→| Browser-only status | Required |
+  2386→| Primary technology | heic2any or libheif-js, Web Worker |
+  2387→| Primary search intent | User wants to complete **heic to jpg** immediately without signing up or uploading data. |
+  2388→| Target keywords | heic to jpg, convert heic to jpg, iphone photo converter |
+  2389→| SEO title | Free HEIC to JPG - Browser-Based, Private & Fast | Dueneo |
+  2390→| Meta description | Use Dueneo's free heic to jpg to convert iPhone HEIC images to JPG in browser using a lazy-loaded library. No upload, no signup, browser-based. |
+  2391→| Related pages | `/image-compressor/`, `/jpg-to-png/`, `/image-resizer/` |
+  2392→
+  2393→**Purpose**  
+  2394→Convert iPhone HEIC images to JPG in browser using a lazy-loaded library.
+  2395→
+  2396→**Required UI**
+  2397→
+  2398→- H1, short description, and privacy note above the working area.
+  2399→- Main input area with clear empty state.
+  2400→- Primary action button and reset/clear option.
+  2401→- Result preview where appropriate.
+  2402→- Copy, download, or export action where appropriate.
+  2403→- Clear error messages for invalid input or unsupported files.
+  2404→- Related tools section using the shared card component.
+  2405→
+  2406→**Browser-only implementation rules**
+  2407→
+  2408→- The tool must not require a backend API.
+  2409→- User input must not be logged to analytics.
+  2410→- Heavy processing must run in a Web Worker when it can block the main thread.
+  2411→- Large file tools must show progress, cancellation, and memory warnings.
+  2412→- Use lazy-loaded libraries so unrelated pages do not download this tool's code.
+  2413→
+  2414→**SEO content requirements**
+  2415→
+  2416→- Explain what the tool does in one short paragraph.
+  2417→- Include a practical “How to use” section.
+  2418→- Include at least three common use cases.
+  2419→- Include a privacy FAQ answer.
+  2420→- Link to the listed related pages.
+  2421→
+  2422→**Acceptance tests**
+  2423→
+  2424→- Page builds statically.
+  2425→- Metadata exists and matches the tool registry.
+  2426→- Tool works on desktop and mobile.
+  2427→- Tool handles empty input and invalid input gracefully.
+  2428→- No tool data is sent outside the browser.
+  2429→- Related links resolve.
+  2430→- Lighthouse performance remains within budget.
+  2431→
+  2432→### 13. AVIF to JPG
+  2433→
+  2434→| Field | Specification |
+  2435→|---|---|
+  2436→| URL | `/avif-to-jpg/` |
+  2437→| Category | Image |
+  2438→| Difficulty | Medium |
+  2439→| Browser-only status | Required |
+  2440→| Primary technology | Canvas, ImageBitmap |
+  2441→| Primary search intent | User wants to complete **avif to jpg** immediately without signing up or uploading data. |
+  2442→| Target keywords | avif to jpg, convert avif to jpg |
+  2443→| SEO title | Free AVIF to JPG - Browser-Based, Private & Fast | Dueneo |
+  2444→| Meta description | Use Dueneo's free avif to jpg to convert AVIF images to JPG where browser support allows. No upload, no signup, browser-based. |
+  2445→| Related pages | `/jpg-to-webp/`, `/png-to-jpg/`, `/image-converter/` |
+  2446→
+  2447→**Purpose**  
+  2448→Convert AVIF images to JPG where browser support allows.
+  2449→
+  2450→**Required UI**
+  2451→
+  2452→- H1, short description, and privacy note above the working area.
+  2453→- Main input area with clear empty state.
+  2454→- Primary action button and reset/clear option.
+  2455→- Result preview where appropriate.
+  2456→- Copy, download, or export action where appropriate.
+  2457→- Clear error messages for invalid input or unsupported files.
+  2458→- Related tools section using the shared card component.
+  2459→
+  2460→**Browser-only implementation rules**
+  2461→
+  2462→- The tool must not require a backend API.
+  2463→- User input must not be logged to analytics.
+  2464→- Heavy processing must run in a Web Worker when it can block the main thread.
+  2465→- Large file tools must show progress, cancellation, and memory warnings.
+  2466→- Use lazy-loaded libraries so unrelated pages do not download this tool's code.
+  2467→
+  2468→**SEO content requirements**
+  2469→
+  2470→- Explain what the tool does in one short paragraph.
+  2471→- Include a practical “How to use” section.
+  2472→- Include at least three common use cases.
+  2473→- Include a privacy FAQ answer.
+  2474→- Link to the listed related pages.
+  2475→
+  2476→**Acceptance tests**
+  2477→
+  2478→- Page builds statically.
+  2479→- Metadata exists and matches the tool registry.
+  2480→- Tool works on desktop and mobile.
+  2481→- Tool handles empty input and invalid input gracefully.
+  2482→- No tool data is sent outside the browser.
+  2483→- Related links resolve.
+  2484→- Lighthouse performance remains within budget.
+  2485→
+  2486→### 14. SVG to PNG
+  2487→
+  2488→| Field | Specification |
+  2489→|---|---|
+  2490→| URL | `/svg-to-png/` |
+  2491→| Category | Image |
+  2492→| Difficulty | Medium |
+  2493→| Browser-only status | Required |
+  2494→| Primary technology | DOMParser, SVG Blob, Canvas |
+  2495→| Primary search intent | User wants to complete **svg to png** immediately without signing up or uploading data. |
+  2496→| Target keywords | svg to png, convert svg to png |
+  2497→| SEO title | Free SVG to PNG - Browser-Based, Private & Fast | Dueneo |
+  2498→| Meta description | Use Dueneo's free svg to png to render SVG to PNG locally. No upload, no signup, browser-based. |
+  2499→| Related pages | `/favicon-generator/`, `/svg-optimizer/`, `/png-to-webp/` |
+  2500→
+  2501→**Purpose**  
+  2502→Render SVG to PNG locally.
+  2503→
+  2504→**Required UI**
+  2505→
+  2506→- H1, short description, and privacy note above the working area.
+  2507→- Main input area with clear empty state.
+  2508→- Primary action button and reset/clear option.
+  2509→- Result preview where appropriate.
+  2510→- Copy, download, or export action where appropriate.
+  2511→- Clear error messages for invalid input or unsupported files.
+  2512→- Related tools section using the shared card component.
+  2513→
+  2514→**Browser-only implementation rules**
+  2515→
+  2516→- The tool must not require a backend API.
+  2517→- User input must not be logged to analytics.
+  2518→- Heavy processing must run in a Web Worker when it can block the main thread.
+  2519→- Large file tools must show progress, cancellation, and memory warnings.
+  2520→- Use lazy-loaded libraries so unrelated pages do not download this tool's code.
+  2521→
+  2522→**SEO content requirements**
+  2523→
+  2524→- Explain what the tool does in one short paragraph.
+  2525→- Include a practical “How to use” section.
+  2526→- Include at least three common use cases.
+  2527→- Include a privacy FAQ answer.
+  2528→- Link to the listed related pages.
+  2529→
+  2530→**Acceptance tests**
+  2531→
+  2532→- Page builds statically.
+  2533→- Metadata exists and matches the tool registry.
+  2534→- Tool works on desktop and mobile.
+  2535→- Tool handles empty input and invalid input gracefully.
+  2536→- No tool data is sent outside the browser.
+  2537→- Related links resolve.
+  2538→- Lighthouse performance remains within budget.
+  2539→
+  2540→### 15. Watermark Image
+  2541→
+  2542→| Field | Specification |
+  2543→|---|---|
+  2544→| URL | `/watermark-image/` |
+  2545→| Category | Image |
+  2546→| Difficulty | Medium |
+  2547→| Browser-only status | Required |
+  2548→| Primary technology | Canvas, font loading |
+  2549→| Primary search intent | User wants to complete **watermark image** immediately without signing up or uploading data. |
+  2550→| Target keywords | watermark image, add watermark to photo |
+  2551→| SEO title | Free Watermark Image - Browser-Based, Private & Fast | Dueneo |
+  2552→| Meta description | Use Dueneo's free watermark image to add text or logo watermark to images. No upload, no signup, browser-based. |
+  2553→| Related pages | `/image-resizer/`, `/add-border-to-image/`, `/crop-image/` |
+  2554→
+  2555→**Purpose**  
+  2556→Add text or logo watermark to images.
+  2557→
+  2558→**Required UI**
+  2559→
+  2560→- H1, short description, and privacy note above the working area.
+  2561→- Main input area with clear empty state.
+  2562→- Primary action button and reset/clear option.
+  2563→- Result preview where appropriate.
+  2564→- Copy, download, or export action where appropriate.
+  2565→- Clear error messages for invalid input or unsupported files.
+  2566→- Related tools section using the shared card component.
+  2567→
+  2568→**Browser-only implementation rules**
+  2569→
+  2570→- The tool must not require a backend API.
+  2571→- User input must not be logged to analytics.
+  2572→- Heavy processing must run in a Web Worker when it can block the main thread.
+  2573→- Large file tools must show progress, cancellation, and memory warnings.
+  2574→- Use lazy-loaded libraries so unrelated pages do not download this tool's code.
+  2575→
+  2576→**SEO content requirements**
+  2577→
+  2578→- Explain what the tool does in one short paragraph.
+  2579→- Include a practical “How to use” section.
+  2580→- Include at least three common use cases.
+  2581→- Include a privacy FAQ answer.
+  2582→- Link to the listed related pages.
+  2583→
+  2584→**Acceptance tests**
+  2585→
+  2586→- Page builds statically.
+  2587→- Metadata exists and matches the tool registry.
+  2588→- Tool works on desktop and mobile.
+  2589→- Tool handles empty input and invalid input gracefully.
+  2590→- No tool data is sent outside the browser.
+  2591→- Related links resolve.
+  2592→- Lighthouse performance remains within budget.
+  2593→
+  2594→### 16. Blur Image
+  2595→
+  2596→| Field | Specification |
+  2597→|---|---|
+  2598→| URL | `/blur-image/` |
+  2599→| Category | Image |
+  2600→| Difficulty | Medium |
+  2601→| Browser-only status | Required |
+  2602→| Primary technology | Canvas filters |
+  2603→| Primary search intent | User wants to complete **blur image** immediately without signing up or uploading data. |
+  2604→| Target keywords | blur image, blur photo, blur picture online |
+  2605→| SEO title | Free Blur Image - Browser-Based, Private & Fast | Dueneo |
+  2606→| Meta description | Use Dueneo's free blur image to apply blur to full image or selected areas. No upload, no signup, browser-based. |
+  2607→| Related pages | `/pixelate-image/`, `/crop-image/`, `/watermark-image/` |
+  2608→
+  2609→**Purpose**  
+  2610→Apply blur to full image or selected areas.
+  2611→
+  2612→**Required UI**
+  2613→
+  2614→- H1, short description, and privacy note above the working area.
+  2615→- Main input area with clear empty state.
+  2616→- Primary action button and reset/clear option.
+  2617→- Result preview where appropriate.
+  2618→- Copy, download, or export action where appropriate.
+  2619→- Clear error messages for invalid input or unsupported files.
+  2620→- Related tools section using the shared card component.
+  2621→
+  2622→**Browser-only implementation rules**
+  2623→
+  2624→- The tool must not require a backend API.
+  2625→- User input must not be logged to analytics.
+  2626→- Heavy processing must run in a Web Worker when it can block the main thread.
+  2627→- Large file tools must show progress, cancellation, and memory warnings.
+  2628→- Use lazy-loaded libraries so unrelated pages do not download this tool's code.
+  2629→
+  2630→**SEO content requirements**
+  2631→
+  2632→- Explain what the tool does in one short paragraph.
+  2633→- Include a practical “How to use” section.
+  2634→- Include at least three common use cases.
+  2635→- Include a privacy FAQ answer.
+  2636→- Link to the listed related pages.
+  2637→
+  2638→**Acceptance tests**
+  2639→
+  2640→- Page builds statically.
+  2641→- Metadata exists and matches the tool registry.
+  2642→- Tool works on desktop and mobile.
+  2643→- Tool handles empty input and invalid input gracefully.
+  2644→- No tool data is sent outside the browser.
+  2645→- Related links resolve.
+  2646→- Lighthouse performance remains within budget.
+  2647→
+  2648→### 17. Pixelate Image
+  2649→
+  2650→| Field | Specification |
+  2651→|---|---|
+  2652→| URL | `/pixelate-image/` |
+  2653→| Category | Image |
+  2654→| Difficulty | Medium |
+  2655→| Browser-only status | Required |
+  2656→| Primary technology | Canvas scaling |
+  2657→| Primary search intent | User wants to complete **pixelate image** immediately without signing up or uploading data. |
+  2658→| Target keywords | pixelate image, pixelate photo, censor image |
+  2659→| SEO title | Free Pixelate Image - Browser-Based, Private & Fast | Dueneo |
+  2660→| Meta description | Use Dueneo's free pixelate image to pixelate full image or selected regions. No upload, no signup, browser-based. |
+  2661→| Related pages | `/blur-image/`, `/crop-image/`, `/image-resizer/` |
+  2662→
+  2663→**Purpose**  
+  2664→Pixelate full image or selected regions.
+  2665→
+  2666→**Required UI**
+  2667→
+  2668→- H1, short description, and privacy note above the working area.
+  2669→- Main input area with clear empty state.
+  2670→- Primary action button and reset/clear option.
+  2671→- Result preview where appropriate.
+  2672→- Copy, download, or export action where appropriate.
+  2673→- Clear error messages for invalid input or unsupported files.
+  2674→- Related tools section using the shared card component.
+  2675→
+  2676→**Browser-only implementation rules**
+  2677→
+  2678→- The tool must not require a backend API.
+  2679→- User input must not be logged to analytics.
+  2680→- Heavy processing must run in a Web Worker when it can block the main thread.
+  2681→- Large file tools must show progress, cancellation, and memory warnings.
+  2682→- Use lazy-loaded libraries so unrelated pages do not download this tool's code.
+  2683→
+  2684→**SEO content requirements**
+  2685→
+  2686→- Explain what the tool does in one short paragraph.
+  2687→- Include a practical “How to use” section.
+  2688→- Include at least three common use cases.
+  2689→- Include a privacy FAQ answer.
+  2690→- Link to the listed related pages.
+  2691→
+  2692→**Acceptance tests**
+  2693→
+  2694→- Page builds statically.
+  2695→- Metadata exists and matches the tool registry.
+  2696→- Tool works on desktop and mobile.
+  2697→- Tool handles empty input and invalid input gracefully.
+  2698→- No tool data is sent outside the browser.
+  2699→- Related links resolve.
+  2700→- Lighthouse performance remains within budget.
+  2701→
+  2702→### 18. Add Border to Image
+  2703→
+  2704→| Field | Specification |
+  2705→|---|---|
+  2706→| URL | `/add-border-to-image/` |
+  2707→| Category | Image |
+  2708→| Difficulty | Easy |
+  2709→| Browser-only status | Required |
+  2710→| Primary technology | Canvas |
+  2711→| Primary search intent | User wants to complete **add border to image** immediately without signing up or uploading data. |
+  2712→| Target keywords | add border to image, photo border online |
+  2713→| SEO title | Free Add Border to Image - Browser-Based, Private & Fast | Dueneo |
+  2714→| Meta description | Use Dueneo's free add border to image to add border, rounded corners, and padding to images. No upload, no signup, browser-based. |
+  2715→| Related pages | `/watermark-image/`, `/image-resizer/`, `/crop-image/` |
+  2716→
+  2717→**Purpose**  
+  2718→Add border, rounded corners, and padding to images.
+  2719→
+  2720→**Required UI**
+  2721→
+  2722→- H1, short description, and privacy note above the working area.
+  2723→- Main input area with clear empty state.
+  2724→- Primary action button and reset/clear option.
+  2725→- Result preview where appropriate.
+  2726→- Copy, download, or export action where appropriate.
+  2727→- Clear error messages for invalid input or unsupported files.
+  2728→- Related tools section using the shared card component.
+  2729→
+  2730→**Browser-only implementation rules**
+  2731→
+  2732→- The tool must not require a backend API.
+  2733→- User input must not be logged to analytics.
+  2734→- Heavy processing must run in a Web Worker when it can block the main thread.
+  2735→- Large file tools must show progress, cancellation, and memory warnings.
+  2736→- Use lazy-loaded libraries so unrelated pages do not download this tool's code.
+  2737→
+  2738→**SEO content requirements**
+  2739→
+  2740→- Explain what the tool does in one short paragraph.
+  2741→- Include a practical “How to use” section.
+  2742→- Include at least three common use cases.
+  2743→- Include a privacy FAQ answer.
+  2744→- Link to the listed related pages.
+  2745→
+  2746→**Acceptance tests**
+  2747→
+  2748→- Page builds statically.
+  2749→- Metadata exists and matches the tool registry.
+  2750→- Tool works on desktop and mobile.
+  2751→- Tool handles empty input and invalid input gracefully.
+  2752→- No tool data is sent outside the browser.
+  2753→- Related links resolve.
+  2754→- Lighthouse performance remains within budget.
+  2755→
+  2756→### 19. Favicon Generator
+  2757→
+  2758→| Field | Specification |
+  2759→|---|---|
+  2760→| URL | `/favicon-generator/` |
+  2761→| Category | Image |
+  2762→| Difficulty | Medium |
+  2763→| Browser-only status | Required |
+  2764→| Primary technology | Canvas, JSZip |
+  2765→| Primary search intent | User wants to complete **favicon generator** immediately without signing up or uploading data. |
+  2766→| Target keywords | favicon generator, generate favicon, ico maker |
+  2767→| SEO title | Free Favicon Generator - Browser-Based, Private & Fast | Dueneo |
+  2768→| Meta description | Use Dueneo's free favicon generator to generate favicon PNG/ICO files from an uploaded image. No upload, no signup, browser-based. |
+  2769→| Related pages | `/svg-to-png/`, `/image-resizer/`, `/png-to-webp/` |
+  2770→
+  2771→**Purpose**  
+  2772→Generate favicon PNG/ICO files from an uploaded image.
+  2773→
+  2774→**Required UI**
+  2775→
+  2776→- H1, short description, and privacy note above the working area.
+  2777→- Main input area with clear empty state.
+  2778→- Primary action button and reset/clear option.
+  2779→- Result preview where appropriate.
+  2780→- Copy, download, or export action where appropriate.
+  2781→- Clear error messages for invalid input or unsupported files.
+  2782→- Related tools section using the shared card component.
+  2783→
+  2784→**Browser-only implementation rules**
+  2785→
+  2786→- The tool must not require a backend API.
+  2787→- User input must not be logged to analytics.
+  2788→- Heavy processing must run in a Web Worker when it can block the main thread.
+  2789→- Large file tools must show progress, cancellation, and memory warnings.
+  2790→- Use lazy-loaded libraries so unrelated pages do not download this tool's code.
+  2791→
+  2792→**SEO content requirements**
+  2793→
+  2794→- Explain what the tool does in one short paragraph.
+  2795→- Include a practical “How to use” section.
+  2796→- Include at least three common use cases.
+  2797→- Include a privacy FAQ answer.
+  2798→- Link to the listed related pages.
+  2799→
+  2800→**Acceptance tests**
+  2801→
+  2802→- Page builds statically.
+  2803→- Metadata exists and matches the tool registry.
+  2804→- Tool works on desktop and mobile.
+  2805→- Tool handles empty input and invalid input gracefully.
+  2806→- No tool data is sent outside the browser.
+  2807→- Related links resolve.
+  2808→- Lighthouse performance remains within budget.
+  2809→
+  2810→### 20. Social Media Image Resizer
+  2811→
+  2812→| Field | Specification |
+  2813→|---|---|
+  2814→| URL | `/social-media-image-resizer/` |
+  2815→| Category | Image |
+  2816→| Difficulty | Medium |
+  2817→| Browser-only status | Required |
+  2818→| Primary technology | Canvas, preset registry |
+  2819→| Primary search intent | User wants to complete **social media image resizer** immediately without signing up or uploading data. |
+  2820→| Target keywords | social media image resizer, resize image for instagram, youtube thumbnail resizer |
+  2821→| SEO title | Free Social Media Image Resizer - Browser-Based, Private & Fast | Dueneo |
+  2822→| Meta description | Use Dueneo's free social media image resizer to resize images for social media presets and thumbnails. No upload, no signup, browser-based. |
+  2823→| Related pages | `/image-resizer/`, `/image-compressor/`, `/crop-image/` |
+  2824→
+  2825→**Purpose**  
+  2826→Resize images for social media presets and thumbnails.
+  2827→
+  2828→**Required UI**
+  2829→
+  2830→- H1, short description, and privacy note above the working area.
+  2831→- Main input area with clear empty state.
+  2832→- Primary action button and reset/clear option.
+  2833→- Result preview where appropriate.
+  2834→- Copy, download, or export action where appropriate.
+  2835→- Clear error messages for invalid input or unsupported files.
+  2836→- Related tools section using the shared card component.
+  2837→
+  2838→**Browser-only implementation rules**
+  2839→
+  2840→- The tool must not require a backend API.
+  2841→- User input must not be logged to analytics.
+  2842→- Heavy processing must run in a Web Worker when it can block the main thread.
+  2843→- Large file tools must show progress, cancellation, and memory warnings.
+  2844→- Use lazy-loaded libraries so unrelated pages do not download this tool's code.
+  2845→
+  2846→**SEO content requirements**
+  2847→
+  2848→- Explain what the tool does in one short paragraph.
+  2849→- Include a practical “How to use” section.
+  2850→- Include at least three common use cases.
+  2851→- Include a privacy FAQ answer.
+  2852→- Link to the listed related pages.
+  2853→
+  2854→**Acceptance tests**
+  2855→
+  2856→- Page builds statically.
+  2857→- Metadata exists and matches the tool registry.
+  2858→- Tool works on desktop and mobile.
+  2859→- Tool handles empty input and invalid input gracefully.
+  2860→- No tool data is sent outside the browser.
+  2861→- Related links resolve.
+  2862→- Lighthouse performance remains within budget.
+  2863→
+  2864→## Pdf Tools
+  2865→
+  2866→PDF tools are high-intent tools but must be implemented carefully because large PDFs can be slow on low-end devices. Every heavy PDF operation should use a Web Worker.
+  2867→
+  2868→### 21. PDF Merge
+  2869→
+  2870→| Field | Specification |
+  2871→|---|---|
+  2872→| URL | `/pdf-merge/` |
+  2873→| Category | Pdf |
+  2874→| Difficulty | Hard |
+  2875→| Browser-only status | Required |
+  2876→| Primary technology | pdf-lib, Web Worker |
+  2877→| Primary search intent | User wants to complete **pdf merge** immediately without signing up or uploading data. |
+  2878→| Target keywords | merge pdf, combine pdf, pdf merger |
+  2879→| SEO title | Free PDF Merge - Browser-Based, Private & Fast | Dueneo |
+  2880→| Meta description | Use Dueneo's free pdf merge to merge multiple PDF files locally. No upload, no signup, browser-based. |
+  2881→| Related pages | `/pdf-split/`, `/rearrange-pdf-pages/`, `/image-to-pdf/` |
+  2882→
+  2883→**Purpose**  
+  2884→Merge multiple PDF files locally.
+  2885→
+  2886→**Required UI**
+  2887→
+  2888→- H1, short description, and privacy note above the working area.
+  2889→- Main input area with clear empty state.
+  2890→- Primary action button and reset/clear option.
+  2891→- Result preview where appropriate.
+  2892→- Copy, download, or export action where appropriate.
+  2893→- Clear error messages for invalid input or unsupported files.
+  2894→- Related tools section using the shared card component.
+  2895→
+  2896→**Browser-only implementation rules**
+  2897→
+  2898→- The tool must not require a backend API.
+  2899→- User input must not be logged to analytics.
+  2900→- Heavy processing must run in a Web Worker when it can block the main thread.
+  2901→- Large file tools must show progress, cancellation, and memory warnings.
+  2902→- Use lazy-loaded libraries so unrelated pages do not download this tool's code.
+  2903→
+  2904→**SEO content requirements**
+  2905→
+  2906→- Explain what the tool does in one short paragraph.
+  2907→- Include a practical “How to use” section.
+  2908→- Include at least three common use cases.
+  2909→- Include a privacy FAQ answer.
+  2910→- Link to the listed related pages.
+  2911→
+  2912→**Acceptance tests**
+  2913→
+  2914→- Page builds statically.
+  2915→- Metadata exists and matches the tool registry.
+  2916→- Tool works on desktop and mobile.
+  2917→- Tool handles empty input and invalid input gracefully.
+  2918→- No tool data is sent outside the browser.
+  2919→- Related links resolve.
+  2920→- Lighthouse performance remains within budget.
+  2921→
+  2922→### 22. PDF Split
+  2923→
+  2924→| Field | Specification |
+  2925→|---|---|
+  2926→| URL | `/pdf-split/` |
+  2927→| Category | Pdf |
+  2928→| Difficulty | Hard |
+  2929→| Browser-only status | Required |
+  2930→| Primary technology | pdf-lib, pdf.js, Web Worker |
+  2931→| Primary search intent | User wants to complete **pdf split** immediately without signing up or uploading data. |
+  2932→| Target keywords | split pdf, separate pdf pages, extract pdf |
+  2933→| SEO title | Free PDF Split - Browser-Based, Private & Fast | Dueneo |
+  2934→| Meta description | Use Dueneo's free pdf split to split PDF into ranges or individual pages. No upload, no signup, browser-based. |
+  2935→| Related pages | `/pdf-merge/`, `/extract-pdf-pages/`, `/delete-pdf-pages/` |
+  2936→
+  2937→**Purpose**  
+  2938→Split PDF into ranges or individual pages.
+  2939→
+  2940→**Required UI**
+  2941→
+  2942→- H1, short description, and privacy note above the working area.
+  2943→- Main input area with clear empty state.
+  2944→- Primary action button and reset/clear option.
+  2945→- Result preview where appropriate.
+  2946→- Copy, download, or export action where appropriate.
+  2947→- Clear error messages for invalid input or unsupported files.
+  2948→- Related tools section using the shared card component.
+  2949→
+  2950→**Browser-only implementation rules**
+  2951→
+  2952→- The tool must not require a backend API.
+  2953→- User input must not be logged to analytics.
+  2954→- Heavy processing must run in a Web Worker when it can block the main thread.
+  2955→- Large file tools must show progress, cancellation, and memory warnings.
+  2956→- Use lazy-loaded libraries so unrelated pages do not download this tool's code.
+  2957→
+  2958→**SEO content requirements**
+  2959→
+  2960→- Explain what the tool does in one short paragraph.
+  2961→- Include a practical “How to use” section.
+  2962→- Include at least three common use cases.
+  2963→- Include a privacy FAQ answer.
+  2964→- Link to the listed related pages.
+  2965→
+  2966→**Acceptance tests**
+  2967→
+  2968→- Page builds statically.
+  2969→- Metadata exists and matches the tool registry.
+  2970→- Tool works on desktop and mobile.
+  2971→- Tool handles empty input and invalid input gracefully.
+  2972→- No tool data is sent outside the browser.
+  2973→- Related links resolve.
+  2974→- Lighthouse performance remains within budget.
+  2975→
+  2976→### 23. PDF Compress
+  2977→
+  2978→| Field | Specification |
+  2979→|---|---|
+  2980→| URL | `/pdf-compress/` |
+  2981→| Category | Pdf |
+  2982→| Difficulty | Hard |
+  2983→| Browser-only status | Required |
+  2984→| Primary technology | pdf-lib, pdf.js, image recompression |
+  2985→| Primary search intent | User wants to complete **pdf compress** immediately without signing up or uploading data. |
+  2986→| Target keywords | compress pdf, reduce pdf size, pdf compressor |
+  2987→| SEO title | Free PDF Compress - Browser-Based, Private & Fast | Dueneo |
+  2988→| Meta description | Use Dueneo's free pdf compress to compress PDF with browser-only methods where possible. No upload, no signup, browser-based. |
+  2989→| Related pages | `/pdf-merge/`, `/image-to-pdf/`, `/pdf-to-jpg/` |
+  2990→
+  2991→**Purpose**  
+  2992→Compress PDF with browser-only methods where possible.
+  2993→
+  2994→**Required UI**
+  2995→
+  2996→- H1, short description, and privacy note above the working area.
+  2997→- Main input area with clear empty state.
+  2998→- Primary action button and reset/clear option.
+  2999→- Result preview where appropriate.
+
+[showing lines 2300-2999 of 8227; use offset=3000 with limit to continue reading]

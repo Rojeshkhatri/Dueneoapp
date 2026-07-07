@@ -1,0 +1,702 @@
+  1600→```
+  1601→
+  1602→---
+  1603→
+  1604→# 18. Accessibility Standards
+  1605→
+  1606→Every page must support:
+  1607→
+  1608→- Keyboard navigation.
+  1609→- Visible focus states.
+  1610→- Semantic headings.
+  1611→- Form labels.
+  1612→- ARIA only where necessary.
+  1613→- Color contrast.
+  1614→- Mobile zoom.
+  1615→- Screen-reader-friendly button labels.
+  1616→
+  1617→Games must include:
+  1618→
+  1619→- Keyboard controls where possible.
+  1620→- Clear controls list.
+  1621→- Pause/restart controls.
+  1622→- Non-color-only state indicators where possible.
+  1623→
+  1624→---
+  1625→
+  1626→# 19. Security and Privacy
+  1627→
+  1628→## 19.1 Content Security Policy
+  1629→
+  1630→Recommended starting CSP:
+  1631→
+  1632→```text
+  1633→default-src 'self';
+  1634→script-src 'self' https://pagead2.googlesyndication.com https://www.googletagservices.com https://*.media.net;
+  1635→style-src 'self' 'unsafe-inline';
+  1636→img-src 'self' data: blob: https:;
+  1637→font-src 'self' data:;
+  1638→connect-src 'self' https://*.google.com https://*.googlesyndication.com https://*.media.net https://api.indexnow.org;
+  1639→worker-src 'self' blob:;
+  1640→object-src 'none';
+  1641→base-uri 'self';
+  1642→frame-ancestors 'self';
+  1643→```
+  1644→
+  1645→CSP must be tested with actual ad and analytics providers before enforcing.
+  1646→
+  1647→## 19.2 Secrets
+  1648→
+  1649→Never expose:
+  1650→
+  1651→- API keys.
+  1652→- Cloudflare tokens.
+  1653→- GitHub tokens.
+  1654→- Ad network account secrets.
+  1655→- IndexNow private control beyond public key file requirements.
+  1656→
+  1657→## 19.3 Sensitive tools
+  1658→
+  1659→Sensitive pages must avoid unnecessary scripts when possible:
+  1660→
+  1661→- Password Generator.
+  1662→- Password Strength Checker.
+  1663→- JWT Decoder.
+  1664→- Hash tools.
+  1665→
+  1666→For these pages, consider reduced analytics and reduced ads if privacy/trust is more important than revenue.
+  1667→
+  1668→---
+  1669→
+  1670→# 20. Top 100 Tools Registry
+  1671→
+  1672→| # | Tool | Category | URL | Difficulty | Browser-only |
+  1673→|---:|---|---|---|---|---|
+  1674→| 1 | Image Compressor | Image | `/image-compressor/` | Medium | Required |
+  1675→| 2 | Image Resizer | Image | `/image-resizer/` | Medium | Required |
+  1676→| 3 | Crop Image | Image | `/crop-image/` | Medium | Required |
+  1677→| 4 | Rotate Image | Image | `/rotate-image/` | Easy | Required |
+  1678→| 5 | Flip Image | Image | `/flip-image/` | Easy | Required |
+  1679→| 6 | JPG to PNG | Image | `/jpg-to-png/` | Easy | Required |
+  1680→| 7 | PNG to JPG | Image | `/png-to-jpg/` | Easy | Required |
+  1681→| 8 | PNG to WebP | Image | `/png-to-webp/` | Easy | Required |
+  1682→| 9 | WebP to PNG | Image | `/webp-to-png/` | Easy | Required |
+  1683→| 10 | JPG to WebP | Image | `/jpg-to-webp/` | Easy | Required |
+  1684→| 11 | WebP to JPG | Image | `/webp-to-jpg/` | Easy | Required |
+  1685→| 12 | HEIC to JPG | Image | `/heic-to-jpg/` | Hard | Required |
+  1686→| 13 | AVIF to JPG | Image | `/avif-to-jpg/` | Medium | Required |
+  1687→| 14 | SVG to PNG | Image | `/svg-to-png/` | Medium | Required |
+  1688→| 15 | Watermark Image | Image | `/watermark-image/` | Medium | Required |
+  1689→| 16 | Blur Image | Image | `/blur-image/` | Medium | Required |
+  1690→| 17 | Pixelate Image | Image | `/pixelate-image/` | Medium | Required |
+  1691→| 18 | Add Border to Image | Image | `/add-border-to-image/` | Easy | Required |
+  1692→| 19 | Favicon Generator | Image | `/favicon-generator/` | Medium | Required |
+  1693→| 20 | Social Media Image Resizer | Image | `/social-media-image-resizer/` | Medium | Required |
+  1694→| 21 | PDF Merge | Pdf | `/pdf-merge/` | Hard | Required |
+  1695→| 22 | PDF Split | Pdf | `/pdf-split/` | Hard | Required |
+  1696→| 23 | PDF Compress | Pdf | `/pdf-compress/` | Hard | Required |
+  1697→| 24 | Rotate PDF | Pdf | `/rotate-pdf/` | Medium | Required |
+  1698→| 25 | Delete PDF Pages | Pdf | `/delete-pdf-pages/` | Medium | Required |
+  1699→| 26 | Extract PDF Pages | Pdf | `/extract-pdf-pages/` | Medium | Required |
+  1700→| 27 | Rearrange PDF Pages | Pdf | `/rearrange-pdf-pages/` | Hard | Required |
+  1701→| 28 | Image to PDF | Pdf | `/image-to-pdf/` | Medium | Required |
+  1702→| 29 | PDF to JPG | Pdf | `/pdf-to-jpg/` | Hard | Required |
+  1703→| 30 | JPG to PDF | Pdf | `/jpg-to-pdf/` | Medium | Required |
+  1704→| 31 | PNG to PDF | Pdf | `/png-to-pdf/` | Medium | Required |
+  1705→| 32 | Watermark PDF | Pdf | `/watermark-pdf/` | Hard | Required |
+  1706→| 33 | Add Page Numbers to PDF | Pdf | `/add-page-numbers-to-pdf/` | Medium | Required |
+  1707→| 34 | PDF Metadata Viewer | Pdf | `/pdf-metadata-viewer/` | Medium | Required |
+  1708→| 35 | Password Protect PDF | Pdf | `/password-protect-pdf/` | Hard | Required |
+  1709→| 36 | JSON Formatter | Developer | `/json-formatter/` | Easy | Required |
+  1710→| 37 | JSON Validator | Developer | `/json-validator/` | Easy | Required |
+  1711→| 38 | JSON Minifier | Developer | `/json-minifier/` | Easy | Required |
+  1712→| 39 | XML Formatter | Developer | `/xml-formatter/` | Medium | Required |
+  1713→| 40 | YAML Formatter | Developer | `/yaml-formatter/` | Medium | Required |
+  1714→| 41 | CSV to JSON | Developer | `/csv-to-json/` | Easy | Required |
+  1715→| 42 | JSON to CSV | Developer | `/json-to-csv/` | Easy | Required |
+  1716→| 43 | CSV to Excel | Developer | `/csv-to-excel/` | Medium | Required |
+  1717→| 44 | Excel to CSV | Developer | `/excel-to-csv/` | Medium | Required |
+  1718→| 45 | Base64 Encoder | Developer | `/base64-encoder/` | Easy | Required |
+  1719→| 46 | Base64 Decoder | Developer | `/base64-decoder/` | Easy | Required |
+  1720→| 47 | URL Encoder | Developer | `/url-encoder/` | Easy | Required |
+  1721→| 48 | URL Decoder | Developer | `/url-decoder/` | Easy | Required |
+  1722→| 49 | HTML Escape | Developer | `/html-escape/` | Easy | Required |
+  1723→| 50 | JWT Decoder | Security | `/jwt-decoder/` | Medium | Required |
+  1724→| 51 | Regex Tester | Developer | `/regex-tester/` | Medium | Required |
+  1725→| 52 | Diff Checker | Developer | `/diff-checker/` | Medium | Required |
+  1726→| 53 | Unix Timestamp Converter | Developer | `/unix-timestamp-converter/` | Easy | Required |
+  1727→| 54 | Cron Expression Builder | Developer | `/cron-expression-builder/` | Medium | Required |
+  1728→| 55 | UUID Generator | Security | `/uuid-generator/` | Easy | Required |
+  1729→| 56 | Password Generator | Security | `/password-generator/` | Easy | Required |
+  1730→| 57 | Password Strength Checker | Security | `/password-strength-checker/` | Medium | Required |
+  1731→| 58 | SHA-256 Generator | Security | `/sha256-generator/` | Easy | Required |
+  1732→| 59 | MD5 Generator | Security | `/md5-generator/` | Easy | Required |
+  1733→| 60 | QR Code Generator | Utility | `/qr-code-generator/` | Easy | Required |
+  1734→| 61 | Word Counter | Text | `/word-counter/` | Easy | Required |
+  1735→| 62 | Character Counter | Text | `/character-counter/` | Easy | Required |
+  1736→| 63 | Sentence Counter | Text | `/sentence-counter/` | Easy | Required |
+  1737→| 64 | Reading Time Calculator | Text | `/reading-time-calculator/` | Easy | Required |
+  1738→| 65 | Case Converter | Text | `/case-converter/` | Easy | Required |
+  1739→| 66 | Remove Duplicate Lines | Text | `/remove-duplicate-lines/` | Easy | Required |
+  1740→| 67 | Sort Lines | Text | `/sort-lines/` | Easy | Required |
+  1741→| 68 | Reverse Text | Text | `/reverse-text/` | Easy | Required |
+  1742→| 69 | Remove Empty Lines | Text | `/remove-empty-lines/` | Easy | Required |
+  1743→| 70 | Remove Extra Spaces | Text | `/remove-extra-spaces/` | Easy | Required |
+  1744→| 71 | Find and Replace | Text | `/find-and-replace/` | Medium | Required |
+  1745→| 72 | Slug Generator | Text | `/slug-generator/` | Easy | Required |
+  1746→| 73 | Lorem Ipsum Generator | Text | `/lorem-ipsum-generator/` | Easy | Required |
+  1747→| 74 | Markdown Previewer | Text | `/markdown-previewer/` | Medium | Required |
+  1748→| 75 | Text Cleaner | Text | `/text-cleaner/` | Medium | Required |
+  1749→| 76 | Invoice Generator | Business | `/invoice-generator/` | Hard | Required |
+  1750→| 77 | Quote Generator | Business | `/quote-generator/` | Hard | Required |
+  1751→| 78 | Receipt Generator | Business | `/receipt-generator/` | Hard | Required |
+  1752→| 79 | Purchase Order Generator | Business | `/purchase-order-generator/` | Hard | Required |
+  1753→| 80 | Delivery Note Generator | Business | `/delivery-note-generator/` | Medium | Required |
+  1754→| 81 | GST Calculator | Finance | `/gst-calculator/` | Easy | Required |
+  1755→| 82 | VAT Calculator | Finance | `/vat-calculator/` | Easy | Required |
+  1756→| 83 | Sales Tax Calculator | Finance | `/sales-tax-calculator/` | Easy | Required |
+  1757→| 84 | Discount Calculator | Finance | `/discount-calculator/` | Easy | Required |
+  1758→| 85 | Profit Margin Calculator | Finance | `/profit-margin-calculator/` | Easy | Required |
+  1759→| 86 | Markup Calculator | Finance | `/markup-calculator/` | Easy | Required |
+  1760→| 87 | Compound Interest Calculator | Finance | `/compound-interest-calculator/` | Medium | Required |
+  1761→| 88 | Loan Calculator | Finance | `/loan-calculator/` | Medium | Required |
+  1762→| 89 | Mortgage Calculator | Finance | `/mortgage-calculator/` | Medium | Required |
+  1763→| 90 | Percentage Calculator | Finance | `/percentage-calculator/` | Easy | Required |
+  1764→| 91 | Color Picker | Design | `/color-picker/` | Easy | Required |
+  1765→| 92 | Color Palette Generator | Design | `/color-palette-generator/` | Medium | Required |
+  1766→| 93 | CSS Gradient Generator | Design | `/css-gradient-generator/` | Medium | Required |
+  1767→| 94 | Contrast Checker | Design | `/contrast-checker/` | Easy | Required |
+  1768→| 95 | SVG Optimizer | Design | `/svg-optimizer/` | Medium | Required |
+  1769→| 96 | Meta Tag Generator | Seo | `/meta-tag-generator/` | Easy | Required |
+  1770→| 97 | Open Graph Generator | Seo | `/open-graph-generator/` | Easy | Required |
+  1771→| 98 | robots.txt Generator | Seo | `/robots-txt-generator/` | Easy | Required |
+  1772→| 99 | Sitemap Generator | Seo | `/sitemap-generator/` | Easy | Required |
+  1773→| 100 | Unit Converter | Utility | `/unit-converter/` | Medium | Required |
+  1774→
+  1775→---
+  1776→
+  1777→# 21. Detailed Tool Specifications
+  1778→
+  1779→
+  1780→## Image Tools
+  1781→
+  1782→Image tools are among Dueneo's most important SEO categories because they solve common file-preparation problems and can be performed privately with Canvas/WebAssembly.
+  1783→
+  1784→### 1. Image Compressor
+  1785→
+  1786→| Field | Specification |
+  1787→|---|---|
+  1788→| URL | `/image-compressor/` |
+  1789→| Category | Image |
+  1790→| Difficulty | Medium |
+  1791→| Browser-only status | Required |
+  1792→| Primary technology | Canvas, OffscreenCanvas, Web Worker, browser-image-compression |
+  1793→| Primary search intent | User wants to complete **image compressor** immediately without signing up or uploading data. |
+  1794→| Target keywords | image compressor, compress image online, reduce image size, compress jpg, compress png |
+  1795→| SEO title | Free Image Compressor - Browser-Based, Private & Fast | Dueneo |
+  1796→| Meta description | Use Dueneo's free image compressor to compress JPG, PNG, WebP, AVIF images locally in the browser. No upload, no signup, browser-based. |
+  1797→| Related pages | `/image-resizer/`, `/png-to-webp/`, `/jpg-to-png/`, `/social-media-image-resizer/` |
+  1798→
+  1799→**Purpose**  
+  1800→Compress JPG, PNG, WebP, AVIF images locally in the browser.
+  1801→
+  1802→**Required UI**
+  1803→
+  1804→- H1, short description, and privacy note above the working area.
+  1805→- Main input area with clear empty state.
+  1806→- Primary action button and reset/clear option.
+  1807→- Result preview where appropriate.
+  1808→- Copy, download, or export action where appropriate.
+  1809→- Clear error messages for invalid input or unsupported files.
+  1810→- Related tools section using the shared card component.
+  1811→
+  1812→**Browser-only implementation rules**
+  1813→
+  1814→- The tool must not require a backend API.
+  1815→- User input must not be logged to analytics.
+  1816→- Heavy processing must run in a Web Worker when it can block the main thread.
+  1817→- Large file tools must show progress, cancellation, and memory warnings.
+  1818→- Use lazy-loaded libraries so unrelated pages do not download this tool's code.
+  1819→
+  1820→**SEO content requirements**
+  1821→
+  1822→- Explain what the tool does in one short paragraph.
+  1823→- Include a practical “How to use” section.
+  1824→- Include at least three common use cases.
+  1825→- Include a privacy FAQ answer.
+  1826→- Link to the listed related pages.
+  1827→
+  1828→**Acceptance tests**
+  1829→
+  1830→- Page builds statically.
+  1831→- Metadata exists and matches the tool registry.
+  1832→- Tool works on desktop and mobile.
+  1833→- Tool handles empty input and invalid input gracefully.
+  1834→- No tool data is sent outside the browser.
+  1835→- Related links resolve.
+  1836→- Lighthouse performance remains within budget.
+  1837→
+  1838→### 2. Image Resizer
+  1839→
+  1840→| Field | Specification |
+  1841→|---|---|
+  1842→| URL | `/image-resizer/` |
+  1843→| Category | Image |
+  1844→| Difficulty | Medium |
+  1845→| Browser-only status | Required |
+  1846→| Primary technology | Canvas, pica, OffscreenCanvas |
+  1847→| Primary search intent | User wants to complete **image resizer** immediately without signing up or uploading data. |
+  1848→| Target keywords | image resizer, resize image online, resize jpg, resize png, image dimensions |
+  1849→| SEO title | Free Image Resizer - Browser-Based, Private & Fast | Dueneo |
+  1850→| Meta description | Use Dueneo's free image resizer to resize images by pixels, percentage, aspect ratio, or preset dimensions. No upload, no signup, browser-based. |
+  1851→| Related pages | `/image-compressor/`, `/crop-image/`, `/social-media-image-resizer/`, `/favicon-generator/` |
+  1852→
+  1853→**Purpose**  
+  1854→Resize images by pixels, percentage, aspect ratio, or preset dimensions.
+  1855→
+  1856→**Required UI**
+  1857→
+  1858→- H1, short description, and privacy note above the working area.
+  1859→- Main input area with clear empty state.
+  1860→- Primary action button and reset/clear option.
+  1861→- Result preview where appropriate.
+  1862→- Copy, download, or export action where appropriate.
+  1863→- Clear error messages for invalid input or unsupported files.
+  1864→- Related tools section using the shared card component.
+  1865→
+  1866→**Browser-only implementation rules**
+  1867→
+  1868→- The tool must not require a backend API.
+  1869→- User input must not be logged to analytics.
+  1870→- Heavy processing must run in a Web Worker when it can block the main thread.
+  1871→- Large file tools must show progress, cancellation, and memory warnings.
+  1872→- Use lazy-loaded libraries so unrelated pages do not download this tool's code.
+  1873→
+  1874→**SEO content requirements**
+  1875→
+  1876→- Explain what the tool does in one short paragraph.
+  1877→- Include a practical “How to use” section.
+  1878→- Include at least three common use cases.
+  1879→- Include a privacy FAQ answer.
+  1880→- Link to the listed related pages.
+  1881→
+  1882→**Acceptance tests**
+  1883→
+  1884→- Page builds statically.
+  1885→- Metadata exists and matches the tool registry.
+  1886→- Tool works on desktop and mobile.
+  1887→- Tool handles empty input and invalid input gracefully.
+  1888→- No tool data is sent outside the browser.
+  1889→- Related links resolve.
+  1890→- Lighthouse performance remains within budget.
+  1891→
+  1892→### 3. Crop Image
+  1893→
+  1894→| Field | Specification |
+  1895→|---|---|
+  1896→| URL | `/crop-image/` |
+  1897→| Category | Image |
+  1898→| Difficulty | Medium |
+  1899→| Browser-only status | Required |
+  1900→| Primary technology | Canvas, pointer events, optional Cropper.js |
+  1901→| Primary search intent | User wants to complete **crop image** immediately without signing up or uploading data. |
+  1902→| Target keywords | crop image online, image cropper, crop photo, crop picture |
+  1903→| SEO title | Free Crop Image - Browser-Based, Private & Fast | Dueneo |
+  1904→| Meta description | Use Dueneo's free crop image to crop images with drag handles and export locally. No upload, no signup, browser-based. |
+  1905→| Related pages | `/image-resizer/`, `/rotate-image/`, `/watermark-image/` |
+  1906→
+  1907→**Purpose**  
+  1908→Crop images with drag handles and export locally.
+  1909→
+  1910→**Required UI**
+  1911→
+  1912→- H1, short description, and privacy note above the working area.
+  1913→- Main input area with clear empty state.
+  1914→- Primary action button and reset/clear option.
+  1915→- Result preview where appropriate.
+  1916→- Copy, download, or export action where appropriate.
+  1917→- Clear error messages for invalid input or unsupported files.
+  1918→- Related tools section using the shared card component.
+  1919→
+  1920→**Browser-only implementation rules**
+  1921→
+  1922→- The tool must not require a backend API.
+  1923→- User input must not be logged to analytics.
+  1924→- Heavy processing must run in a Web Worker when it can block the main thread.
+  1925→- Large file tools must show progress, cancellation, and memory warnings.
+  1926→- Use lazy-loaded libraries so unrelated pages do not download this tool's code.
+  1927→
+  1928→**SEO content requirements**
+  1929→
+  1930→- Explain what the tool does in one short paragraph.
+  1931→- Include a practical “How to use” section.
+  1932→- Include at least three common use cases.
+  1933→- Include a privacy FAQ answer.
+  1934→- Link to the listed related pages.
+  1935→
+  1936→**Acceptance tests**
+  1937→
+  1938→- Page builds statically.
+  1939→- Metadata exists and matches the tool registry.
+  1940→- Tool works on desktop and mobile.
+  1941→- Tool handles empty input and invalid input gracefully.
+  1942→- No tool data is sent outside the browser.
+  1943→- Related links resolve.
+  1944→- Lighthouse performance remains within budget.
+  1945→
+  1946→### 4. Rotate Image
+  1947→
+  1948→| Field | Specification |
+  1949→|---|---|
+  1950→| URL | `/rotate-image/` |
+  1951→| Category | Image |
+  1952→| Difficulty | Easy |
+  1953→| Browser-only status | Required |
+  1954→| Primary technology | Canvas |
+  1955→| Primary search intent | User wants to complete **rotate image** immediately without signing up or uploading data. |
+  1956→| Target keywords | rotate image, rotate jpg, rotate png, flip image |
+  1957→| SEO title | Free Rotate Image - Browser-Based, Private & Fast | Dueneo |
+  1958→| Meta description | Use Dueneo's free rotate image to rotate images 90, 180, 270 degrees or custom angles. No upload, no signup, browser-based. |
+  1959→| Related pages | `/flip-image/`, `/crop-image/`, `/image-resizer/` |
+  1960→
+  1961→**Purpose**  
+  1962→Rotate images 90, 180, 270 degrees or custom angles.
+  1963→
+  1964→**Required UI**
+  1965→
+  1966→- H1, short description, and privacy note above the working area.
+  1967→- Main input area with clear empty state.
+  1968→- Primary action button and reset/clear option.
+  1969→- Result preview where appropriate.
+  1970→- Copy, download, or export action where appropriate.
+  1971→- Clear error messages for invalid input or unsupported files.
+  1972→- Related tools section using the shared card component.
+  1973→
+  1974→**Browser-only implementation rules**
+  1975→
+  1976→- The tool must not require a backend API.
+  1977→- User input must not be logged to analytics.
+  1978→- Heavy processing must run in a Web Worker when it can block the main thread.
+  1979→- Large file tools must show progress, cancellation, and memory warnings.
+  1980→- Use lazy-loaded libraries so unrelated pages do not download this tool's code.
+  1981→
+  1982→**SEO content requirements**
+  1983→
+  1984→- Explain what the tool does in one short paragraph.
+  1985→- Include a practical “How to use” section.
+  1986→- Include at least three common use cases.
+  1987→- Include a privacy FAQ answer.
+  1988→- Link to the listed related pages.
+  1989→
+  1990→**Acceptance tests**
+  1991→
+  1992→- Page builds statically.
+  1993→- Metadata exists and matches the tool registry.
+  1994→- Tool works on desktop and mobile.
+  1995→- Tool handles empty input and invalid input gracefully.
+  1996→- No tool data is sent outside the browser.
+  1997→- Related links resolve.
+  1998→- Lighthouse performance remains within budget.
+  1999→
+  2000→### 5. Flip Image
+  2001→
+  2002→| Field | Specification |
+  2003→|---|---|
+  2004→| URL | `/flip-image/` |
+  2005→| Category | Image |
+  2006→| Difficulty | Easy |
+  2007→| Browser-only status | Required |
+  2008→| Primary technology | Canvas |
+  2009→| Primary search intent | User wants to complete **flip image** immediately without signing up or uploading data. |
+  2010→| Target keywords | flip image, mirror image, flip photo online |
+  2011→| SEO title | Free Flip Image - Browser-Based, Private & Fast | Dueneo |
+  2012→| Meta description | Use Dueneo's free flip image to flip images horizontally or vertically. No upload, no signup, browser-based. |
+  2013→| Related pages | `/rotate-image/`, `/crop-image/`, `/image-resizer/` |
+  2014→
+  2015→**Purpose**  
+  2016→Flip images horizontally or vertically.
+  2017→
+  2018→**Required UI**
+  2019→
+  2020→- H1, short description, and privacy note above the working area.
+  2021→- Main input area with clear empty state.
+  2022→- Primary action button and reset/clear option.
+  2023→- Result preview where appropriate.
+  2024→- Copy, download, or export action where appropriate.
+  2025→- Clear error messages for invalid input or unsupported files.
+  2026→- Related tools section using the shared card component.
+  2027→
+  2028→**Browser-only implementation rules**
+  2029→
+  2030→- The tool must not require a backend API.
+  2031→- User input must not be logged to analytics.
+  2032→- Heavy processing must run in a Web Worker when it can block the main thread.
+  2033→- Large file tools must show progress, cancellation, and memory warnings.
+  2034→- Use lazy-loaded libraries so unrelated pages do not download this tool's code.
+  2035→
+  2036→**SEO content requirements**
+  2037→
+  2038→- Explain what the tool does in one short paragraph.
+  2039→- Include a practical “How to use” section.
+  2040→- Include at least three common use cases.
+  2041→- Include a privacy FAQ answer.
+  2042→- Link to the listed related pages.
+  2043→
+  2044→**Acceptance tests**
+  2045→
+  2046→- Page builds statically.
+  2047→- Metadata exists and matches the tool registry.
+  2048→- Tool works on desktop and mobile.
+  2049→- Tool handles empty input and invalid input gracefully.
+  2050→- No tool data is sent outside the browser.
+  2051→- Related links resolve.
+  2052→- Lighthouse performance remains within budget.
+  2053→
+  2054→### 6. JPG to PNG
+  2055→
+  2056→| Field | Specification |
+  2057→|---|---|
+  2058→| URL | `/jpg-to-png/` |
+  2059→| Category | Image |
+  2060→| Difficulty | Easy |
+  2061→| Browser-only status | Required |
+  2062→| Primary technology | Canvas, toBlob |
+  2063→| Primary search intent | User wants to complete **jpg to png** immediately without signing up or uploading data. |
+  2064→| Target keywords | jpg to png, convert jpg to png, jpeg to png |
+  2065→| SEO title | Free JPG to PNG - Browser-Based, Private & Fast | Dueneo |
+  2066→| Meta description | Use Dueneo's free jpg to png to convert JPG images to PNG in the browser. No upload, no signup, browser-based. |
+  2067→| Related pages | `/png-to-jpg/`, `/jpg-to-webp/`, `/image-converter/` |
+  2068→
+  2069→**Purpose**  
+  2070→Convert JPG images to PNG in the browser.
+  2071→
+  2072→**Required UI**
+  2073→
+  2074→- H1, short description, and privacy note above the working area.
+  2075→- Main input area with clear empty state.
+  2076→- Primary action button and reset/clear option.
+  2077→- Result preview where appropriate.
+  2078→- Copy, download, or export action where appropriate.
+  2079→- Clear error messages for invalid input or unsupported files.
+  2080→- Related tools section using the shared card component.
+  2081→
+  2082→**Browser-only implementation rules**
+  2083→
+  2084→- The tool must not require a backend API.
+  2085→- User input must not be logged to analytics.
+  2086→- Heavy processing must run in a Web Worker when it can block the main thread.
+  2087→- Large file tools must show progress, cancellation, and memory warnings.
+  2088→- Use lazy-loaded libraries so unrelated pages do not download this tool's code.
+  2089→
+  2090→**SEO content requirements**
+  2091→
+  2092→- Explain what the tool does in one short paragraph.
+  2093→- Include a practical “How to use” section.
+  2094→- Include at least three common use cases.
+  2095→- Include a privacy FAQ answer.
+  2096→- Link to the listed related pages.
+  2097→
+  2098→**Acceptance tests**
+  2099→
+  2100→- Page builds statically.
+  2101→- Metadata exists and matches the tool registry.
+  2102→- Tool works on desktop and mobile.
+  2103→- Tool handles empty input and invalid input gracefully.
+  2104→- No tool data is sent outside the browser.
+  2105→- Related links resolve.
+  2106→- Lighthouse performance remains within budget.
+  2107→
+  2108→### 7. PNG to JPG
+  2109→
+  2110→| Field | Specification |
+  2111→|---|---|
+  2112→| URL | `/png-to-jpg/` |
+  2113→| Category | Image |
+  2114→| Difficulty | Easy |
+  2115→| Browser-only status | Required |
+  2116→| Primary technology | Canvas, toBlob |
+  2117→| Primary search intent | User wants to complete **png to jpg** immediately without signing up or uploading data. |
+  2118→| Target keywords | png to jpg, convert png to jpg, png jpg converter |
+  2119→| SEO title | Free PNG to JPG - Browser-Based, Private & Fast | Dueneo |
+  2120→| Meta description | Use Dueneo's free png to jpg to convert PNG images to JPG with background color control. No upload, no signup, browser-based. |
+  2121→| Related pages | `/jpg-to-png/`, `/png-to-webp/`, `/image-compressor/` |
+  2122→
+  2123→**Purpose**  
+  2124→Convert PNG images to JPG with background color control.
+  2125→
+  2126→**Required UI**
+  2127→
+  2128→- H1, short description, and privacy note above the working area.
+  2129→- Main input area with clear empty state.
+  2130→- Primary action button and reset/clear option.
+  2131→- Result preview where appropriate.
+  2132→- Copy, download, or export action where appropriate.
+  2133→- Clear error messages for invalid input or unsupported files.
+  2134→- Related tools section using the shared card component.
+  2135→
+  2136→**Browser-only implementation rules**
+  2137→
+  2138→- The tool must not require a backend API.
+  2139→- User input must not be logged to analytics.
+  2140→- Heavy processing must run in a Web Worker when it can block the main thread.
+  2141→- Large file tools must show progress, cancellation, and memory warnings.
+  2142→- Use lazy-loaded libraries so unrelated pages do not download this tool's code.
+  2143→
+  2144→**SEO content requirements**
+  2145→
+  2146→- Explain what the tool does in one short paragraph.
+  2147→- Include a practical “How to use” section.
+  2148→- Include at least three common use cases.
+  2149→- Include a privacy FAQ answer.
+  2150→- Link to the listed related pages.
+  2151→
+  2152→**Acceptance tests**
+  2153→
+  2154→- Page builds statically.
+  2155→- Metadata exists and matches the tool registry.
+  2156→- Tool works on desktop and mobile.
+  2157→- Tool handles empty input and invalid input gracefully.
+  2158→- No tool data is sent outside the browser.
+  2159→- Related links resolve.
+  2160→- Lighthouse performance remains within budget.
+  2161→
+  2162→### 8. PNG to WebP
+  2163→
+  2164→| Field | Specification |
+  2165→|---|---|
+  2166→| URL | `/png-to-webp/` |
+  2167→| Category | Image |
+  2168→| Difficulty | Easy |
+  2169→| Browser-only status | Required |
+  2170→| Primary technology | Canvas, toBlob |
+  2171→| Primary search intent | User wants to complete **png to webp** immediately without signing up or uploading data. |
+  2172→| Target keywords | png to webp, convert png to webp, webp converter |
+  2173→| SEO title | Free PNG to WebP - Browser-Based, Private & Fast | Dueneo |
+  2174→| Meta description | Use Dueneo's free png to webp to convert PNG images to WebP with quality settings. No upload, no signup, browser-based. |
+  2175→| Related pages | `/webp-to-png/`, `/jpg-to-webp/`, `/image-compressor/` |
+  2176→
+  2177→**Purpose**  
+  2178→Convert PNG images to WebP with quality settings.
+  2179→
+  2180→**Required UI**
+  2181→
+  2182→- H1, short description, and privacy note above the working area.
+  2183→- Main input area with clear empty state.
+  2184→- Primary action button and reset/clear option.
+  2185→- Result preview where appropriate.
+  2186→- Copy, download, or export action where appropriate.
+  2187→- Clear error messages for invalid input or unsupported files.
+  2188→- Related tools section using the shared card component.
+  2189→
+  2190→**Browser-only implementation rules**
+  2191→
+  2192→- The tool must not require a backend API.
+  2193→- User input must not be logged to analytics.
+  2194→- Heavy processing must run in a Web Worker when it can block the main thread.
+  2195→- Large file tools must show progress, cancellation, and memory warnings.
+  2196→- Use lazy-loaded libraries so unrelated pages do not download this tool's code.
+  2197→
+  2198→**SEO content requirements**
+  2199→
+  2200→- Explain what the tool does in one short paragraph.
+  2201→- Include a practical “How to use” section.
+  2202→- Include at least three common use cases.
+  2203→- Include a privacy FAQ answer.
+  2204→- Link to the listed related pages.
+  2205→
+  2206→**Acceptance tests**
+  2207→
+  2208→- Page builds statically.
+  2209→- Metadata exists and matches the tool registry.
+  2210→- Tool works on desktop and mobile.
+  2211→- Tool handles empty input and invalid input gracefully.
+  2212→- No tool data is sent outside the browser.
+  2213→- Related links resolve.
+  2214→- Lighthouse performance remains within budget.
+  2215→
+  2216→### 9. WebP to PNG
+  2217→
+  2218→| Field | Specification |
+  2219→|---|---|
+  2220→| URL | `/webp-to-png/` |
+  2221→| Category | Image |
+  2222→| Difficulty | Easy |
+  2223→| Browser-only status | Required |
+  2224→| Primary technology | Canvas |
+  2225→| Primary search intent | User wants to complete **webp to png** immediately without signing up or uploading data. |
+  2226→| Target keywords | webp to png, convert webp to png |
+  2227→| SEO title | Free WebP to PNG - Browser-Based, Private & Fast | Dueneo |
+  2228→| Meta description | Use Dueneo's free webp to png to convert WebP images to PNG. No upload, no signup, browser-based. |
+  2229→| Related pages | `/png-to-webp/`, `/webp-to-jpg/`, `/image-resizer/` |
+  2230→
+  2231→**Purpose**  
+  2232→Convert WebP images to PNG.
+  2233→
+  2234→**Required UI**
+  2235→
+  2236→- H1, short description, and privacy note above the working area.
+  2237→- Main input area with clear empty state.
+  2238→- Primary action button and reset/clear option.
+  2239→- Result preview where appropriate.
+  2240→- Copy, download, or export action where appropriate.
+  2241→- Clear error messages for invalid input or unsupported files.
+  2242→- Related tools section using the shared card component.
+  2243→
+  2244→**Browser-only implementation rules**
+  2245→
+  2246→- The tool must not require a backend API.
+  2247→- User input must not be logged to analytics.
+  2248→- Heavy processing must run in a Web Worker when it can block the main thread.
+  2249→- Large file tools must show progress, cancellation, and memory warnings.
+  2250→- Use lazy-loaded libraries so unrelated pages do not download this tool's code.
+  2251→
+  2252→**SEO content requirements**
+  2253→
+  2254→- Explain what the tool does in one short paragraph.
+  2255→- Include a practical “How to use” section.
+  2256→- Include at least three common use cases.
+  2257→- Include a privacy FAQ answer.
+  2258→- Link to the listed related pages.
+  2259→
+  2260→**Acceptance tests**
+  2261→
+  2262→- Page builds statically.
+  2263→- Metadata exists and matches the tool registry.
+  2264→- Tool works on desktop and mobile.
+  2265→- Tool handles empty input and invalid input gracefully.
+  2266→- No tool data is sent outside the browser.
+  2267→- Related links resolve.
+  2268→- Lighthouse performance remains within budget.
+  2269→
+  2270→### 10. JPG to WebP
+  2271→
+  2272→| Field | Specification |
+  2273→|---|---|
+  2274→| URL | `/jpg-to-webp/` |
+  2275→| Category | Image |
+  2276→| Difficulty | Easy |
+  2277→| Browser-only status | Required |
+  2278→| Primary technology | Canvas |
+  2279→| Primary search intent | User wants to complete **jpg to webp** immediately without signing up or uploading data. |
+  2280→| Target keywords | jpg to webp, jpeg to webp, convert jpg to webp |
+  2281→| SEO title | Free JPG to WebP - Browser-Based, Private & Fast | Dueneo |
+  2282→| Meta description | Use Dueneo's free jpg to webp to convert JPG images to WebP for smaller web files. No upload, no signup, browser-based. |
+  2283→| Related pages | `/webp-to-jpg/`, `/image-compressor/`, `/png-to-webp/` |
+  2284→
+  2285→**Purpose**  
+  2286→Convert JPG images to WebP for smaller web files.
+  2287→
+  2288→**Required UI**
+  2289→
+  2290→- H1, short description, and privacy note above the working area.
+  2291→- Main input area with clear empty state.
+  2292→- Primary action button and reset/clear option.
+  2293→- Result preview where appropriate.
+  2294→- Copy, download, or export action where appropriate.
+  2295→- Clear error messages for invalid input or unsupported files.
+  2296→- Related tools section using the shared card component.
+  2297→
+  2298→**Browser-only implementation rules**
+  2299→
+
+[showing lines 1600-2299 of 8227; use offset=2300 with limit to continue reading]

@@ -1,0 +1,279 @@
+     1→# DUENEO Build Worklog
+     2→
+     3→This file tracks all agent work for building the Dueneo website
+     4→(browser-first tools + classic games platform) on top of an existing
+     5→Next.js 16 + Tailwind 4 + shadcn/ui scaffold.
+     6→
+     7→Constraints:
+     8→- Only the `/` route in `src/app/page.tsx` is allowed.
+     9→- Multi-page experience is implemented via a hash-based router on `/`.
+    10→- All tools run browser-only (no upload, no backend).
+    11→- Dark/light theme via next-themes.
+    12→- Sticky footer, mobile-first responsive.
+    13→- Follow the DUENEO BIBLE design system (Dueneo brand color #2563eb
+    14→  accent, Inter font, 1180px page max width, etc.).
+    15→
+    16→---
+    17→Task ID: 1
+    18→Agent: main
+    19→Task: Foundation — design tokens, registries, hash router, header/footer, layouts, homepage shell.
+    20→
+    21→Work Log:
+    22→- Read the uploaded DUENEO BIBLE (8226 lines) to understand scope.
+    23→- Adapted the bible's Astro+React stack to the constrained Next.js 16 single-route environment by implementing a hash-based router on `/`.
+    24→- Set up Dueneo brand design tokens (blue #2563eb primary, Inter font, 1180px container, dark/light themes) in `src/app/globals.css`.
+    25→- Wrote the complete tool registry (`src/data/tools.ts`) with all 100 tools, full SEO metadata, related links, privacy levels and ad profiles. ~65 tools are flagged `implemented: true` and have a `component` key assigned (subagents will fill in the rest).
+    26→- Wrote the complete games registry (`src/data/games.ts`) with all 15 games.
+    27→- Wrote categories registry (`src/data/categories.ts`) with 10 tool categories + games.
+    28→- Built hash router (`src/lib/dueneo/router.tsx`) with `useRouter`, `RouterLink`, `RouterProvider`, full back/forward support and scroll-to-top on navigate.
+    29→- Built SEO helpers (`src/lib/dueneo/seo.ts`) producing JSON-LD for tools, games and categories (WebApplication, Game, BreadcrumbList).
+    30→- Built shared UI: `Header` (sticky, with category dropdown, popular dropdown, mobile sheet, theme toggle), `Footer` (5-column, sticky-bottom via `mt-auto`), `SearchBox` (live autocomplete across tools+games+categories, ⌘K shortcut, keyboard nav), `Breadcrumbs`, `FAQ`, `HowTo`, `ToolCard`, `GameCard`, `RelatedItems`, `PrivacyNote`, `CopyButton`, `Dropzone` (drag-and-drop), `AdSlot` (network-agnostic, height-reserved), `ThemeToggle`.
+    31→- Built `ToolLayout` and `GameLayout` wrappers that render the full Dueneo page template (hero, privacy note, tool shell, ad slots, how-to, use cases, FAQ, related links, JSON-LD injection, dynamic document title/meta).
+    32→- Built `HomePage` with hero+search, category grid, popular tools, privacy explainer, popular games, ad slot.
+    33→- Built `CategoryPage` with search-filter, tool/game grid, adjacent categories, FAQ.
+    34→- Built legal pages: `AboutPage`, `ContactPage`, `PrivacyPolicyPage`, `TermsPage`, `CookiePolicyPage`, `ComingSoonTool`, `NotFoundPage`.
+    35→- Built central `DueneoApp` dispatcher that maps hash path → page (home / category / tool / game / legal / 404).
+    36→- Built `ToolRouter` and `GameRouter` with a `TOOL_COMPONENTS` / `GAME_COMPONENTS` map that subagents will populate.
+    37→- Updated `src/app/layout.tsx` with Dueneo metadata, Inter + JetBrains Mono fonts, `ThemeProvider`.
+    38→- Updated `src/app/page.tsx` to render `DueneoApp` inside `RouterProvider` with a Sonner toaster.
+    39→- Fixed lucide-react import errors (`Checkers`, `Disc`, `TicTac` do not exist; replaced with `Disc3`, `CircleDot`, `Hash`).
+    40→- Started dev server (`bun run dev` on port 3000). Verified homepage returns HTTP 200 and renders correctly (title, categories, popular tools, popular games all present).
+    41→
+    42→Stage Summary:
+    43→- Foundation complete and verified. Homepage renders with full Dueneo design system.
+    44→- Routing: `#/` (home), `#/image-tools` (category), `#/image-compressor` (tool), `#/games/sudoku` (game), `#/about` (legal).
+    45→- Tool and game component routers are in place but empty — subagents must populate them.
+    46→- All shared components (`ToolLayout`, `GameLayout`, `Dropzone`, `CopyButton`, `PrivacyNote`, `FAQ`, `HowTo`, `RelatedTools`, `RelatedGames`, `AdSlot`) are ready for subagents to consume.
+    47→- Dev server is running at http://localhost:3000 (proxied via Caddy on port 81).
+    48→- IMPORTANT for subagents: each tool component MUST be a named export taking `{ tool }: { tool: ToolDefinition }` and SHOULD use `ToolLayout` to render the full page. Each game component MUST take `{ game }: { game: GameDefinition }` and SHOULD use `GameLayout`. After implementing, subagents MUST register their components in `src/components/tools/tool-router.tsx` or `src/components/games/game-router.tsx` by importing them and adding to the `TOOL_COMPONENTS` / `GAME_COMPONENTS` map (key MUST match the `component` field in the registry).
+    49→
+    50→---
+    51→Task ID: 2-a
+    52→Agent: image-tools
+    53→Task: Implement all 20 image tools (IDs 1-20) — compress, resize, crop, rotate, flip, format converters, SVG-to-PNG, watermark, blur, pixelate, border, favicon, social-media resizer.
+    54→
+    55→Work Log:
+    56→- Read the foundation (`worklog.md`, `tools.ts`, `categories.ts`, `tool-layout.tsx`, `dropzone.tsx`, `copy-button.tsx`, `privacy-note.tsx`, `tool-router.tsx`, `utils.ts`) and skimmed the DUENEO BIBLE image-tool specs (lines 1780–2823).
+    57→- Created `src/components/tools/image/_image-helpers.tsx` (must be `.tsx` because it includes the `PreviewTile` JSX component) with shared utilities: `loadImageFromFile`, `loadImageFromSrc`, `downloadBlob`, `replaceExtension`, `getCanvas2D`, `hexToRgba`, `positionFor` + `POSITION_OPTIONS` (9-position grid), `readFileAsDataURL`, `readFileAsText`, `formatBytes`, `PreviewTile`, and a `MAX_IMAGE_BYTES = 50 MB` safety cap.
+    58→- Implemented 13 image tool components under `src/components/tools/image/`:
+    59→  1. `image-compressor.tsx` (`ImageCompressor`) — quality slider 5–100%, format select (JPG/PNG/WebP), white background for JPEG, before/after preview with savings %.
+    60→  2. `image-resizer.tsx` (`ImageResizer`) — pixels / percentage / preset modes (1920×1080, 1280×720, 800×600, 640×480, 500×500, 256×256, 128×128, 64×64), lock-aspect-ratio checkbox.
+    61→  3. `crop-image.tsx` (`CropImage`) — numeric X/Y/W/H inputs with live overlay rectangle on the preview, aspect-ratio presets (Free, 1:1, 16:9, 4:3, 3:2, 2:3, 9:16).
+    62→  4. `rotate-image.tsx` (`RotateImage`) — 90/180/270° quick buttons + custom 0–360° slider; custom angles pad the canvas with white.
+    63→  5. `flip-image.tsx` (`FlipImage`) — horizontal / vertical flip buttons using `ctx.scale(-1,1)` / `ctx.scale(1,-1)`.
+    64→  6. `format-converter.tsx` (`FormatConverter`) — **shared component** powering 7 tools (jpg-to-png, png-to-jpg, png-to-webp, webp-to-png, jpg-to-webp, webp-to-jpg, avif-to-jpg). Reads `tool.slug` to pick target MIME / extension / accept string; auto-converts on file select; quality slider shown only for lossy targets; white background painted under JPEG output.
+    65→  7. `svg-to-png.tsx` (`SvgToPng`) — parses SVG width/height/viewBox to compute native dimensions, scale slider 0.25–8×, optional transparent background or color picker.
+    66→  8. `watermark-image.tsx` (`WatermarkImage`) — 9-position grid (top/middle/bottom × left/center/right), font-size slider 12–200px (auto-scaled to image width), color picker, opacity slider 5–100%, drop shadow for legibility.
+    67→  9. `blur-image.tsx` (`BlurImage`) — `ctx.filter = blur(Npx)`, radius 0–40, live preview as the slider moves.
+    68→  10. `pixelate-image.tsx` (`PixelateImage`) — draws the image to a small canvas then scales back up with `imageSmoothingEnabled = false`, block size 2–64, live preview.
+    69→  11. `add-border-to-image.tsx` (`AddBorderToImage`) — width slider 1–200px (auto-scaled to image width), color picker, live preview.
+    70→  12. `favicon-generator.tsx` (`FaviconGenerator`) — Tabs for text / emoji / uploaded image; generates 7 PNG sizes (16, 32, 48, 64, 180, 192, 512); uploaded images are cover-fitted to a square; individual PNG downloads per size.
+    71→  13. `social-media-image-resizer.tsx` (`SocialMediaImageResizer`) — 8 presets (Facebook cover 1200×630, X header 1500×500, IG square 1080×1080, IG story 1080×1920, LinkedIn cover 1584×396, YT thumbnail 1280×720, FB post 1200×1200, X post 1200×675), cover (centre-crop) or contain (letterbox) fit modes, background color picker.
+    72→- Registered all 13 components in `src/components/tools/tool-router.tsx` `TOOL_COMPONENTS` map. Keys match the `component` field in the registry: `image-compressor`, `image-resizer`, `crop-image`, `rotate-image`, `flip-image`, `format-converter` (one entry powers all 7 format tools), `svg-to-png`, `watermark-image`, `blur-image`, `pixelate-image`, `add-border-to-image`, `favicon-generator`, `social-media-image-resizer`.
+    73→- All 19 implemented image tools (the 20th — `heic-to-jpg` (id 12) — has no `component` field in the registry because HEIC decoding requires a heavy WASM library; it falls through to the existing `ComingSoonTool` fallback) now route through `ToolRouter` → the new components.
+    74→- Wrote agent work record to `/agent-ctx/2-a-image-tools.md`.
+    75→- Verified with `bun run lint` (exit 0, no errors/warnings) and `tail` of `dev.log` (only clean `GET / 200` responses, no compile errors after the rename of `_image-helpers.ts` → `_image-helpers.tsx`).
+    76→
+    77→Files created:
+    78→- `src/components/tools/image/_image-helpers.tsx`
+    79→- `src/components/tools/image/image-compressor.tsx`
+    80→- `src/components/tools/image/image-resizer.tsx`
+    81→- `src/components/tools/image/crop-image.tsx`
+    82→- `src/components/tools/image/rotate-image.tsx`
+    83→- `src/components/tools/image/flip-image.tsx`
+    84→- `src/components/tools/image/format-converter.tsx`
+    85→- `src/components/tools/image/svg-to-png.tsx`
+    86→- `src/components/tools/image/watermark-image.tsx`
+    87→- `src/components/tools/image/blur-image.tsx`
+    88→- `src/components/tools/image/pixelate-image.tsx`
+    89→- `src/components/tools/image/add-border-to-image.tsx`
+    90→- `src/components/tools/image/favicon-generator.tsx`
+    91→- `src/components/tools/image/social-media-image-resizer.tsx`
+    92→- `agent-ctx/2-a-image-tools.md`
+    93→
+    94→Files modified:
+    95→- `src/components/tools/tool-router.tsx` — imported and registered all 13 components.
+    96→
+    97→Stage Summary:
+    98→- 19 of 20 image tools (IDs 1-20 except `heic-to-jpg` id 12) are now fully implemented, browser-only, and routed.
+    99→- All processing uses Canvas API + FileReader + URL.createObjectURL — no backend, no uploads.
+   100→- Each tool renders via `ToolLayout` with intro, interactive UI, How-To steps, use cases, limitations and FAQ.
+   101→- Lint clean; dev server compiles without errors; homepage and tool routes return HTTP 200.
+   102→- Follow-ups for future agents: implement `heic-to-jpg` with a WASM decoder if desired; consider drag-to-resize handles for `crop-image`; consider batch processing for `image-compressor` and `format-converter`.
+   103→
+   104→
+   105→---
+   106→Task ID: 2-b
+   107→Agent: developer-tools
+   108→Task: Implement 16 developer / text tools (IDs 36-54 except JWT, plus markdown-previewer at id 74) — JSON format/validate/minify, XML format, CSV↔JSON, Base64 encode/decode, URL encode/decode, HTML escape/unescape, regex tester, diff checker, Unix timestamp converter, cron expression builder, markdown previewer.
+   109→
+   110→Work Log:
+   111→- Read the foundation: `worklog.md`, `tools.ts` (developer rows 615–932 and markdown-previewer row 1262), `tool-layout.tsx`, `copy-button.tsx`, `privacy-note.tsx`, `tool-router.tsx`, `image-compressor.tsx` (as a structural reference), and `utils.ts`. Skimmed DUENEO BIBLE section 21 (lines 3678–4652) for the developer-tool specs.
+   112→- Created `src/components/tools/developer/_dev-helpers.ts` with shared utilities: `MAX_INPUT_BYTES` (1 MB) + `INPUT_TOO_LARGE_MSG`, `byteLength` (UTF-8 via `TextEncoder`), `formatBytes`, `downloadText`, `downloadBlob`, base64 helpers (`encodeBase64`, `decodeBase64ToText`, `decodeBase64ToBytes`, `bytesToBase64`, `readFileAsDataURL`), `describeJsonError` (parses V8/SpiderMonkey error positions and returns `{message, line, column, excerpt}`), `escapeHtml` / `unescapeHtml` (named + numeric entities), `formatXml` (hand-rolled tokenising pretty-printer handling tags, comments, CDATA, PIs, self-closing tags, attributes with quoted delimiters), `parseCsv` (RFC-4180-style quoted-field parser) and `csvField` (auto-quoter).
+   113→- Implemented 16 tool components under `src/components/tools/developer/`:
+   114→  1. `json-formatter.tsx` (`JsonFormatter`) — 2/4 spaces or tab indent, parse errors with line + excerpt, before/after size, copy + download.
+   115→  2. `json-validator.tsx` (`JsonValidator`) — ✓ valid / ✗ invalid banner, line + column + excerpt on failure, type hint + byte size on success.
+   116→  3. `json-minifier.tsx` (`JsonMinifier`) — compact `JSON.stringify`, before/after bytes + savings %, copy + download.
+   117→  4. `xml-formatter.tsx` (`XmlFormatter`) — 2/4 spaces or tab indent, hand-rolled `formatXml`, tag-balance check warns but still runs, copy + download.
+   118→  5. `csv-to-json.tsx` (`CsvToJson`) — delimiter picker (comma / semicolon / tab / pipe), header-row toggle, trim toggle, automatic coercion of numbers / booleans / null, copy + download.
+   119→  6. `json-to-csv.tsx` (`JsonToCsv`) — auto-detects union of keys, JSON-stringifies nested objects/arrays into single cells, quotes fields only when needed, delimiter picker, copy + download.
+   120→  7. `base64-encoder.tsx` (`Base64Encoder`) — two tabs: Text→Base64 and File→Data URL (via `FileReader.readAsDataURL`). URL-safe toggle (`+/-` ↔ `_/`, padding stripped). Copy + save. Handles >1 MB with friendly error.
+   121→  8. `base64-decoder.tsx` (`Base64Decoder`) — auto-detects data: URLs and offers a download button for the binary blob, falls back to UTF-8 text otherwise. Accepts standard or URL-safe input. Handles >1 MB with friendly error.
+   122→  9. `url-encoder.tsx` (`UrlEncoder`) — `encodeURIComponent` / `encodeURI` toggle, byte size + char count, copy button, sample loader.
+   123→ 10. `url-decoder.tsx` (`UrlDecoder`) — `decodeURIComponent` / `decodeURI` toggle, friendly errors for stray `%`, copy button.
+   124→ 11. `html-escape.tsx` (`HtmlEscape`) — escape → entities or unescape → text direction toggle, optional quote escaping, Flip button to round-trip, copy.
+   125→ 12. `regex-tester.tsx` (`RegexTester`) — flag buttons for g/i/m/s/u/y, real-time match highlighting with `<mark>`, match count, matches table with index + capture groups, copy matches button, friendly error for invalid patterns.
+   126→ 13. `diff-checker.tsx` (`DiffChecker`) — hand-rolled LCS-based line diff (no library), side-by-side inputs, ignore-case + normalise-whitespace toggles, added/removed/unchanged badges, unified-style table with old+new line numbers, copy diff as unified text.
+   127→ 14. `unix-timestamp-converter.tsx` (`UnixTimestampConverter`) — live ticking clock, timestamp→date (seconds/ms toggle) and date→timestamp (datetime-local picker), local/UTC/ISO/relative readouts with copy buttons.
+   128→ 15. `cron-expression-builder.tsx` (`CronExpressionBuilder`) — 5 dropdowns (minute/hour/dom/month/dow) with curated presets, custom-expression field that overrides the dropdowns, plain-English description, next-5-runs computed by minute-by-minute scan with full cron semantics (OR match for restricted dom/dow), up to one year cap.
+   129→ 16. `markdown-previewer.tsx` (`MarkdownPreviewer`) — two-pane live editor + preview using `react-markdown` v10 (default import — root `index.js` re-exports `Markdown as default`), styled with Tailwind arbitrary `[&_p]:…` selectors, copy source / save .md, supported-features `<details>`.
+   130→- Registered all 16 components in `src/components/tools/tool-router.tsx` `TOOL_COMPONENTS` map. Keys match the `component` field in the registry: `json-formatter`, `json-validator`, `json-minifier`, `xml-formatter`, `csv-to-json`, `json-to-csv`, `base64-encoder`, `base64-decoder`, `url-encoder`, `url-decoder`, `html-escape`, `regex-tester`, `diff-checker`, `unix-timestamp-converter`, `cron-expression-builder`, `markdown-previewer`.
+   131→- Fixed three issues caught by the dev server and ESLint:
+   132→  - JSX parsing failures in `html-escape.tsx` (literal `<, >, &, ", '` in JSX text) and `xml-formatter.tsx` (`<?xml ...?>` inside double-quoted `placeholder` attribute) — wrapped the strings in `{}` JSX expressions or HTML entities.
+   133→  - Wrong import for `react-markdown` v10 — `import { Markdown }` doesn't work because the package root `index.js` only re-exports `Markdown as default`. Switched to `import Markdown from "react-markdown"`.
+   134→  - Unused `eslint-disable` directive in `base64-encoder.tsx` — removed the directive and replaced it with a comment explaining the intentional omission of `text`/`output` from the deps array.
+   135→- Verified the dev server compiles cleanly (`tail dev.log` shows only `GET / 200` after the fixes) and `bun run lint` exits 0 with no errors or warnings.
+   136→- Smoke-tested each of the 16 developer-tool routes via `curl http://127.0.0.1:81/#/<slug>` — all return HTTP 200 with no SSR crashes.
+   137→
+   138→Files created:
+   139→- `src/components/tools/developer/_dev-helpers.ts`
+   140→- `src/components/tools/developer/json-formatter.tsx`
+   141→- `src/components/tools/developer/json-validator.tsx`
+   142→- `src/components/tools/developer/json-minifier.tsx`
+   143→- `src/components/tools/developer/xml-formatter.tsx`
+   144→- `src/components/tools/developer/csv-to-json.tsx`
+   145→- `src/components/tools/developer/json-to-csv.tsx`
+   146→- `src/components/tools/developer/base64-encoder.tsx`
+   147→- `src/components/tools/developer/base64-decoder.tsx`
+   148→- `src/components/tools/developer/url-encoder.tsx`
+   149→- `src/components/tools/developer/url-decoder.tsx`
+   150→- `src/components/tools/developer/html-escape.tsx`
+   151→- `src/components/tools/developer/regex-tester.tsx`
+   152→- `src/components/tools/developer/diff-checker.tsx`
+   153→- `src/components/tools/developer/unix-timestamp-converter.tsx`
+   154→- `src/components/tools/developer/cron-expression-builder.tsx`
+   155→- `src/components/tools/developer/markdown-previewer.tsx`
+   156→- `agent-ctx/2-b-developer-tools.md`
+   157→
+   158→Files modified:
+   159→- `src/components/tools/tool-router.tsx` — imported and registered all 16 developer-tool components.
+   160→
+   161→Stage Summary:
+   162→- All 16 developer/text tools flagged `implemented: true` in the registry (IDs 36-49, 51-54 and 74) are now fully implemented, browser-only, and routed.
+   163→- Each tool renders via `ToolLayout` with intro, interactive UI, How-To steps, use cases, limitations and FAQ.
+   164→- All processing is local: `JSON.parse/stringify`, `atob/btoa`, `TextEncoder/Decoder`, `FileReader`, `RegExp.matchAll`, hand-rolled LCS diff, hand-rolled cron matcher, `react-markdown`. No backend API routes, no file uploads (except `FileReader` for local base64 encoding, which stays in the browser).
+   165→- Every tool rejects inputs >1 MB with a friendly error and gracefully handles empty input and invalid input.
+   166→- Lint clean; dev server compiles without errors; homepage and tool routes return HTTP 200.
+   167→- Follow-ups for future agents: the registry also lists YAML formatter (id 40), CSV↔Excel (ids 43-44) and JWT decoder (id 50) — those still fall through to `ComingSoonTool` and would need their own implementations (YAML needs `js-yaml`, Excel needs `SheetJS`, JWT decoder is in the security category). Also, regex lookbehind support depends on the user's browser; consider adding a note for Safari users.
+   168→
+   169→
+   170→---
+   171→Task ID: 2-c
+   172→Agent: security-utility-tools
+   173→Task: Implement 6 security tools (IDs 50, 55-59) and 2 utility tools (IDs 60, 100) — password generator, password strength checker, JWT decoder, SHA-256 generator, MD5 generator, UUID generator, QR code generator, unit converter.
+   174→
+   175→Work Log:
+   176→- Read the foundation: `worklog.md` (Tasks 1, 2-a, 2-b), `tools.ts` (security rows 848–1018 and utility rows 1022–1729), `tool-layout.tsx`, `copy-button.tsx`, `privacy-note.tsx`, `tool-router.tsx`, `image-compressor.tsx` and `json-formatter.tsx` as structural references. Skimmed DUENEO BIBLE section 21 (lines 4660–5092) for the security/utility specs.
+   177→- Created `src/components/tools/security/_security-helpers.ts` (no JSX, `.ts` module) with: `MAX_INPUT_BYTES`/`INPUT_TOO_LARGE_MSG` (1 MB cap), `byteLength`, `formatBytes`, `downloadText`, `downloadBlob`; cryptographic-random helpers built on `crypto.getRandomValues` — `randomInt(max)` (rejection-sampled), `randomChar(pool)`, `secureShuffle(arr)` (Fisher-Yates); a password-strength estimator `estimatePasswordStrength(password)` returning `{level, score, entropyBits, crackTime, reasons, characterClasses, poolSize}` (Shannon entropy + length + 4-class coverage + repetition penalty + 50-entry common-password list + 10¹⁰ guesses/sec offline-crack-time estimate); JWT helpers `splitJwt`, `base64UrlToBytes`, `base64UrlToString`, `tryParseJson`; a hand-rolled **MD5 implementation** (RFC 1321, ~120 lines incl. K/S tables) verified against all 7 RFC test vectors; SHA-256 helpers `sha256Hex`/`sha256Bytes` built on `crypto.subtle.digest`; and `readFileAsArrayBuffer`.
+   178→- Implemented 6 security tool components under `src/components/tools/security/`:
+   179→  1. `password-generator.tsx` (`PasswordGenerator`) — length slider 4–64, toggles for upper/lower/digits/symbols/exclude-ambiguous, required-char inclusion via `secureShuffle`, live strength meter with entropy bits + offline crack time, copy + reveal/hide, extra `PrivacyNote level="sensitive"` inside the body.
+   180→  2. `password-strength-checker.tsx` (`PasswordStrengthChecker`) — type-to-analyse UX with reveal toggle, strength bar (weak/fair/good/strong), entropy + crack-time card, four-stat panel (length / classes / pool size / entropy), "Why this rating?" reasoning list, extra sensitive PrivacyNote.
+   181→  3. `jwt-decoder.tsx` (`JwtDecoder`) — splits `header.payload.signature`, decodes base64url → pretty JSON for header and payload, displays iat/exp/nbf in UTC + relative time (e.g. "in 3 days", "expired 2 hours ago"), raw signature shown with prominent "Signature NOT verified" warning. Sample-token loader. Friendly alert for malformed tokens.
+   182→  4. `sha256-generator.tsx` (`Sha256Generator`) — Tabs: Text (Textarea) and File (`<input type="file">` → FileReader → ArrayBuffer → WebCrypto). 1 MB cap. Sample loader verifies against the known SHA-256 of "The quick brown fox…". Copy + reset.
+   183→  5. `md5-generator.tsx` (`Md5Generator`) — text-only (per spec), uses hand-rolled `md5Hex`. Prominent rose-coloured "MD5 is broken" warning at the top + in limitations. Sample loader verifies against `9e107d9d372bb6826bd81d3542a419d6`. Copy + reset.
+   184→  6. `uuid-generator.tsx` (`UuidGenerator`) — count slider 1–1000, hyphen/uppercase/brace toggles, `crypto.randomUUID()` source, list rendered in `max-h-96 overflow-y-auto` thin-scroll area, per-item icon copy + "Copy all" + "Download .txt".
+   185→- Implemented 2 utility tool components under `src/components/tools/utility/`:
+   186→  7. `qr-code-generator.tsx` (`QrCodeGenerator`) — Tabs: Text/URL/Email/Phone/SMS/Wi-Fi. Each builds the proper QR payload (mailto: with subject+body, tel:, SMSTO:, WIFI:T:;S:;P:;H:;; with RFC-escaped special chars). Options: size 128–1024 px, quiet zone 0–10, error-correction L/M/Q/H, foreground + background colour pickers. Live preview (150 ms debounce), PNG download. Uses `qrcode@1.5.4` (browser-compatible).
+   187→  8. `unit-converter.tsx` (`UnitConverter`) — 8 categories: length (8 units), weight (5), temperature (3, offset math), area (7), volume (8), speed (5), time (7), digital storage (10 incl. KB/KiB distinction). Two-pane From/To with circular swap button. "Quick reference" panel lists the same value in every other unit of the category. 8-significant-digit precision with exponential fallback.
+   188→- Installed `qrcode@1.5.4` + `@types/qrcode@1.5.6` via `bun add`.
+   189→- Registered all 8 components in `src/components/tools/tool-router.tsx` `TOOL_COMPONENTS` map. Keys match the registry: `password-generator`, `password-strength-checker`, `jwt-decoder`, `sha256-generator`, `md5-generator`, `uuid-generator`, `qr-code-generator`, `unit-converter`.
+   190→- Issues caught & fixed:
+   191→  - **JSX literal `>`** in the password-generator limitations list (`(>64 chars)`) — SWC parser rejected it as `Unexpected token`. Fixed by wrapping in a JSX expression `{">"}`.
+   192→  - **Unused `eslint-disable` directives** — the project's ESLint config doesn't enable `react-hooks/exhaustive-deps` or `@next/next/no-img-element`, so the directives were flagged as unused. Removed both.
+   193→  - **MD5 padding bug** — initial formula `withPadLength + (56 - (withPadLength % 64))` underflowed when `(N+1) % 64 > 56`, breaking the 62-byte RFC vector. Fixed with `r <= 56 ? withPadLength + (56 - r) : withPadLength + (64 - r) + 56`. Re-verified against all 7 RFC 1321 vectors via a one-off bun script (`/tmp/md5check.mjs`, not part of the project).
+   194→- Verified: `bun run lint` exits 0 with no errors or warnings. `tail dev.log` shows only `✓ Compiled` and `GET / 200` after the fixes. All 8 tool routes return HTTP 200 via `curl http://127.0.0.1:81/#/<slug>`.
+   195→
+   196→Files created:
+   197→- `src/components/tools/security/_security-helpers.ts`
+   198→- `src/components/tools/security/password-generator.tsx`
+   199→- `src/components/tools/security/password-strength-checker.tsx`
+   200→- `src/components/tools/security/jwt-decoder.tsx`
+   201→- `src/components/tools/security/sha256-generator.tsx`
+   202→- `src/components/tools/security/md5-generator.tsx`
+   203→- `src/components/tools/security/uuid-generator.tsx`
+   204→- `src/components/tools/utility/qr-code-generator.tsx`
+   205→- `src/components/tools/utility/unit-converter.tsx`
+   206→- `agent-ctx/2-c-security-utility-tools.md`
+   207→
+   208→Files modified:
+   209→- `src/components/tools/tool-router.tsx` — imported and registered all 8 components.
+   210→- `package.json` / `bun.lock` — added `qrcode@1.5.4` and `@types/qrcode@1.5.6`.
+   211→
+   212→Stage Summary:
+   213→- All 6 security tools and 2 utility tools flagged `implemented: true` in the registry (IDs 50, 55-59, 60, 100) are now fully implemented, browser-only, and routed.
+   214→- Each tool renders via `ToolLayout` with intro, interactive UI, How-To steps, use cases, limitations and FAQ.
+   215→- All sensitive tools (password-generator, password-strength-checker, jwt-decoder, sha256-generator, md5-generator) include an extra `PrivacyNote level="sensitive"` inside the tool body in addition to the one rendered by `ToolLayout`.
+   216→- All processing is local: `crypto.getRandomValues`, `crypto.subtle.digest`, `crypto.randomUUID`, hand-rolled MD5 (RFC 1321), hand-rolled base64url + JWT decoder, `qrcode` npm package, hand-rolled unit-conversion tables. No backend API routes, no uploads.
+   217→- Every tool rejects inputs >1 MB with a friendly error and gracefully handles empty input and invalid input.
+   218→- Lint clean; dev server compiles without errors; homepage and tool routes return HTTP 200.
+   219→- Follow-ups for future agents: the security helpers file is reusable for any later task that needs MD5/SHA-256/JWT-base64/strength-estimation primitives. The QR generator currently exports PNG only — switch to `QRCode.toString` with `{ type: "svg" }` if SVG output is ever needed. The unit-converter uses SI kilobyte (1000) and kibibyte (1024) distinctly and treats "year" as the Julian year (365.25 days).
+   220→
+   221→
+   222→---
+   223→Task ID: 2-d
+   224→Agent: text-tools
+   225→Task: Implement 14 text tools (IDs 61-73 and 75) — word/character/sentence counters, reading time calculator, case converter, remove duplicate lines, sort lines, reverse text, remove empty lines, remove extra spaces, find and replace, slug generator, lorem ipsum generator, text cleaner. Skip markdown-previewer (id 74) which was already implemented in Task 2-b.
+   226→
+   227→Work Log:
+   228→- Read the foundation: `worklog.md` (Tasks 1, 2-a, 2-b, 2-c), `tools.ts` (text rows 1042–1295), `tool-layout.tsx`, `copy-button.tsx`, `tool-router.tsx`, `json-formatter.tsx` and `url-encoder.tsx` as structural references. Skimmed DUENEO BIBLE section "Text Tools" (lines 5094–5693) for the per-tool specs.
+   229→- Created `src/components/tools/text/_text-helpers.ts` (no JSX, `.ts` module) with shared utilities: `MAX_INPUT_BYTES` (1 MB cap) + `INPUT_TOO_LARGE_MSG`, `byteLength` (UTF-8 via `TextEncoder`), `formatBytes`, `formatInt` (thousands-separated), `downloadText`; count helpers `countWords`, `countSentences` (split on `. ! ?` with whitespace filtering), `countParagraphs` (blank-line split), `countLines`; reading-time helper `formatDuration(seconds)` returning `X min Y sec` or `Y sec`; case conversions via `splitWords` (handles camelCase/PascalCase/snake_case/kebab_case/CONSTANT_CASE + plain whitespace) producing `toUpperCase`, `toLowerCase`, `toTitleCase`, `toSentenceCase` (heuristic sentence-boundary detection), `toCamelCase`, `toPascalCase`, `toSnakeCase`, `toKebabCase`, `toConstantCase`; slugifier `slugify(text, opts)` with `-`/`_` separator, optional lower-casing, NFKD accent stripping and a 43-word English stop-word list; Lorem Ipsum `generateLorem(kind, count, seed)` building paragraphs (3–6 sentences), sentences or words from a fixed ~80-word Cicero-derived Latin bank, using a Mulberry32 PRNG for reproducible output.
+   230→- Implemented 14 text-tool components under `src/components/tools/text/`:
+   231→  1. `word-counter.tsx` (`WordCounter`) — Textarea + live 7-card stats grid (Words, Characters, Characters no spaces, Sentences, Paragraphs, Lines, Reading time @ 200 wpm). Copy-stats emits a plain-text breakdown.
+   232→  2. `character-counter.tsx` (`CharacterCounter`) — Textarea + 6-card stats grid (Total characters, Without spaces, Letters, Digits, Symbols, Lines). Live as you type.
+   233→  3. `sentence-counter.tsx` (`SentenceCounter`) — Textarea + 5-card stats (Sentences, Paragraphs, Words, Avg words/sentence, Avg sentences/paragraph) with readability hint.
+   234→  4. `reading-time-calculator.tsx` (`ReadingTimeCalculator`) — Textarea + reading-speed slider (50–500 wpm, default 200) + speaking-speed slider (50–300 wpm, default 130). Three-card result: Words, Reading time (min+sec), Speaking time (min+sec). Copy summary button.
+   235→  5. `case-converter.tsx` (`CaseConverter`) — Input/output Textareas + 9 case-style buttons (UPPERCASE, lowercase, Title Case, Sentence case, camelCase, PascalCase, snake_case, kebab-case, CONSTANT_CASE). Each button shows a live sample; last-applied style highlighted with a ring. Copy + Save .txt.
+   236→  6. `remove-duplicate-lines.tsx` (`RemoveDuplicateLines`) — Input/output + case-sensitive Switch, trim-whitespace Switch, keep first/last RadioGroup. Before/After/Removed counters. Copy + Save.
+   237→  7. `sort-lines.tsx` (`SortLines`) — Input/output + 7-option RadioGroup (A→Z, Z→A, Numeric ↑, Numeric ↓, Reverse, Shuffle, By length) with icons + help text. Case-insensitive Switch. Fisher-Yates shuffle, leading-number extraction for numeric sort. Before/After counters. Copy + Save.
+   238→  8. `reverse-text.tsx` (`ReverseText`) — Input/output + 3-option RadioGroup (Reverse characters, Reverse words, Reverse lines). Character reversal uses `Array.from` for surrogate-pair safety. Word reversal preserves line structure. Copy + Save.
+   239→  9. `remove-empty-lines.tsx` (`RemoveEmptyLines`) — Input/output + Switch for "also strip whitespace-only lines". CRLF→LF normalisation. Before/After counters. Copy + Save.
+   240→ 10. `remove-extra-spaces.tsx` (`RemoveExtraSpaces`) — Input/output + three Switches (Collapse runs to single space, Trim each line's edges, Remove all whitespace). Collapse preserves newlines. "Remove all" overrides the other toggles. Copy + Save.
+   241→ 11. `find-and-replace.tsx` (`FindAndReplace`) — Input Textarea + Find/Replace Input pair + three Switches (case-sensitive, whole-word, regex). Builds RegExp from find with optional `\b…\b`; reports invalid-regex errors. Replacement treated as literal string (no `$1`). Shows match count. Copy + Save.
+   242→ 12. `slug-generator.tsx` (`SlugGenerator`) — Title Input + separator RadioGroup (`-`/`_`) + three Switches (lower-case, strip accents, remove stop words). Live-updating slug with URL preview. Copy button.
+   243→ 13. `lorem-ipsum-generator.tsx` (`LoremIpsumGenerator`) — Output-type RadioGroup (paragraphs/sentences/words) + count Input (1–1000) + Generate / New variation buttons. Mulberry32 PRNG, auto-generates 5 paragraphs on mount. Copy + Save .txt.
+   244→ 14. `text-cleaner.tsx` (`TextCleaner`) — Input/output + six Checkboxes (collapse extra spaces, trim each line, remove empty lines, remove duplicate lines, remove non-ASCII, remove special characters). Operations run in a fixed order. Four-card before/after grid (chars + lines). Copy + Save.
+   245→- Registered all 14 components in `src/components/tools/tool-router.tsx` `TOOL_COMPONENTS` map. Keys match the registry's `component` field exactly: `word-counter`, `character-counter`, `sentence-counter`, `reading-time-calculator`, `case-converter`, `remove-duplicate-lines`, `sort-lines`, `reverse-text`, `remove-empty-lines`, `remove-extra-spaces`, `find-and-replace`, `slug-generator`, `lorem-ipsum-generator`, `text-cleaner`.
+   246→- Issues caught & fixed:
+   247→  - **`Hashtag` and `TypeCase` icons don't exist in `lucide-react`** — turbopack returned a 500 on the homepage with a compile error pointing at `character-counter.tsx`. Verified every icon import against the actual `node_modules/lucide-react/dist/esm/icons/` filenames (and `node -e` `require()` smoke test for the four trailing-digit icons `FlipHorizontal2`, `FlipVertical2`, `Link2`, `Wand2`). Fixed: `character-counter.tsx` now uses `Type` (letters) and `Binary` (digits); `case-converter.tsx` now uses `Type` for the case-styles header.
+   248→  - **Unused `eslint-disable` directive** in `lorem-ipsum-generator.tsx` — the project's ESLint config doesn't enable `react-hooks/exhaustive-deps`, so the directive on the mount-only `useEffect` was flagged. Replaced with a plain comment.
+   249→- Verified: `bun run lint` exits 0 with no errors or warnings. `tail dev.log` shows only clean `Compiled` and `GET / 200` after the icon fix; the earlier 500s were the missing-icon compile error and disappeared once `TypeCase`/`Hashtag` were replaced. `curl http://127.0.0.1:81/` returns HTTP 200.
+   250→
+   251→Files created:
+   252→- `src/components/tools/text/_text-helpers.ts`
+   253→- `src/components/tools/text/word-counter.tsx`
+   254→- `src/components/tools/text/character-counter.tsx`
+   255→- `src/components/tools/text/sentence-counter.tsx`
+   256→- `src/components/tools/text/reading-time-calculator.tsx`
+   257→- `src/components/tools/text/case-converter.tsx`
+   258→- `src/components/tools/text/remove-duplicate-lines.tsx`
+   259→- `src/components/tools/text/sort-lines.tsx`
+   260→- `src/components/tools/text/reverse-text.tsx`
+   261→- `src/components/tools/text/remove-empty-lines.tsx`
+   262→- `src/components/tools/text/remove-extra-spaces.tsx`
+   263→- `src/components/tools/text/find-and-replace.tsx`
+   264→- `src/components/tools/text/slug-generator.tsx`
+   265→- `src/components/tools/text/lorem-ipsum-generator.tsx`
+   266→- `src/components/tools/text/text-cleaner.tsx`
+   267→- `agent-ctx/2-d-text-tools.md`
+   268→
+   269→Files modified:
+   270→- `src/components/tools/tool-router.tsx` — imported and registered all 14 text-tool components.
+   271→
+   272→Stage Summary:
+   273→- All 14 text tools flagged `implemented: true` in the registry (IDs 61–73, 75) are now fully implemented, browser-only, and routed. The 15th — Markdown Previewer (id 74) — was already implemented in Task 2-b and is left untouched.
+   274→- Each tool renders via `ToolLayout` with intro, interactive UI, How-To steps, use cases, limitations and FAQ.
+   275→- All processing is local: built-in string operations, `TextEncoder`, `Array.from` for surrogate-pair-safe character reversal, hand-rolled Fisher-Yates shuffle, hand-rolled Mulberry32 PRNG, hand-rolled slugifier with NFKD accent stripping, hand-rolled Lorem Ipsum word bank. No backend API routes, no uploads, no external libraries added.
+   276→- Every tool rejects inputs >1 MB with a friendly `toast.error` and a visible inline message, and gracefully handles empty input.
+   277→- Lint clean; dev server compiles without errors; homepage and tool routes return HTTP 200.
+   278→- Follow-ups for future agents: the text-helpers file is reusable for any later task that needs word/sentence/paragraph counting, case conversion, slugification or Lorem Ipsum generation. The slugifier's stop-word list is a built-in 43-word set — extend it in code if a longer list is needed. The find-and-replace tool treats the replacement as a literal string; if back-reference support (`$1`, `$2`) is needed, switch to a callback-based `replace` and document the change in the limitations section.
+   279→

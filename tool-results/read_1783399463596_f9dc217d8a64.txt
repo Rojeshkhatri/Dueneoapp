@@ -1,0 +1,2002 @@
+     1→     1→# DUENEO BIBLE
+     2→     2→
+     3→     3→> **Version:** 2.0  
+     4→     4→> **Status:** Production architecture and operating manual  
+     5→     5→> **Document type:** Single source of truth  
+     6→     6→> **Brand:** Dueneo  
+     7→     7→> **Domain strategy:** Root domain, e.g. `dueneo.com`  
+     8→     8→> **Product scope:** Top 100 browser-based tools and 15 lightweight browser games  
+     9→     9→> **Hosting target:** Cloudflare Pages  
+    10→    10→> **Repository:** GitHub  
+    11→    11→> **Automation:** Hermes, OpenClaw, GitHub Actions, Cloudflare Pages
+    12→    12→
+    13→    13→---
+    14→    14→
+    15→    15→# 1. Executive Summary
+    16→    16→
+    17→    17→Dueneo is a focused browser-first platform for practical tools and lightweight classic games. The product is built around three promises:
+    18→    18→
+    19→    19→1. **Useful:** Each page solves a real user problem immediately.
+    20→    20→2. **Private:** Tool processing happens locally in the user's browser wherever technically possible.
+    21→    21→3. **Fast:** Pages are static, lightweight, mobile-first, and built for search engines and users.
+    22→    22→
+    23→    23→Dueneo is not a heavy SaaS. It is not a login-based application. It is not a graphics-heavy gaming portal. It is a clean, durable, SEO-first utility platform containing 100 high-value tools and 15 classic games that can run from a static site.
+    24→    24→
+    25→    25→The whole system is designed so humans and AI coding agents can work safely from the same document. Codex can implement tools and tests. Hermes or OpenClaw can research SEO improvements and generate pull requests. GitHub Actions validates every change. Cloudflare Pages deploys production.
+    26→    26→
+    27→    27→---
+    28→    28→
+    29→    29→# 2. Non-Negotiable Product Principles
+    30→    30→
+    31→    31→## 2.1 Browser-first
+    32→    32→
+    33→    33→Every tool must run in the browser unless this Bible explicitly approves another architecture. The default answer to new feature ideas is:
+    34→    34→
+    35→    35→> Can this run locally in the browser with no backend and no upload?
+    36→    36→
+    37→    37→If the answer is no, the feature is excluded from the current Dueneo scope.
+    38→    38→
+    39→    39→## 2.2 Privacy-first
+    40→    40→
+    41→    41→For tools that handle files, passwords, invoices, text, JSON, images, or PDFs:
+    42→    42→
+    43→    43→- Do not upload the user's input.
+    44→    44→- Do not log tool input to analytics.
+    45→    45→- Do not store personal data unless the user chooses local save.
+    46→    46→- Do not send generated passwords, invoices, JSON, text, or files to any third party.
+    47→    47→- Show a short privacy note near the tool area.
+    48→    48→
+    49→    49→Standard privacy note:
+    50→    50→
+    51→    51→> Your file/data is processed locally in your browser. It is not uploaded to Dueneo.
+    52→    52→
+    53→    53→For pages that include ads or analytics, the privacy policy must disclose ad/analytics scripts separately. The local-processing promise applies to the tool's input and output.
+    54→    54→
+    55→    55→## 2.3 One design system
+    56→    56→
+    57→    57→All pages must look and feel like Dueneo:
+    58→    58→
+    59→    59→- Same header.
+    60→    60→- Same footer.
+    61→    61→- Same search.
+    62→    62→- Same spacing.
+    63→    63→- Same card style.
+    64→    64→- Same ad locations.
+    65→    65→- Same FAQ style.
+    66→    66→- Same related-tool style.
+    67→    67→
+    68→    68→Only the inner tool/game logic changes.
+    69→    69→
+    70→    70→## 2.4 Production quality from the first public release
+    71→    71→
+    72→    72→Every published page must have:
+    73→    73→
+    74→    74→- Working tool/game.
+    75→    75→- Useful surrounding content.
+    76→    76→- Unique metadata.
+    77→    77→- Canonical URL.
+    78→    78→- Structured data where appropriate.
+    79→    79→- Related links.
+    80→    80→- Mobile layout.
+    81→    81→- Accessibility basics.
+    82→    82→- Error states.
+    83→    83→- Performance budget.
+    84→    84→- No broken internal links.
+    85→    85→
+    86→    86→## 2.5 SEO is product work
+    87→    87→
+    88→    88→SEO is not a separate trick. SEO means improving the website itself:
+    89→    89→
+    90→    90→- Better titles.
+    91→    91→- Better descriptions.
+    92→    92→- Better page content.
+    93→    93→- Better internal links.
+    94→    94→- Better structured data.
+    95→    95→- Better speed.
+    96→    96→- Better UX.
+    97→    97→- Better crawlability.
+    98→    98→
+    99→    99→AI agents may help with SEO, but they must change the source code through pull requests, not through invisible off-site edits.
+   100→   100→
+   101→   101→---
+   102→   102→
+   103→   103→# 3. Product Positioning
+   104→   104→
+   105→   105→## 3.1 Core tagline
+   106→   106→
+   107→   107→> Dueneo - Free Browser Tools & Classic Games
+   108→   108→
+   109→   109→## 3.2 Short homepage description
+   110→   110→
+   111→   111→> Fast, private browser-based tools for images, PDFs, developers, text, business, finance, design, and SEO - plus lightweight classic games you can play instantly.
+   112→   112→
+   113→   113→## 3.3 Trust message
+   114→   114→
+   115→   115→> Most Dueneo tools run locally in your browser. Your files and data stay on your device.
+   116→   116→
+   117→   117→## 3.4 What Dueneo is
+   118→   118→
+   119→   119→- A utility website.
+   120→   120→- A privacy-first browser tools platform.
+   121→   121→- A lightweight classic games collection.
+   122→   122→- A static, CDN-delivered product.
+   123→   123→- An SEO-driven content and tool platform.
+   124→   124→
+   125→   125→## 3.5 What Dueneo is not
+   126→   126→
+   127→   127→- Not a SaaS requiring accounts.
+   128→   128→- Not a file-hosting service.
+   129→   129→- Not a real-money gaming or gambling website.
+   130→   130→- Not an AI wrapper website.
+   131→   131→- Not a heavy multiplayer gaming site.
+   132→   132→- Not a backend API product.
+   133→   133→
+   134→   134→---
+   135→   135→
+   136→   136→# 4. Domain and URL Strategy
+   137→   137→
+   138→   138→Use the root domain for the tools brand:
+   139→   139→
+   140→   140→```text
+   141→   141→dueneo.com/
+   142→   142→dueneo.com/image-compressor/
+   143→   143→dueneo.com/pdf-merge/
+   144→   144→dueneo.com/json-formatter/
+   145→   145→dueneo.com/invoice-generator/
+   146→   146→dueneo.com/games/sudoku/
+   147→   147→```
+   148→   148→
+   149→   149→Do not hide primary tools under deep paths such as `/tools/image/image-compressor/`. Short root-level URLs are easier to remember, easier to share, and cleaner in search results.
+   150→   150→
+   151→   151→## 4.1 URL rules
+   152→   152→
+   153→   153→Good:
+   154→   154→
+   155→   155→```text
+   156→   156→/image-compressor/
+   157→   157→/pdf-merge/
+   158→   158→/json-formatter/
+   159→   159→/games/sudoku/
+   160→   160→```
+   161→   161→
+   162→   162→Bad:
+   163→   163→
+   164→   164→```text
+   165→   165→/tool?id=123
+   166→   166→/tools/all/imagecompressor
+   167→   167→/image_compressor
+   168→   168→/app/tools/free-online-image-compressor-tool
+   169→   169→```
+   170→   170→
+   171→   171→## 4.2 Trailing slash
+   172→   172→
+   173→   173→Use one canonical style everywhere. Recommended:
+   174→   174→
+   175→   175→```text
+   176→   176→/image-compressor/
+   177→   177→```
+   178→   178→
+   179→   179→Redirect non-trailing slash to trailing slash or configure the framework to output one consistent canonical URL.
+   180→   180→
+   181→   181→---
+   182→   182→
+   183→   183→# 5. Information Architecture
+   184→   184→
+   185→   185→## 5.1 Core pages
+   186→   186→
+   187→   187→```text
+   188→   188→/
+   189→   189→/image-tools/
+   190→   190→/pdf-tools/
+   191→   191→/developer-tools/
+   192→   192→/security-tools/
+   193→   193→/text-tools/
+   194→   194→/business-tools/
+   195→   195→/finance-tools/
+   196→   196→/design-tools/
+   197→   197→/seo-tools/
+   198→   198→/games/
+   199→   199→/about/
+   200→   200→/contact/
+   201→   201→/privacy-policy/
+   202→   202→/terms/
+   203→   203→/cookie-policy/
+   204→   204→```
+   205→   205→
+   206→   206→## 5.2 Tool page pattern
+   207→   207→
+   208→   208→```text
+   209→   209→/{tool-slug}/
+   210→   210→```
+   211→   211→
+   212→   212→Examples:
+   213→   213→
+   214→   214→```text
+   215→   215→/image-compressor/
+   216→   216→/password-generator/
+   217→   217→/invoice-generator/
+   218→   218→```
+   219→   219→
+   220→   220→## 5.3 Game page pattern
+   221→   221→
+   222→   222→```text
+   223→   223→/games/{game-slug}/
+   224→   224→```
+   225→   225→
+   226→   226→Examples:
+   227→   227→
+   228→   228→```text
+   229→   229→/games/sudoku/
+   230→   230→/games/minesweeper/
+   231→   231→/games/scribble/
+   232→   232→```
+   233→   233→
+   234→   234→## 5.4 Breadcrumb rules
+   235→   235→
+   236→   236→Tool page breadcrumb:
+   237→   237→
+   238→   238→```text
+   239→   239→Home > Image Tools > Image Compressor
+   240→   240→```
+   241→   241→
+   242→   242→Game page breadcrumb:
+   243→   243→
+   244→   244→```text
+   245→   245→Home > Games > Sudoku
+   246→   246→```
+   247→   247→
+   248→   248→Category page breadcrumb:
+   249→   249→
+   250→   250→```text
+   251→   251→Home > Image Tools
+   252→   252→```
+   253→   253→
+   254→   254→---
+   255→   255→
+   256→   256→# 6. Design System
+   257→   257→
+   258→   258→## 6.1 Design personality
+   259→   259→
+   260→   260→Dueneo should feel:
+   261→   261→
+   262→   262→- Clean.
+   263→   263→- Trustworthy.
+   264→   264→- Fast.
+   265→   265→- Calm.
+   266→   266→- Modern.
+   267→   267→- Practical.
+   268→   268→- Not gimmicky.
+   269→   269→- Not ad-heavy.
+   270→   270→
+   271→   271→The design should make the tool easy to use before anything else.
+   272→   272→
+   273→   273→## 6.2 Color system
+   274→   274→
+   275→   275→Recommended tokens:
+   276→   276→
+   277→   277→```text
+   278→   278→--color-bg: #ffffff
+   279→   279→--color-bg-soft: #f8fafc
+   280→   280→--color-surface: #ffffff
+   281→   281→--color-surface-muted: #f1f5f9
+   282→   282→--color-border: #e2e8f0
+   283→   283→--color-text: #0f172a
+   284→   284→--color-text-muted: #475569
+   285→   285→--color-primary: #2563eb
+   286→   286→--color-primary-hover: #1d4ed8
+   287→   287→--color-success: #16a34a
+   288→   288→--color-warning: #d97706
+   289→   289→--color-danger: #dc2626
+   290→   290→```
+   291→   291→
+   292→   292→Dark mode tokens:
+   293→   293→
+   294→   294→```text
+   295→   295→--color-bg: #020617
+   296→   296→--color-bg-soft: #0f172a
+   297→   297→--color-surface: #111827
+   298→   298→--color-surface-muted: #1e293b
+   299→   299→--color-border: #334155
+   300→   300→--color-text: #f8fafc
+   301→   301→--color-text-muted: #cbd5e1
+   302→   302→--color-primary: #60a5fa
+   303→   303→--color-primary-hover: #93c5fd
+   304→   304→```
+   305→   305→
+   306→   306→## 6.3 Typography
+   307→   307→
+   308→   308→Use system fonts for speed:
+   309→   309→
+   310→   310→```css
+   311→   311→font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+   312→   312→```
+   313→   313→
+   314→   314→Recommended scale:
+   315→   315→
+   316→   316→```text
+   317→   317→H1: 36-48px desktop, 30-36px mobile
+   318→   318→H2: 28-32px desktop, 24-28px mobile
+   319→   319→H3: 22-24px
+   320→   320→Body: 16px
+   321→   321→Small: 14px
+   322→   322→Micro: 12px
+   323→   323→```
+   324→   324→
+   325→   325→## 6.4 Layout width
+   326→   326→
+   327→   327→```text
+   328→   328→Page max width: 1180px
+   329→   329→Content article width: 780px
+   330→   330→Tool card width: full container
+   331→   331→Spacing unit: 4px base
+   332→   332→Section gap: 48-72px desktop, 32-48px mobile
+   333→   333→```
+   334→   334→
+   335→   335→## 6.5 Header
+   336→   336→
+   337→   337→Desktop header:
+   338→   338→
+   339→   339→```text
+   340→   340→Logo | Search | Categories | Games | Popular | About | Theme Toggle
+   341→   341→```
+   342→   342→
+   343→   343→Mobile header:
+   344→   344→
+   345→   345→```text
+   346→   346→Logo | Search Icon | Menu Icon
+   347→   347→```
+   348→   348→
+   349→   349→Header requirements:
+   350→   350→
+   351→   351→- Sticky optional, but never intrusive.
+   352→   352→- Search must be fast and keyboard accessible.
+   353→   353→- Search results should use the tool registry.
+   354→   354→- Header must not shift when ads load.
+   355→   355→
+   356→   356→## 6.6 Footer
+   357→   357→
+   358→   358→Footer columns:
+   359→   359→
+   360→   360→```text
+   361→   361→Dueneo
+   362→   362→- About
+   363→   363→- Contact
+   364→   364→- Privacy
+   365→   365→- Terms
+   366→   366→
+   367→   367→Tools
+   368→   368→- Image Tools
+   369→   369→- PDF Tools
+   370→   370→- Developer Tools
+   371→   371→- Text Tools
+   372→   372→
+   373→   373→Business
+   374→   374→- Business Tools
+   375→   375→- Finance Tools
+   376→   376→- SEO Tools
+   377→   377→- Design Tools
+   378→   378→
+   379→   379→Games
+   380→   380→- Sudoku
+   381→   381→- Solitaire
+   382→   382→- Minesweeper
+   383→   383→- 2048
+   384→   384→```
+   385→   385→
+   386→   386→Footer should include:
+   387→   387→
+   388→   388→```text
+   389→   389→© Dueneo. Free browser tools and classic games.
+   390→   390→```
+   391→   391→
+   392→   392→## 6.7 Button styles
+   393→   393→
+   394→   394→Primary button:
+   395→   395→
+   396→   396→- Used for main action.
+   397→   397→- Solid primary color.
+   398→   398→- Clear label: `Compress Image`, `Generate Password`, `Download PDF`.
+   399→   399→
+   400→   400→Secondary button:
+   401→   401→
+   402→   402→- Used for reset, copy, optional settings.
+   403→   403→
+   404→   404→Danger button:
+   405→   405→
+   406→   406→- Used for delete/clear actions only.
+   407→   407→
+   408→   408→All buttons require:
+   409→   409→
+   410→   410→- Keyboard focus state.
+   411→   411→- Disabled state.
+   412→   412→- Loading state.
+   413→   413→- Accessible label if icon-only.
+   414→   414→
+   415→   415→## 6.8 Cards
+   416→   416→
+   417→   417→Tool cards contain:
+   418→   418→
+   419→   419→- Icon.
+   420→   420→- Tool name.
+   421→   421→- One-line description.
+   422→   422→- Category badge.
+   423→   423→
+   424→   424→Game cards contain:
+   425→   425→
+   426→   426→- Icon/letter mark.
+   427→   427→- Game name.
+   428→   428→- Short description.
+   429→   429→- Difficulty or type.
+   430→   430→
+   431→   431→## 6.9 Forms
+   432→   432→
+   433→   433→All form fields require:
+   434→   434→
+   435→   435→- Label.
+   436→   436→- Help text if needed.
+   437→   437→- Error state.
+   438→   438→- Mobile-friendly input.
+   439→   439→- Keyboard support.
+   440→   440→
+   441→   441→## 6.10 Upload zones
+   442→   442→
+   443→   443→Upload zones require:
+   444→   444→
+   445→   445→- Drag-and-drop support.
+   446→   446→- Click-to-select support.
+   447→   447→- Supported formats listed.
+   448→   448→- File size guidance.
+   449→   449→- Multiple file support only when needed.
+   450→   450→- Local-processing privacy note.
+   451→   451→
+   452→   452→## 6.11 Empty states
+   453→   453→
+   454→   454→Empty state copy should be practical:
+   455→   455→
+   456→   456→```text
+   457→   457→Drop an image here or choose a file to begin.
+   458→   458→```
+   459→   459→
+   460→   460→Do not use vague copy:
+   461→   461→
+   462→   462→```text
+   463→   463→Nothing here yet.
+   464→   464→```
+   465→   465→
+   466→   466→## 6.12 Error states
+   467→   467→
+   468→   468→Error messages must tell users what happened and what to do:
+   469→   469→
+   470→   470→Good:
+   471→   471→
+   472→   472→```text
+   473→   473→This file type is not supported. Please choose a JPG, PNG, WebP, or AVIF image.
+   474→   474→```
+   475→   475→
+   476→   476→Bad:
+   477→   477→
+   478→   478→```text
+   479→   479→Error.
+   480→   480→```
+   481→   481→
+   482→   482→---
+   483→   483→
+   484→   484→# 7. Standard Page Templates
+   485→   485→
+   486→   486→## 7.1 Tool page template
+   487→   487→
+   488→   488→```text
+   489→   489→Header
+   490→   490→Breadcrumb
+   491→   491→Hero section
+   492→   492→  H1
+   493→   493→  Short description
+   494→   494→  Privacy note
+   495→   495→Tool shell
+   496→   496→  Input
+   497→   497→  Options
+   498→   498→  Output
+   499→   499→  Actions
+   500→   500→Ad Slot 1
+   501→   501→How to use
+   502→   502→Examples
+   503→   503→Supported formats / limitations
+   504→   504→FAQ
+   505→   505→Ad Slot 2
+   506→   506→Related tools
+   507→   507→Footer
+   508→   508→```
+   509→   509→
+   510→   510→## 7.2 Game page template
+   511→   511→
+   512→   512→```text
+   513→   513→Header
+   514→   514→Breadcrumb
+   515→   515→Hero section
+   516→   516→  H1
+   517→   517→  Short description
+   518→   518→Game shell
+   519→   519→  Game board
+   520→   520→  Controls
+   521→   521→  Timer / score / difficulty
+   522→   522→Ad Slot 1
+   523→   523→How to play
+   524→   524→Rules
+   525→   525→Tips
+   526→   526→FAQ
+   527→   527→Ad Slot 2
+   528→   528→Related games
+   529→   529→Footer
+   530→   530→```
+   531→   531→
+   532→   532→## 7.3 Category page template
+   533→   533→
+   534→   534→```text
+   535→   535→Header
+   536→   536→Breadcrumb
+   537→   537→H1 category title
+   538→   538→Category intro
+   539→   539→Search/filter
+   540→   540→Tool grid
+   541→   541→Popular tools
+   542→   542→FAQ
+   543→   543→Footer
+   544→   544→```
+   545→   545→
+   546→   546→## 7.4 Homepage template
+   547→   547→
+   548→   548→```text
+   549→   549→Header
+   550→   550→Hero
+   551→   551→  Search all tools and games
+   552→   552→  Popular tool shortcuts
+   553→   553→Category grid
+   554→   554→Popular tools
+   555→   555→Popular games
+   556→   556→Privacy-first explanation
+   557→   557→Recently added / updated
+   558→   558→Footer
+   559→   559→```
+   560→   560→
+   561→   561→## 7.5 Legal page template
+   562→   562→
+   563→   563→```text
+   564→   564→Header
+   565→   565→H1
+   566→   566→Last updated date
+   567→   567→Content
+   568→   568→Contact section
+   569→   569→Footer
+   570→   570→```
+   571→   571→
+   572→   572→---
+   573→   573→
+   574→   574→# 8. Component Library
+   575→   575→
+   576→   576→## 8.1 Core components
+   577→   577→
+   578→   578→```text
+   579→   579→Header
+   580→   580→Footer
+   581→   581→SearchBox
+   582→   582→SearchResults
+   583→   583→Breadcrumbs
+   584→   584→ToolLayout
+   585→   585→GameLayout
+   586→   586→CategoryLayout
+   587→   587→AdSlot
+   588→   588→RelatedTools
+   589→   589→RelatedGames
+   590→   590→FAQ
+   591→   591→HowTo
+   592→   592→ToolCard
+   593→   593→GameCard
+   594→   594→Dropzone
+   595→   595→CopyButton
+   596→   596→DownloadButton
+   597→   597→ResetButton
+   598→   598→ProgressBar
+   599→   599→Toast
+   600→   600→Modal
+   601→   601→Tabs
+   602→   602→Accordion
+   603→   603→ThemeToggle
+   604→   604→```
+   605→   605→
+   606→   606→## 8.2 Tool-specific components
+   607→   607→
+   608→   608→```text
+   609→   609→ImagePreview
+   610→   610→FileList
+   611→   611→PDFPageThumbnail
+   612→   612→TextEditor
+   613→   613→CodeEditor
+   614→   614→ColorInput
+   615→   615→CalculatorInput
+   616→   616→InvoiceLineItems
+   617→   617→GameBoard
+   618→   618→CardDeck
+   619→   619→Timer
+   620→   620→ScorePanel
+   621→   621→```
+   622→   622→
+   623→   623→## 8.3 AdSlot component
+   624→   624→
+   625→   625→The ad system must not hardcode AdSense or Media.net directly into pages. Use a network-agnostic component:
+   626→   626→
+   627→   627→```tsx
+   628→   628→<AdSlot
+   629→   629→  id="tool-after-main"
+   630→   630→  placement="after-tool"
+   631→   631→  category="image"
+   632→   632→  preferredNetwork="adsense"
+   633→   633→/>
+   634→   634→```
+   635→   635→
+   636→   636→The component decides:
+   637→   637→
+   638→   638→- Whether ads are enabled.
+   639→   639→- Which network to use.
+   640→   640→- Which placement is allowed.
+   641→   641→- Whether the page is excluded.
+   642→   642→- Whether the user has consent requirements in their region.
+   643→   643→
+   644→   644→Ad slots reserve height to prevent layout shift.
+   645→   645→
+   646→   646→---
+   647→   647→
+   648→   648→# 9. Technical Architecture
+   649→   649→
+   650→   650→## 9.1 Recommended stack
+   651→   651→
+   652→   652→```text
+   653→   653→Astro          Static pages and SEO shell
+   654→   654→React          Interactive tools/games
+   655→   655→TypeScript     Type safety
+   656→   656→Tailwind CSS   Utility styling and design tokens
+   657→   657→Vite           Build system through Astro
+   658→   658→Cloudflare Pages Hosting and preview deployments
+   659→   659→GitHub         Source control and PR workflow
+   660→   660→GitHub Actions CI, validation, audits
+   661→   661→```
+   662→   662→
+   663→   663→## 9.2 Why Astro + React
+   664→   664→
+   665→   665→Astro is used for static HTML, SEO pages, metadata, and page structure. React is used only where interactivity is required. This prevents every page from shipping a large JavaScript bundle.
+   666→   666→
+   667→   667→Rule:
+   668→   668→
+   669→   669→```text
+   670→   670→Content shell = Astro
+   671→   671→Interactive tool = React island
+   672→   672→Heavy processing = Web Worker
+   673→   673→```
+   674→   674→
+   675→   675→## 9.3 Folder structure
+   676→   676→
+   677→   677→```text
+   678→   678→dueneo/
+   679→   679→├── public/
+   680→   680→│   ├── favicon.svg
+   681→   681→│   ├── robots.txt
+   682→   682→│   ├── indexnow-key.txt
+   683→   683→│   └── assets/
+   684→   684→│
+   685→   685→├── src/
+   686→   686→│   ├── pages/
+   687→   687→│   │   ├── index.astro
+   688→   688→│   │   ├── image-compressor.astro
+   689→   689→│   │   ├── pdf-merge.astro
+   690→   690→│   │   ├── games/
+   691→   691→│   │   │   └── sudoku.astro
+   692→   692→│   │   └── ...
+   693→   693→│   │
+   694→   694→│   ├── layouts/
+   695→   695→│   │   ├── BaseLayout.astro
+   696→   696→│   │   ├── ToolLayout.astro
+   697→   697→│   │   ├── GameLayout.astro
+   698→   698→│   │   └── CategoryLayout.astro
+   699→   699→│   │
+   700→   700→│   ├── components/
+   701→   701→│   │   ├── global/
+   702→   702→│   │   ├── ads/
+   703→   703→│   │   ├── seo/
+   704→   704→│   │   ├── tools/
+   705→   705→│   │   └── games/
+   706→   706→│   │
+   707→   707→│   ├── data/
+   708→   708→│   │   ├── tools.ts
+   709→   709→│   │   ├── games.ts
+   710→   710→│   │   ├── categories.ts
+   711→   711→│   │   └── ad-rules.ts
+   712→   712→│   │
+   713→   713→│   ├── lib/
+   714→   714→│   │   ├── seo.ts
+   715→   715→│   │   ├── schema.ts
+   716→   716→│   │   ├── files.ts
+   717→   717→│   │   ├── privacy.ts
+   718→   718→│   │   └── indexnow.ts
+   719→   719→│   │
+   720→   720→│   ├── workers/
+   721→   721→│   │   ├── image.worker.ts
+   722→   722→│   │   ├── pdf.worker.ts
+   723→   723→│   │   └── text.worker.ts
+   724→   724→│   │
+   725→   725→│   └── styles/
+   726→   726→│       └── global.css
+   727→   727→│
+   728→   728→├── scripts/
+   729→   729→│   ├── generate-sitemap.ts
+   730→   730→│   ├── submit-indexnow.ts
+   731→   731→│   ├── validate-seo.ts
+   732→   732→│   ├── validate-links.ts
+   733→   733→│   └── build-tool-pages.ts
+   734→   734→│
+   735→   735→├── tests/
+   736→   736→│   ├── unit/
+   737→   737→│   ├── e2e/
+   738→   738→│   ├── accessibility/
+   739→   739→│   └── seo/
+   740→   740→│
+   741→   741→├── .github/
+   742→   742→│   ├── workflows/
+   743→   743→│   └── pull_request_template.md
+   744→   744→│
+   745→   745→├── package.json
+   746→   746→├── astro.config.mjs
+   747→   747→├── tailwind.config.ts
+   748→   748→└── DUENEO_BIBLE.md
+   749→   749→```
+   750→   750→
+   751→   751→## 9.4 Tool registry
+   752→   752→
+   753→   753→Every tool must be defined in `src/data/tools.ts`.
+   754→   754→
+   755→   755→Required fields:
+   756→   756→
+   757→   757→```ts
+   758→   758→export type ToolDefinition = {
+   759→   759→  id: number;
+   760→   760→  name: string;
+   761→   761→  slug: string;
+   762→   762→  category: ToolCategory;
+   763→   763→  summary: string;
+   764→   764→  seoTitle: string;
+   765→   765→  metaDescription: string;
+   766→   766→  keywords: string[];
+   767→   767→  difficulty: "Easy" | "Medium" | "Hard";
+   768→   768→  browserOnly: true;
+   769→   769→  related: string[];
+   770→   770→  component: string;
+   771→   771→  privacyLevel: "sensitive" | "file" | "standard";
+   772→   772→  adProfile: "standard" | "reduced" | "none";
+   773→   773→};
+   774→   774→```
+   775→   775→
+   776→   776→The registry powers:
+   777→   777→
+   778→   778→- Homepage search.
+   779→   779→- Category pages.
+   780→   780→- Related tools.
+   781→   781→- Sitemap generation.
+   782→   782→- Metadata.
+   783→   783→- Breadcrumbs.
+   784→   784→- AI audits.
+   785→   785→
+   786→   786→---
+   787→   787→
+   788→   788→# 10. Browser-Only Engineering Standards
+   789→   789→
+   790→   790→## 10.1 Data handling
+   791→   791→
+   792→   792→Tool input must remain in memory, localStorage, IndexedDB, or downloaded output unless the user explicitly exports it.
+   793→   793→
+   794→   794→Sensitive tools must avoid localStorage by default:
+   795→   795→
+   796→   796→- Password Generator.
+   797→   797→- Password Strength Checker.
+   798→   798→- JWT Decoder.
+   799→   799→- Hash tools.
+   800→   800→- Invoice Generator unless user enables local save.
+   801→   801→
+   802→   802→## 10.2 Web Workers
+   803→   803→
+   804→   804→Use Web Workers for:
+   805→   805→
+   806→   806→- Image compression.
+   807→   807→- Large image conversion.
+   808→   808→- PDF merging/splitting.
+   809→   809→- PDF rendering.
+   810→   810→- Large text diff.
+   811→   811→- Large CSV/Excel conversion.
+   812→   812→
+   813→   813→## 10.3 Lazy loading
+   814→   814→
+   815→   815→Heavy libraries load only after user intent:
+   816→   816→
+   817→   817→```text
+   818→   818→User opens page: no heavy PDF/image library yet.
+   819→   819→User selects file: load tool library.
+   820→   820→```
+   821→   821→
+   822→   822→## 10.4 Memory safety
+   823→   823→
+   824→   824→File tools must:
+   825→   825→
+   826→   826→- Show file size before processing.
+   827→   827→- Reject unreasonable file sizes with friendly message.
+   828→   828→- Allow cancellation where feasible.
+   829→   829→- Release object URLs after use.
+   830→   830→- Avoid keeping multiple large copies of files in memory.
+   831→   831→
+   832→   832→## 10.5 Browser compatibility
+   833→   833→
+   834→   834→Support latest stable versions of:
+   835→   835→
+   836→   836→- Chrome.
+   837→   837→- Edge.
+   838→   838→- Firefox.
+   839→   839→- Safari.
+   840→   840→- Mobile Safari.
+   841→   841→- Chrome Android.
+   842→   842→
+   843→   843→For unsupported browser APIs, show fallback guidance.
+   844→   844→
+   845→   845→---
+   846→   846→
+   847→   847→# 11. SEO Strategy
+   848→   848→
+   849→   849→## 11.1 SEO goal
+   850→   850→
+   851→   851→Each tool and game page should target one clear search intent. Dueneo should not rely on one homepage ranking. Every tool page is a search landing page.
+   852→   852→
+   853→   853→## 11.2 Google SEO principles
+   854→   854→
+   855→   855→Google SEO starts with making pages useful, crawlable, understandable, and technically sound. Dueneo follows these rules:
+   856→   856→
+   857→   857→- Clear descriptive page titles.
+   858→   858→- Unique meta descriptions.
+   859→   859→- Helpful content around the tool.
+   860→   860→- Static HTML for crawlers.
+   861→   861→- Valid canonical URLs.
+   862→   862→- Structured data where appropriate.
+   863→   863→- Useful internal links.
+   864→   864→- Fast loading.
+   865→   865→- Mobile-friendly layouts.
+   866→   866→- No thin pages.
+   867→   867→
+   868→   868→## 11.3 Bing SEO principles
+   869→   869→
+   870→   870→Bing optimization is not separate from good SEO, but Dueneo should explicitly support Bing:
+   871→   871→
+   872→   872→- Submit sitemap to Bing Webmaster Tools.
+   873→   873→- Use IndexNow for changed URLs.
+   874→   874→- Maintain clean XML sitemaps.
+   875→   875→- Use structured data.
+   876→   876→- Use descriptive titles and content.
+   877→   877→- Avoid spammy generated pages.
+   878→   878→
+   879→   879→## 11.4 IndexNow
+   880→   880→
+   881→   881→Dueneo uses IndexNow only for URLs that are added, updated, or deleted. The script should read changed pages from the build or Git diff and submit those URLs.
+   882→   882→
+   883→   883→Example request shape:
+   884→   884→
+   885→   885→```json
+   886→   886→{
+   887→   887→  "host": "dueneo.com",
+   888→   888→  "key": "INDEXNOW_KEY",
+   889→   889→  "keyLocation": "https://dueneo.com/INDEXNOW_KEY.txt",
+   890→   890→  "urlList": [
+   891→   891→    "https://dueneo.com/image-compressor/",
+   892→   892→    "https://dueneo.com/pdf-merge/"
+   893→   893→  ]
+   894→   894→}
+   895→   895→```
+   896→   896→
+   897→   897→IndexNow submission is a discovery signal, not a guarantee of indexing.
+   898→   898→
+   899→   899→## 11.5 Metadata rules
+   900→   900→
+   901→   901→Every page requires:
+   902→   902→
+   903→   903→```text
+   904→   904→<title>
+   905→   905→<meta name="description">
+   906→   906→<link rel="canonical">
+   907→   907→<meta property="og:title">
+   908→   908→<meta property="og:description">
+   909→   909→<meta property="og:url">
+   910→   910→<meta property="og:type">
+   911→   911→<meta name="twitter:card">
+   912→   912→```
+   913→   913→
+   914→   914→## 11.6 Title pattern
+   915→   915→
+   916→   916→Tool page:
+   917→   917→
+   918→   918→```text
+   919→   919→Free {Tool Name} - Browser-Based, Private & Fast | Dueneo
+   920→   920→```
+   921→   921→
+   922→   922→Game page:
+   923→   923→
+   924→   924→```text
+   925→   925→Free {Game Name} Online - Play in Your Browser | Dueneo
+   926→   926→```
+   927→   927→
+   928→   928→Category page:
+   929→   929→
+   930→   930→```text
+   931→   931→Free {Category} Tools - Browser-Based Utilities | Dueneo
+   932→   932→```
+   933→   933→
+   934→   934→## 11.7 Meta description pattern
+   935→   935→
+   936→   936→Tool page:
+   937→   937→
+   938→   938→```text
+   939→   939→Use Dueneo's free {tool name} to {action}. Browser-based, private, no upload, no signup, and fast.
+   940→   940→```
+   941→   941→
+   942→   942→Game page:
+   943→   943→
+   944→   944→```text
+   945→   945→Play free {game name} online on Dueneo. Lightweight, mobile-friendly, and browser-based with no signup.
+   946→   946→```
+   947→   947→
+   948→   948→## 11.8 Structured data
+   949→   949→
+   950→   950→Use JSON-LD:
+   951→   951→
+   952→   952→- `WebApplication` for tools.
+   953→   953→- `SoftwareApplication` only where it fits.
+   954→   954→- `Game` for games where appropriate.
+   955→   955→- `BreadcrumbList` for all pages.
+   956→   956→- `FAQPage` only when FAQ content is visible on the page.
+   957→   957→- `HowTo` only when steps are visible and genuinely instructional.
+   958→   958→
+   959→   959→Example WebApplication:
+   960→   960→
+   961→   961→```json
+   962→   962→{
+   963→   963→  "@context": "https://schema.org",
+   964→   964→  "@type": "WebApplication",
+   965→   965→  "name": "Image Compressor",
+   966→   966→  "url": "https://dueneo.com/image-compressor/",
+   967→   967→  "applicationCategory": "MultimediaApplication",
+   968→   968→  "operatingSystem": "Any",
+   969→   969→  "offers": {
+   970→   970→    "@type": "Offer",
+   971→   971→    "price": "0",
+   972→   972→    "priceCurrency": "USD"
+   973→   973→  }
+   974→   974→}
+   975→   975→```
+   976→   976→
+   977→   977→## 11.9 Content depth standard
+   978→   978→
+   979→   979→Every tool page must contain:
+   980→   980→
+   981→   981→- 80-150 word introduction.
+   982→   982→- Tool UI above the first content block.
+   983→   983→- How to use section.
+   984→   984→- Use cases section.
+   985→   985→- Limitations section.
+   986→   986→- Privacy section.
+   987→   987→- FAQ section.
+   988→   988→- Related tools section.
+   989→   989→
+   990→   990→Every game page must contain:
+   991→   991→
+   992→   992→- Short intro.
+   993→   993→- Game board.
+   994→   994→- Rules.
+   995→   995→- Strategy tips.
+   996→   996→- Controls.
+   997→   997→- FAQ.
+   998→   998→- Related games.
+   999→   999→
+  1000→  1000→## 11.10 Internal linking rules
+  1001→  1001→
+  1002→  1002→Every tool page links to:
+  1003→  1003→
+  1004→  1004→- Its category page.
+  1005→  1005→- 3-6 related tools.
+  1006→  1006→- Homepage via breadcrumb.
+  1007→  1007→
+  1008→  1008→Every game page links to:
+  1009→  1009→
+  1010→  1010→- Games category.
+  1011→  1011→- 3-6 related games.
+  1012→  1012→
+  1013→  1013→Category pages link to:
+  1014→  1014→
+  1015→  1015→- All tools/games in that category.
+  1016→  1016→- Popular tools/games.
+  1017→  1017→- Adjacent categories.
+  1018→  1018→
+  1019→  1019→## 11.11 Content duplication rules
+  1020→  1020→
+  1021→  1021→Avoid repeated boilerplate that looks identical across every page. Shared privacy sentences are allowed. Full paragraphs should be tool-specific.
+  1022→  1022→
+  1023→  1023→## 11.12 SEO automation policy
+  1024→  1024→
+  1025→  1025→AI agents may edit:
+  1026→  1026→
+  1027→  1027→- Titles.
+  1028→  1028→- Meta descriptions.
+  1029→  1029→- Intro text.
+  1030→  1030→- FAQ.
+  1031→  1031→- How-to steps.
+  1032→  1032→- Internal links.
+  1033→  1033→- Structured data.
+  1034→  1034→- Alt text.
+  1035→  1035→- Category copy.
+  1036→  1036→
+  1037→  1037→AI agents must not edit without tests:
+  1038→  1038→
+  1039→  1039→- Tool calculation logic.
+  1040→  1040→- Security-sensitive logic.
+  1041→  1041→- Ad policy logic.
+  1042→  1042→- Payment or monetization scripts.
+  1043→  1043→- Canonical URL generation.
+  1044→  1044→- robots.txt production rules.
+  1045→  1045→
+  1046→  1046→---
+  1047→  1047→
+  1048→  1048→# 12. Monetization Strategy
+  1049→  1049→
+  1050→  1050→## 12.1 Ad philosophy
+  1051→  1051→
+  1052→  1052→Dueneo uses simple, non-obstructive ads. The page must remain useful even if ads fail to load.
+  1053→  1053→
+  1054→  1054→Maximum default:
+  1055→  1055→
+  1056→  1056→```text
+  1057→  1057→Ad Slot 1: after tool/game
+  1058→  1058→Ad Slot 2: after FAQ/content
+  1059→  1059→```
+  1060→  1060→
+  1061→  1061→## 12.2 AdSense
+  1062→  1062→
+  1063→  1063→AdSense is the primary starting ad network.
+  1064→  1064→
+  1065→  1065→Rules:
+  1066→  1066→
+  1067→  1067→- Do not place ads near copy/download/play buttons.
+  1068→  1068→- Do not label ads misleadingly.
+  1069→  1069→- Use `Advertisement` or `Sponsored` only if a label is needed.
+  1070→  1070→- Do not use popups or forced interstitials.
+  1071→  1071→- Reserve ad slot space to reduce layout shift.
+  1072→  1072→- Exclude sensitive pages if needed.
+  1073→  1073→
+  1074→  1074→## 12.3 Media.net
+  1075→  1075→
+  1076→  1076→Media.net is included as a controlled monetization network, not hardcoded into every page.
+  1077→  1077→
+  1078→  1078→Testing plan:
+  1079→  1079→
+  1080→  1080→```text
+  1081→  1081→Image tools: compare AdSense vs Media.net on second slot.
+  1082→  1082→PDF tools: compare AdSense vs Media.net on second slot.
+  1083→  1083→Business/finance tools: compare both networks carefully.
+  1084→  1084→Games: test only after UX is stable.
+  1085→  1085→```
+  1086→  1086→
+  1087→  1087→Do not place both networks so densely that ads overwhelm content.
+  1088→  1088→
+  1089→  1089→## 12.4 Ad rules by page type
+  1090→  1090→
+  1091→  1091→```text
+  1092→  1092→Tool pages: up to 2 ads.
+  1093→  1093→Game pages: up to 2 ads, never inside game board.
+  1094→  1094→Legal pages: no ads.
+  1095→  1095→Contact page: no ads.
+  1096→  1096→Privacy page: no ads.
+  1097→  1097→Homepage: 0-1 ad only after content, optional.
+  1098→  1098→Category pages: 0-1 ad, optional.
+  1099→  1099→```
+  1100→  1100→
+  1101→  1101→## 12.5 Revenue Agent responsibilities
+  1102→  1102→
+  1103→  1103→The Revenue Agent tracks:
+  1104→  1104→
+  1105→  1105→- RPM by category.
+  1106→  1106→- Viewability.
+  1107→  1107→- Ad load impact.
+  1108→  1108→- User engagement.
+  1109→  1109→- Bounce rate.
+  1110→  1110→- Core Web Vitals impact.
+  1111→  1111→
+  1112→  1112→The Revenue Agent may propose:
+  1113→  1113→
+  1114→  1114→- Network swaps.
+  1115→  1115→- Slot removal.
+  1116→  1116→- Slot repositioning.
+  1117→  1117→- Category-specific settings.
+  1118→  1118→
+  1119→  1119→It must never propose deceptive placements.
+  1120→  1120→
+  1121→  1121→---
+  1122→  1122→
+  1123→  1123→# 13. AI Operating System
+  1124→  1124→
+  1125→  1125→Dueneo uses AI agents as a controlled production team. Agents do not randomly edit production. They create branches, commit changes, open pull requests, run tests, and allow automated gates to protect quality.
+  1126→  1126→
+  1127→  1127→## 13.1 Agent list
+  1128→  1128→
+  1129→  1129→```text
+  1130→  1130→Codex Implementation Agent
+  1131→  1131→SEO Research Agent
+  1132→  1132→Content Optimization Agent
+  1133→  1133→Technical SEO Agent
+  1134→  1134→UX Agent
+  1135→  1135→Revenue Agent
+  1136→  1136→QA Agent
+  1137→  1137→Release Manager Agent
+  1138→  1138→Documentation Agent
+  1139→  1139→```
+  1140→  1140→
+  1141→  1141→## 13.2 Codex Implementation Agent
+  1142→  1142→
+  1143→  1143→Purpose:
+  1144→  1144→
+  1145→  1145→- Build tools.
+  1146→  1146→- Build games.
+  1147→  1147→- Refactor components.
+  1148→  1148→- Add tests.
+  1149→  1149→- Fix bugs.
+  1150→  1150→- Improve accessibility.
+  1151→  1151→
+  1152→  1152→Inputs:
+  1153→  1153→
+  1154→  1154→- DUENEO_BIBLE.md.
+  1155→  1155→- GitHub issue.
+  1156→  1156→- Tool registry.
+  1157→  1157→- Existing code.
+  1158→  1158→- Test failures.
+  1159→  1159→
+  1160→  1160→Outputs:
+  1161→  1161→
+  1162→  1162→- Branch.
+  1163→  1163→- Code changes.
+  1164→  1164→- Unit tests.
+  1165→  1165→- E2E tests when needed.
+  1166→  1166→- Pull request summary.
+  1167→  1167→
+  1168→  1168→Permissions:
+  1169→  1169→
+  1170→  1170→- May edit tool components.
+  1171→  1171→- May edit tests.
+  1172→  1172→- May edit documentation.
+  1173→  1173→- May add dependencies with justification.
+  1174→  1174→
+  1175→  1175→Restrictions:
+  1176→  1176→
+  1177→  1177→- Must not add backend APIs for browser-only tools.
+  1178→  1178→- Must not add tracking of user input.
+  1179→  1179→- Must not expose secrets.
+  1180→  1180→- Must not reduce accessibility.
+  1181→  1181→- Must not bypass CI.
+  1182→  1182→
+  1183→  1183→## 13.3 SEO Research Agent
+  1184→  1184→
+  1185→  1185→Purpose:
+  1186→  1186→
+  1187→  1187→- Monitor Google/Bing performance.
+  1188→  1188→- Identify keyword opportunities.
+  1189→  1189→- Compare competitor pages.
+  1190→  1190→- Find pages with declining impressions or CTR.
+  1191→  1191→- Create SEO improvement issues or PRs.
+  1192→  1192→
+  1193→  1193→Inputs:
+  1194→  1194→
+  1195→  1195→- Google Search Console exports/API.
+  1196→  1196→- Bing Webmaster data.
+  1197→  1197→- Sitemap.
+  1198→  1198→- Tool registry.
+  1199→  1199→- Analytics summaries.
+  1200→  1200→- Competitor SERP snapshots where legally collected.
+  1201→  1201→
+  1202→  1202→Outputs:
+  1203→  1203→
+  1204→  1204→- Keyword report.
+  1205→  1205→- Page opportunity report.
+  1206→  1206→- Internal linking recommendations.
+  1207→  1207→- PR with safe metadata/content changes.
+  1208→  1208→
+  1209→  1209→Restrictions:
+  1210→  1210→
+  1211→  1211→- Must not create spammy doorway pages.
+  1212→  1212→- Must not produce fake reviews or fake claims.
+  1213→  1213→- Must not stuff keywords.
+  1214→  1214→
+  1215→  1215→## 13.4 Content Optimization Agent
+  1216→  1216→
+  1217→  1217→Purpose:
+  1218→  1218→
+  1219→  1219→- Improve titles and descriptions.
+  1220→  1220→- Improve FAQ quality.
+  1221→  1221→- Improve examples.
+  1222→  1222→- Add missing limitations.
+  1223→  1223→- Improve related links.
+  1224→  1224→
+  1225→  1225→Rules:
+  1226→  1226→
+  1227→  1227→- Keep copy concise and useful.
+  1228→  1228→- Do not make unsupported claims.
+  1229→  1229→- Do not mention uploads are impossible if third-party scripts are present; say tool input is processed locally.
+  1230→  1230→- Avoid duplicate content.
+  1231→  1231→
+  1232→  1232→## 13.5 Technical SEO Agent
+  1233→  1233→
+  1234→  1234→Purpose:
+  1235→  1235→
+  1236→  1236→- Validate metadata.
+  1237→  1237→- Validate canonical URLs.
+  1238→  1238→- Validate structured data.
+  1239→  1239→- Check broken links.
+  1240→  1240→- Check sitemap.
+  1241→  1241→- Check robots.txt.
+  1242→  1242→- Check build output.
+  1243→  1243→- Check Core Web Vitals risk.
+  1244→  1244→
+  1245→  1245→Outputs:
+  1246→  1246→
+  1247→  1247→- PR for technical fixes.
+  1248→  1248→- Issue for complex problems.
+  1249→  1249→
+  1250→  1250→## 13.6 UX Agent
+  1251→  1251→
+  1252→  1252→Purpose:
+  1253→  1253→
+  1254→  1254→- Improve page usability.
+  1255→  1255→- Reduce confusion.
+  1256→  1256→- Improve search and navigation.
+  1257→  1257→- Improve mobile layouts.
+  1258→  1258→- Identify drop-off points.
+  1259→  1259→
+  1260→  1260→Inputs:
+  1261→  1261→
+  1262→  1262→- Analytics events.
+  1263→  1263→- Search queries on site.
+  1264→  1264→- Heatmap/session tools if configured.
+  1265→  1265→- User feedback.
+  1266→  1266→- Support/contact messages.
+  1267→  1267→
+  1268→  1268→Outputs:
+  1269→  1269→
+  1270→  1270→- UX report.
+  1271→  1271→- Component improvement PR.
+  1272→  1272→- A/B test proposal.
+  1273→  1273→
+  1274→  1274→Rules:
+  1275→  1275→
+  1276→  1276→- UX changes must preserve accessibility.
+  1277→  1277→- UX changes must not prioritize ads over task completion.
+  1278→  1278→
+  1279→  1279→## 13.7 Revenue Agent
+  1280→  1280→
+  1281→  1281→Purpose:
+  1282→  1282→
+  1283→  1283→- Optimize ads without harming trust.
+  1284→  1284→- Compare AdSense and Media.net.
+  1285→  1285→- Protect page speed.
+  1286→  1286→- Identify categories with weak monetization.
+  1287→  1287→
+  1288→  1288→Outputs:
+  1289→  1289→
+  1290→  1290→- Ad experiment PR.
+  1291→  1291→- Revenue report.
+  1292→  1292→- Policy risk warning.
+  1293→  1293→
+  1294→  1294→Rules:
+  1295→  1295→
+  1296→  1296→- No deceptive ad labels.
+  1297→  1297→- No ads near download/play/copy buttons.
+  1298→  1298→- No popups.
+  1299→  1299→- No forced ad interactions.
+  1300→  1300→
+  1301→  1301→## 13.8 QA Agent
+  1302→  1302→
+  1303→  1303→Purpose:
+  1304→  1304→
+  1305→  1305→- Run automated tests.
+  1306→  1306→- Validate tools on desktop/mobile.
+  1307→  1307→- Validate accessibility.
+  1308→  1308→- Validate no obvious regressions.
+  1309→  1309→
+  1310→  1310→Outputs:
+  1311→  1311→
+  1312→  1312→- Test report.
+  1313→  1313→- Screenshots where applicable.
+  1314→  1314→- Failed PR comments.
+  1315→  1315→
+  1316→  1316→## 13.9 Release Manager Agent
+  1317→  1317→
+  1318→  1318→Purpose:
+  1319→  1319→
+  1320→  1320→- Coordinate branches and PRs.
+  1321→  1321→- Ensure checks pass.
+  1322→  1322→- Auto-merge safe changes if configured.
+  1323→  1323→- Trigger Cloudflare deployment.
+  1324→  1324→- Produce changelog.
+  1325→  1325→
+  1326→  1326→Rules:
+  1327→  1327→
+  1328→  1328→- Failed tests block merge.
+  1329→  1329→- Security/privacy failures block merge.
+  1330→  1330→- Ad policy failures block merge.
+  1331→  1331→- Broken sitemap/canonical blocks merge.
+  1332→  1332→
+  1333→  1333→## 13.10 Documentation Agent
+  1334→  1334→
+  1335→  1335→Purpose:
+  1336→  1336→
+  1337→  1337→- Keep DUENEO_BIBLE.md aligned with code.
+  1338→  1338→- Update tool specs when tool behavior changes.
+  1339→  1339→- Add implementation notes after major decisions.
+  1340→  1340→
+  1341→  1341→---
+  1342→  1342→
+  1343→  1343→# 14. Automated Pull Request Workflow
+  1344→  1344→
+  1345→  1345→## 14.1 Standard workflow
+  1346→  1346→
+  1347→  1347→```text
+  1348→  1348→Agent receives task
+  1349→  1349→Agent reads DUENEO_BIBLE.md
+  1350→  1350→Agent creates branch
+  1351→  1351→Agent edits source
+  1352→  1352→Agent runs tests
+  1353→  1353→Agent commits
+  1354→  1354→Agent opens pull request
+  1355→  1355→GitHub Actions validates
+  1356→  1356→Cloudflare creates preview
+  1357→  1357→QA agent reviews preview
+  1358→  1358→Release Manager merges if checks pass
+  1359→  1359→Cloudflare deploys production
+  1360→  1360→IndexNow submits changed URLs
+  1361→  1361→```
+  1362→  1362→
+  1363→  1363→## 14.2 Branch naming
+  1364→  1364→
+  1365→  1365→```text
+  1366→  1366→agent/codex/image-compressor
+  1367→  1367→agent/seo/meta-updates-2026-06-30
+  1368→  1368→agent/ux/search-improvements
+  1369→  1369→agent/revenue/adslot-test-pdf
+  1370→  1370→```
+  1371→  1371→
+  1372→  1372→## 14.3 Commit style
+  1373→  1373→
+  1374→  1374→```text
+  1375→  1375→feat(tool): add image compressor
+  1376→  1376→fix(seo): correct canonical for pdf pages
+  1377→  1377→chore(schema): add breadcrumb structured data
+  1378→  1378→perf(image): lazy-load compression worker
+  1379→  1379→```
+  1380→  1380→
+  1381→  1381→## 14.4 Pull request template
+  1382→  1382→
+  1383→  1383→```md
+  1384→  1384→## Summary
+  1385→  1385→
+  1386→  1386→What changed?
+  1387→  1387→
+  1388→  1388→## Type
+  1389→  1389→
+  1390→  1390→- [ ] Tool implementation
+  1391→  1391→- [ ] Game implementation
+  1392→  1392→- [ ] SEO improvement
+  1393→  1393→- [ ] UX improvement
+  1394→  1394→- [ ] Revenue/ad experiment
+  1395→  1395→- [ ] Bug fix
+  1396→  1396→- [ ] Documentation
+  1397→  1397→
+  1398→  1398→## Browser-only check
+  1399→  1399→
+  1400→  1400→- [ ] No user input is uploaded
+  1401→  1401→- [ ] No secrets are exposed
+  1402→  1402→- [ ] Heavy processing uses worker/lazy loading where needed
+  1403→  1403→
+  1404→  1404→## SEO check
+  1405→  1405→
+  1406→  1406→- [ ] Title exists
+  1407→  1407→- [ ] Meta description exists
+  1408→  1408→- [ ] Canonical exists
+  1409→  1409→- [ ] Structured data valid where applicable
+  1410→  1410→- [ ] Related links valid
+  1411→  1411→
+  1412→  1412→## Testing
+  1413→  1413→
+  1414→  1414→- [ ] Unit tests pass
+  1415→  1415→- [ ] Build passes
+  1416→  1416→- [ ] Link check passes
+  1417→  1417→- [ ] Accessibility check passes
+  1418→  1418→- [ ] Lighthouse budget passes
+  1419→  1419→
+  1420→  1420→## Screenshots
+  1421→  1421→
+  1422→  1422→Add before/after screenshots for UI changes.
+  1423→  1423→```
+  1424→  1424→
+  1425→  1425→---
+  1426→  1426→
+  1427→  1427→# 15. GitHub Actions and CI/CD
+  1428→  1428→
+  1429→  1429→## 15.1 Required checks
+  1430→  1430→
+  1431→  1431→Every pull request must run:
+  1432→  1432→
+  1433→  1433→```text
+  1434→  1434→install
+  1435→  1435→lint
+  1436→  1436→typecheck
+  1437→  1437→unit tests
+  1438→  1438→build
+  1439→  1439→SEO validation
+  1440→  1440→link validation
+  1441→  1441→schema validation
+  1442→  1442→accessibility smoke test
+  1443→  1443→performance budget check
+  1444→  1444→```
+  1445→  1445→
+  1446→  1446→## 15.2 Example workflow
+  1447→  1447→
+  1448→  1448→```yaml
+  1449→  1449→name: CI
+  1450→  1450→
+  1451→  1451→on:
+  1452→  1452→  pull_request:
+  1453→  1453→  push:
+  1454→  1454→    branches: [main]
+  1455→  1455→
+  1456→  1456→jobs:
+  1457→  1457→  validate:
+  1458→  1458→    runs-on: ubuntu-latest
+  1459→  1459→    steps:
+  1460→  1460→      - uses: actions/checkout@v4
+  1461→  1461→      - uses: actions/setup-node@v4
+  1462→  1462→        with:
+  1463→  1463→          node-version: 22
+  1464→  1464→          cache: npm
+  1465→  1465→      - run: npm ci
+  1466→  1466→      - run: npm run lint
+  1467→  1467→      - run: npm run typecheck
+  1468→  1468→      - run: npm run test
+  1469→  1469→      - run: npm run build
+  1470→  1470→      - run: npm run validate:seo
+  1471→  1471→      - run: npm run validate:links
+  1472→  1472→      - run: npm run validate:schema
+  1473→  1473→```
+  1474→  1474→
+  1475→  1475→## 15.3 Cloudflare Pages deployment
+  1476→  1476→
+  1477→  1477→Use Cloudflare Pages Git integration with GitHub. Production branch is `main`. Pull requests generate preview deployments. Production deploys only after merge.
+  1478→  1478→
+  1479→  1479→Recommended build settings:
+  1480→  1480→
+  1481→  1481→```text
+  1482→  1482→Framework preset: Astro
+  1483→  1483→Build command: npm run build
+  1484→  1484→Build output directory: dist
+  1485→  1485→Production branch: main
+  1486→  1486→Node version: 22
+  1487→  1487→```
+  1488→  1488→
+  1489→  1489→## 15.4 Rollback
+  1490→  1490→
+  1491→  1491→Rollback options:
+  1492→  1492→
+  1493→  1493→- Revert Git commit and redeploy.
+  1494→  1494→- Use Cloudflare Pages deployment rollback if available in the dashboard.
+  1495→  1495→- Disable problematic ad experiment via configuration.
+  1496→  1496→
+  1497→  1497→---
+  1498→  1498→
+  1499→  1499→# 16. Analytics and Measurement
+  1500→  1500→
+  1501→  1501→## 16.1 Required analytics
+  1502→  1502→
+  1503→  1503→```text
+  1504→  1504→Cloudflare Analytics
+  1505→  1505→Google Search Console
+  1506→  1506→Bing Webmaster Tools
+  1507→  1507→AdSense reports
+  1508→  1508→Media.net reports
+  1509→  1509→```
+  1510→  1510→
+  1511→  1511→Optional:
+  1512→  1512→
+  1513→  1513→```text
+  1514→  1514→GA4
+  1515→  1515→Microsoft Clarity
+  1516→  1516→Plausible or similar privacy-focused analytics
+  1517→  1517→```
+  1518→  1518→
+  1519→  1519→## 16.2 Events to track
+  1520→  1520→
+  1521→  1521→Do track:
+  1522→  1522→
+  1523→  1523→```text
+  1524→  1524→tool_started
+  1525→  1525→tool_completed
+  1526→  1526→file_type_selected
+  1527→  1527→error_shown
+  1528→  1528→copy_clicked
+  1529→  1529→download_clicked
+  1530→  1530→game_started
+  1531→  1531→game_completed
+  1532→  1532→search_performed
+  1533→  1533→related_tool_clicked
+  1534→  1534→```
+  1535→  1535→
+  1536→  1536→Do not track:
+  1537→  1537→
+  1538→  1538→```text
+  1539→  1539→actual uploaded file contents
+  1540→  1540→password values
+  1541→  1541→JWT contents
+  1542→  1542→invoice details
+  1543→  1543→private text input
+  1544→  1544→full JSON input
+  1545→  1545→```
+  1546→  1546→
+  1547→  1547→## 16.3 Search Console metrics
+  1548→  1548→
+  1549→  1549→Monitor:
+  1550→  1550→
+  1551→  1551→- Clicks.
+  1552→  1552→- Impressions.
+  1553→  1553→- CTR.
+  1554→  1554→- Average position.
+  1555→  1555→- Pages with declining impressions.
+  1556→  1556→- Queries with high impressions and low CTR.
+  1557→  1557→- New query opportunities.
+  1558→  1558→
+  1559→  1559→## 16.4 Bing metrics
+  1560→  1560→
+  1561→  1561→Monitor:
+  1562→  1562→
+  1563→  1563→- Indexed pages.
+  1564→  1564→- Crawl errors.
+  1565→  1565→- Sitemap status.
+  1566→  1566→- IndexNow submission status.
+  1567→  1567→- Query impressions.
+  1568→  1568→- CTR.
+  1569→  1569→
+  1570→  1570→---
+  1571→  1571→
+  1572→  1572→# 17. Performance Budgets
+  1573→  1573→
+  1574→  1574→## 17.1 Global budget
+  1575→  1575→
+  1576→  1576→```text
+  1577→  1577→Static HTML: required
+  1578→  1578→Initial JS for simple pages: under 100 KB preferred
+  1579→  1579→Tool-specific heavy JS: lazy-loaded
+  1580→  1580→LCP target: under 2.5s on good connections
+  1581→  1581→CLS target: under 0.1
+  1582→  1582→INP target: good range
+  1583→  1583→```
+  1584→  1584→
+  1585→  1585→## 17.2 Image/PDF tools
+  1586→  1586→
+  1587→  1587→```text
+  1588→  1588→Heavy library must lazy-load after file selection.
+  1589→  1589→Processing should show progress.
+  1590→  1590→Use Web Worker when processing may exceed 100ms.
+  1591→  1591→```
+  1592→  1592→
+  1593→  1593→## 17.3 Games
+  1594→  1594→
+  1595→  1595→```text
+  1596→  1596→No heavy game engine.
+  1597→  1597→No 3D rendering.
+  1598→  1598→No large sprite packs.
+  1599→  1599→Canvas/SVG/HTML/CSS only.
+  1600→  1600→```
+  1601→  1601→
+  1602→  1602→---
+  1603→  1603→
+  1604→  1604→# 18. Accessibility Standards
+  1605→  1605→
+  1606→  1606→Every page must support:
+  1607→  1607→
+  1608→  1608→- Keyboard navigation.
+  1609→  1609→- Visible focus states.
+  1610→  1610→- Semantic headings.
+  1611→  1611→- Form labels.
+  1612→  1612→- ARIA only where necessary.
+  1613→  1613→- Color contrast.
+  1614→  1614→- Mobile zoom.
+  1615→  1615→- Screen-reader-friendly button labels.
+  1616→  1616→
+  1617→  1617→Games must include:
+  1618→  1618→
+  1619→  1619→- Keyboard controls where possible.
+  1620→  1620→- Clear controls list.
+  1621→  1621→- Pause/restart controls.
+  1622→  1622→- Non-color-only state indicators where possible.
+  1623→  1623→
+  1624→  1624→---
+  1625→  1625→
+  1626→  1626→# 19. Security and Privacy
+  1627→  1627→
+  1628→  1628→## 19.1 Content Security Policy
+  1629→  1629→
+  1630→  1630→Recommended starting CSP:
+  1631→  1631→
+  1632→  1632→```text
+  1633→  1633→default-src 'self';
+  1634→  1634→script-src 'self' https://pagead2.googlesyndication.com https://www.googletagservices.com https://*.media.net;
+  1635→  1635→style-src 'self' 'unsafe-inline';
+  1636→  1636→img-src 'self' data: blob: https:;
+  1637→  1637→font-src 'self' data:;
+  1638→  1638→connect-src 'self' https://*.google.com https://*.googlesyndication.com https://*.media.net https://api.indexnow.org;
+  1639→  1639→worker-src 'self' blob:;
+  1640→  1640→object-src 'none';
+  1641→  1641→base-uri 'self';
+  1642→  1642→frame-ancestors 'self';
+  1643→  1643→```
+  1644→  1644→
+  1645→  1645→CSP must be tested with actual ad and analytics providers before enforcing.
+  1646→  1646→
+  1647→  1647→## 19.2 Secrets
+  1648→  1648→
+  1649→  1649→Never expose:
+  1650→  1650→
+  1651→  1651→- API keys.
+  1652→  1652→- Cloudflare tokens.
+  1653→  1653→- GitHub tokens.
+  1654→  1654→- Ad network account secrets.
+  1655→  1655→- IndexNow private control beyond public key file requirements.
+  1656→  1656→
+  1657→  1657→## 19.3 Sensitive tools
+  1658→  1658→
+  1659→  1659→Sensitive pages must avoid unnecessary scripts when possible:
+  1660→  1660→
+  1661→  1661→- Password Generator.
+  1662→  1662→- Password Strength Checker.
+  1663→  1663→- JWT Decoder.
+  1664→  1664→- Hash tools.
+  1665→  1665→
+  1666→  1666→For these pages, consider reduced analytics and reduced ads if privacy/trust is more important than revenue.
+  1667→  1667→
+  1668→  1668→---
+  1669→  1669→
+  1670→  1670→# 20. Top 100 Tools Registry
+  1671→  1671→
+  1672→  1672→| # | Tool | Category | URL | Difficulty | Browser-only |
+  1673→  1673→|---:|---|---|---|---|---|
+  1674→  1674→| 1 | Image Compressor | Image | `/image-compressor/` | Medium | Required |
+  1675→  1675→| 2 | Image Resizer | Image | `/image-resizer/` | Medium | Required |
+  1676→  1676→| 3 | Crop Image | Image | `/crop-image/` | Medium | Required |
+  1677→  1677→| 4 | Rotate Image | Image | `/rotate-image/` | Easy | Required |
+  1678→  1678→| 5 | Flip Image | Image | `/flip-image/` | Easy | Required |
+  1679→  1679→| 6 | JPG to PNG | Image | `/jpg-to-png/` | Easy | Required |
+  1680→  1680→| 7 | PNG to JPG | Image | `/png-to-jpg/` | Easy | Required |
+  1681→  1681→| 8 | PNG to WebP | Image | `/png-to-webp/` | Easy | Required |
+  1682→  1682→| 9 | WebP to PNG | Image | `/webp-to-png/` | Easy | Required |
+  1683→  1683→| 10 | JPG to WebP | Image | `/jpg-to-webp/` | Easy | Required |
+  1684→  1684→| 11 | WebP to JPG | Image | `/webp-to-jpg/` | Easy | Required |
+  1685→  1685→| 12 | HEIC to JPG | Image | `/heic-to-jpg/` | Hard | Required |
+  1686→  1686→| 13 | AVIF to JPG | Image | `/avif-to-jpg/` | Medium | Required |
+  1687→  1687→| 14 | SVG to PNG | Image | `/svg-to-png/` | Medium | Required |
+  1688→  1688→| 15 | Watermark Image | Image | `/watermark-image/` | Medium | Required |
+  1689→  1689→| 16 | Blur Image | Image | `/blur-image/` | Medium | Required |
+  1690→  1690→| 17 | Pixelate Image | Image | `/pixelate-image/` | Medium | Required |
+  1691→  1691→| 18 | Add Border to Image | Image | `/add-border-to-image/` | Easy | Required |
+  1692→  1692→| 19 | Favicon Generator | Image | `/favicon-generator/` | Medium | Required |
+  1693→  1693→| 20 | Social Media Image Resizer | Image | `/social-media-image-resizer/` | Medium | Required |
+  1694→  1694→| 21 | PDF Merge | Pdf | `/pdf-merge/` | Hard | Required |
+  1695→  1695→| 22 | PDF Split | Pdf | `/pdf-split/` | Hard | Required |
+  1696→  1696→| 23 | PDF Compress | Pdf | `/pdf-compress/` | Hard | Required |
+  1697→  1697→| 24 | Rotate PDF | Pdf | `/rotate-pdf/` | Medium | Required |
+  1698→  1698→| 25 | Delete PDF Pages | Pdf | `/delete-pdf-pages/` | Medium | Required |
+  1699→  1699→| 26 | Extract PDF Pages | Pdf | `/extract-pdf-pages/` | Medium | Required |
+  1700→  1700→| 27 | Rearrange PDF Pages | Pdf | `/rearrange-pdf-pages/` | Hard | Required |
+  1701→  1701→| 28 | Image to PDF | Pdf | `/image-to-pdf/` | Medium | Required |
+  1702→  1702→| 29 | PDF to JPG | Pdf | `/pdf-to-jpg/` | Hard | Required |
+  1703→  1703→| 30 | JPG to PDF | Pdf | `/jpg-to-pdf/` | Medium | Required |
+  1704→  1704→| 31 | PNG to PDF | Pdf | `/png-to-pdf/` | Medium | Required |
+  1705→  1705→| 32 | Watermark PDF | Pdf | `/watermark-pdf/` | Hard | Required |
+  1706→  1706→| 33 | Add Page Numbers to PDF | Pdf | `/add-page-numbers-to-pdf/` | Medium | Required |
+  1707→  1707→| 34 | PDF Metadata Viewer | Pdf | `/pdf-metadata-viewer/` | Medium | Required |
+  1708→  1708→| 35 | Password Protect PDF | Pdf | `/password-protect-pdf/` | Hard | Required |
+  1709→  1709→| 36 | JSON Formatter | Developer | `/json-formatter/` | Easy | Required |
+  1710→  1710→| 37 | JSON Validator | Developer | `/json-validator/` | Easy | Required |
+  1711→  1711→| 38 | JSON Minifier | Developer | `/json-minifier/` | Easy | Required |
+  1712→  1712→| 39 | XML Formatter | Developer | `/xml-formatter/` | Medium | Required |
+  1713→  1713→| 40 | YAML Formatter | Developer | `/yaml-formatter/` | Medium | Required |
+  1714→  1714→| 41 | CSV to JSON | Developer | `/csv-to-json/` | Easy | Required |
+  1715→  1715→| 42 | JSON to CSV | Developer | `/json-to-csv/` | Easy | Required |
+  1716→  1716→| 43 | CSV to Excel | Developer | `/csv-to-excel/` | Medium | Required |
+  1717→  1717→| 44 | Excel to CSV | Developer | `/excel-to-csv/` | Medium | Required |
+  1718→  1718→| 45 | Base64 Encoder | Developer | `/base64-encoder/` | Easy | Required |
+  1719→  1719→| 46 | Base64 Decoder | Developer | `/base64-decoder/` | Easy | Required |
+  1720→  1720→| 47 | URL Encoder | Developer | `/url-encoder/` | Easy | Required |
+  1721→  1721→| 48 | URL Decoder | Developer | `/url-decoder/` | Easy | Required |
+  1722→  1722→| 49 | HTML Escape | Developer | `/html-escape/` | Easy | Required |
+  1723→  1723→| 50 | JWT Decoder | Security | `/jwt-decoder/` | Medium | Required |
+  1724→  1724→| 51 | Regex Tester | Developer | `/regex-tester/` | Medium | Required |
+  1725→  1725→| 52 | Diff Checker | Developer | `/diff-checker/` | Medium | Required |
+  1726→  1726→| 53 | Unix Timestamp Converter | Developer | `/unix-timestamp-converter/` | Easy | Required |
+  1727→  1727→| 54 | Cron Expression Builder | Developer | `/cron-expression-builder/` | Medium | Required |
+  1728→  1728→| 55 | UUID Generator | Security | `/uuid-generator/` | Easy | Required |
+  1729→  1729→| 56 | Password Generator | Security | `/password-generator/` | Easy | Required |
+  1730→  1730→| 57 | Password Strength Checker | Security | `/password-strength-checker/` | Medium | Required |
+  1731→  1731→| 58 | SHA-256 Generator | Security | `/sha256-generator/` | Easy | Required |
+  1732→  1732→| 59 | MD5 Generator | Security | `/md5-generator/` | Easy | Required |
+  1733→  1733→| 60 | QR Code Generator | Utility | `/qr-code-generator/` | Easy | Required |
+  1734→  1734→| 61 | Word Counter | Text | `/word-counter/` | Easy | Required |
+  1735→  1735→| 62 | Character Counter | Text | `/character-counter/` | Easy | Required |
+  1736→  1736→| 63 | Sentence Counter | Text | `/sentence-counter/` | Easy | Required |
+  1737→  1737→| 64 | Reading Time Calculator | Text | `/reading-time-calculator/` | Easy | Required |
+  1738→  1738→| 65 | Case Converter | Text | `/case-converter/` | Easy | Required |
+  1739→  1739→| 66 | Remove Duplicate Lines | Text | `/remove-duplicate-lines/` | Easy | Required |
+  1740→  1740→| 67 | Sort Lines | Text | `/sort-lines/` | Easy | Required |
+  1741→  1741→| 68 | Reverse Text | Text | `/reverse-text/` | Easy | Required |
+  1742→  1742→| 69 | Remove Empty Lines | Text | `/remove-empty-lines/` | Easy | Required |
+  1743→  1743→| 70 | Remove Extra Spaces | Text | `/remove-extra-spaces/` | Easy | Required |
+  1744→  1744→| 71 | Find and Replace | Text | `/find-and-replace/` | Medium | Required |
+  1745→  1745→| 72 | Slug Generator | Text | `/slug-generator/` | Easy | Required |
+  1746→  1746→| 73 | Lorem Ipsum Generator | Text | `/lorem-ipsum-generator/` | Easy | Required |
+  1747→  1747→| 74 | Markdown Previewer | Text | `/markdown-previewer/` | Medium | Required |
+  1748→  1748→| 75 | Text Cleaner | Text | `/text-cleaner/` | Medium | Required |
+  1749→  1749→| 76 | Invoice Generator | Business | `/invoice-generator/` | Hard | Required |
+  1750→  1750→| 77 | Quote Generator | Business | `/quote-generator/` | Hard | Required |
+  1751→  1751→| 78 | Receipt Generator | Business | `/receipt-generator/` | Hard | Required |
+  1752→  1752→| 79 | Purchase Order Generator | Business | `/purchase-order-generator/` | Hard | Required |
+  1753→  1753→| 80 | Delivery Note Generator | Business | `/delivery-note-generator/` | Medium | Required |
+  1754→  1754→| 81 | GST Calculator | Finance | `/gst-calculator/` | Easy | Required |
+  1755→  1755→| 82 | VAT Calculator | Finance | `/vat-calculator/` | Easy | Required |
+  1756→  1756→| 83 | Sales Tax Calculator | Finance | `/sales-tax-calculator/` | Easy | Required |
+  1757→  1757→| 84 | Discount Calculator | Finance | `/discount-calculator/` | Easy | Required |
+  1758→  1758→| 85 | Profit Margin Calculator | Finance | `/profit-margin-calculator/` | Easy | Required |
+  1759→  1759→| 86 | Markup Calculator | Finance | `/markup-calculator/` | Easy | Required |
+  1760→  1760→| 87 | Compound Interest Calculator | Finance | `/compound-interest-calculator/` | Medium | Required |
+  1761→  1761→| 88 | Loan Calculator | Finance | `/loan-calculator/` | Medium | Required |
+  1762→  1762→| 89 | Mortgage Calculator | Finance | `/mortgage-calculator/` | Medium | Required |
+  1763→  1763→| 90 | Percentage Calculator | Finance | `/percentage-calculator/` | Easy | Required |
+  1764→  1764→| 91 | Color Picker | Design | `/color-picker/` | Easy | Required |
+  1765→  1765→| 92 | Color Palette Generator | Design | `/color-palette-generator/` | Medium | Required |
+  1766→  1766→| 93 | CSS Gradient Generator | Design | `/css-gradient-generator/` | Medium | Required |
+  1767→  1767→| 94 | Contrast Checker | Design | `/contrast-checker/` | Easy | Required |
+  1768→  1768→| 95 | SVG Optimizer | Design | `/svg-optimizer/` | Medium | Required |
+  1769→  1769→| 96 | Meta Tag Generator | Seo | `/meta-tag-generator/` | Easy | Required |
+  1770→  1770→| 97 | Open Graph Generator | Seo | `/open-graph-generator/` | Easy | Required |
+  1771→  1771→| 98 | robots.txt Generator | Seo | `/robots-txt-generator/` | Easy | Required |
+  1772→  1772→| 99 | Sitemap Generator | Seo | `/sitemap-generator/` | Easy | Required |
+  1773→  1773→| 100 | Unit Converter | Utility | `/unit-converter/` | Medium | Required |
+  1774→  1774→
+  1775→  1775→---
+  1776→  1776→
+  1777→  1777→# 21. Detailed Tool Specifications
+  1778→  1778→
+  1779→  1779→
+  1780→  1780→## Image Tools
+  1781→  1781→
+  1782→  1782→Image tools are among Dueneo's most important SEO categories because they solve common file-preparation problems and can be performed privately with Canvas/WebAssembly.
+  1783→  1783→
+  1784→  1784→### 1. Image Compressor
+  1785→  1785→
+  1786→  1786→| Field | Specification |
+  1787→  1787→|---|---|
+  1788→  1788→| URL | `/image-compressor/` |
+  1789→  1789→| Category | Image |
+  1790→  1790→| Difficulty | Medium |
+  1791→  1791→| Browser-only status | Required |
+  1792→  1792→| Primary technology | Canvas, OffscreenCanvas, Web Worker, browser-image-compression |
+  1793→  1793→| Primary search intent | User wants to complete **image compressor** immediately without signing up or uploading data. |
+  1794→  1794→| Target keywords | image compressor, compress image online, reduce image size, compress jpg, compress png |
+  1795→  1795→| SEO title | Free Image Compressor - Browser-Based, Private & Fast | Dueneo |
+  1796→  1796→| Meta description | Use Dueneo's free image compressor to compress JPG, PNG, WebP, AVIF images locally in the browser. No upload, no signup, browser-based. |
+  1797→  1797→| Related pages | `/image-resizer/`, `/png-to-webp/`, `/jpg-to-png/`, `/social-media-image-resizer/` |
+  1798→  1798→
+  1799→  1799→**Purpose**  
+  1800→  1800→Compress JPG, PNG, WebP, AVIF images locally in the browser.
+  1801→  1801→
+  1802→  1802→**Required UI**
+  1803→  1803→
+  1804→  1804→- H1, short description, and privacy note above the working area.
+  1805→  1805→- Main input area with clear empty state.
+  1806→  1806→- Primary action button and reset/clear option.
+  1807→  1807→- Result preview where appropriate.
+  1808→  1808→- Copy, download, or export action where appropriate.
+  1809→  1809→- Clear error messages for invalid input or unsupported files.
+  1810→  1810→- Related tools section using the shared card component.
+  1811→  1811→
+  1812→  1812→**Browser-only implementation rules**
+  1813→  1813→
+  1814→  1814→- The tool must not require a backend API.
+  1815→  1815→- User input must not be logged to analytics.
+  1816→  1816→- Heavy processing must run in a Web Worker when it can block the main thread.
+  1817→  1817→- Large file tools must show progress, cancellation, and memory warnings.
+  1818→  1818→- Use lazy-loaded libraries so unrelated pages do not download this tool's code.
+  1819→  1819→
+  1820→  1820→**SEO content requirements**
+  1821→  1821→
+  1822→  1822→- Explain what the tool does in one short paragraph.
+  1823→  1823→- Include a practical “How to use” section.
+  1824→  1824→- Include at least three common use cases.
+  1825→  1825→- Include a privacy FAQ answer.
+  1826→  1826→- Link to the listed related pages.
+  1827→  1827→
+  1828→  1828→**Acceptance tests**
+  1829→  1829→
+  1830→  1830→- Page builds statically.
+  1831→  1831→- Metadata exists and matches the tool registry.
+  1832→  1832→- Tool works on desktop and mobile.
+  1833→  1833→- Tool handles empty input and invalid input gracefully.
+  1834→  1834→- No tool data is sent outside the browser.
+  1835→  1835→- Related links resolve.
+  1836→  1836→- Lighthouse performance remains within budget.
+  1837→  1837→
+  1838→  1838→### 2. Image Resizer
+  1839→  1839→
+  1840→  1840→| Field | Specification |
+  1841→  1841→|---|---|
+  1842→  1842→| URL | `/image-resizer/` |
+  1843→  1843→| Category | Image |
+  1844→  1844→| Difficulty | Medium |
+  1845→  1845→| Browser-only status | Required |
+  1846→  1846→| Primary technology | Canvas, pica, OffscreenCanvas |
+  1847→  1847→| Primary search intent | User wants to complete **image resizer** immediately without signing up or uploading data. |
+  1848→  1848→| Target keywords | image resizer, resize image online, resize jpg, resize png, image dimensions |
+  1849→  1849→| SEO title | Free Image Resizer - Browser-Based, Private & Fast | Dueneo |
+  1850→  1850→| Meta description | Use Dueneo's free image resizer to resize images by pixels, percentage, aspect ratio, or preset dimensions. No upload, no signup, browser-based. |
+  1851→  1851→| Related pages | `/image-compressor/`, `/crop-image/`, `/social-media-image-resizer/`, `/favicon-generator/` |
+  1852→  1852→
+  1853→  1853→**Purpose**  
+  1854→  1854→Resize images by pixels, percentage, aspect ratio, or preset dimensions.
+  1855→  1855→
+  1856→  1856→**Required UI**
+  1857→  1857→
+  1858→  1858→- H1, short description, and privacy note above the working area.
+  1859→  1859→- Main input area with clear empty state.
+  1860→  1860→- Primary action button and reset/clear option.
+  1861→  1861→- Result preview where appropriate.
+  1862→  1862→- Copy, download, or export action where appropriate.
+  1863→  1863→- Clear error messages for invalid input or unsupported files.
+  1864→  1864→- Related tools section using the shared card component.
+  1865→  1865→
+  1866→  1866→**Browser-only implementation rules**
+  1867→  1867→
+  1868→  1868→- The tool must not require a backend API.
+  1869→  1869→- User input must not be logged to analytics.
+  1870→  1870→- Heavy processing must run in a Web Worker when it can block the main thread.
+  1871→  1871→- Large file tools must show progress, cancellation, and memory warnings.
+  1872→  1872→- Use lazy-loaded libraries so unrelated pages do not download this tool's code.
+  1873→  1873→
+  1874→  1874→**SEO content requirements**
+  1875→  1875→
+  1876→  1876→- Explain what the tool does in one short paragraph.
+  1877→  1877→- Include a practical “How to use” section.
+  1878→  1878→- Include at least three common use cases.
+  1879→  1879→- Include a privacy FAQ answer.
+  1880→  1880→- Link to the listed related pages.
+  1881→  1881→
+  1882→  1882→**Acceptance tests**
+  1883→  1883→
+  1884→  1884→- Page builds statically.
+  1885→  1885→- Metadata exists and matches the tool registry.
+  1886→  1886→- Tool works on desktop and mobile.
+  1887→  1887→- Tool handles empty input and invalid input gracefully.
+  1888→  1888→- No tool data is sent outside the browser.
+  1889→  1889→- Related links resolve.
+  1890→  1890→- Lighthouse performance remains within budget.
+  1891→  1891→
+  1892→  1892→### 3. Crop Image
+  1893→  1893→
+  1894→  1894→| Field | Specification |
+  1895→  1895→|---|---|
+  1896→  1896→| URL | `/crop-image/` |
+  1897→  1897→| Category | Image |
+  1898→  1898→| Difficulty | Medium |
+  1899→  1899→| Browser-only status | Required |
+  1900→  1900→| Primary technology | Canvas, pointer events, optional Cropper.js |
+  1901→  1901→| Primary search intent | User wants to complete **crop image** immediately without signing up or uploading data. |
+  1902→  1902→| Target keywords | crop image online, image cropper, crop photo, crop picture |
+  1903→  1903→| SEO title | Free Crop Image - Browser-Based, Private & Fast | Dueneo |
+  1904→  1904→| Meta description | Use Dueneo's free crop image to crop images with drag handles and export locally. No upload, no signup, browser-based. |
+  1905→  1905→| Related pages | `/image-resizer/`, `/rotate-image/`, `/watermark-image/` |
+  1906→  1906→
+  1907→  1907→**Purpose**  
+  1908→  1908→Crop images with drag handles and export locally.
+  1909→  1909→
+  1910→  1910→**Required UI**
+  1911→  1911→
+  1912→  1912→- H1, short description, and privacy note above the working area.
+  1913→  1913→- Main input area with clear empty state.
+  1914→  1914→- Primary action button and reset/clear option.
+  1915→  1915→- Result preview where appropriate.
+  1916→  1916→- Copy, download, or export action where appropriate.
+  1917→  1917→- Clear error messages for invalid input or unsupported files.
+  1918→  1918→- Related tools section using the shared card component.
+  1919→  1919→
+  1920→  1920→**Browser-only implementation rules**
+  1921→  1921→
+  1922→  1922→- The tool must not require a backend API.
+  1923→  1923→- User input must not be logged to analytics.
+  1924→  1924→- Heavy processing must run in a Web Worker when it can block the main thread.
+  1925→  1925→- Large file tools must show progress, cancellation, and memory warnings.
+  1926→  1926→- Use lazy-loaded libraries so unrelated pages do not download this tool's code.
+  1927→  1927→
+  1928→  1928→**SEO content requirements**
+  1929→  1929→
+  1930→  1930→- Explain what the tool does in one short paragraph.
+  1931→  1931→- Include a practical “How to use” section.
+  1932→  1932→- Include at least three common use cases.
+  1933→  1933→- Include a privacy FAQ answer.
+  1934→  1934→- Link to the listed related pages.
+  1935→  1935→
+  1936→  1936→**Acceptance tests**
+  1937→  1937→
+  1938→  1938→- Page builds statically.
+  1939→  1939→- Metadata exists and matches the tool registry.
+  1940→  1940→- Tool works on desktop and mobile.
+  1941→  1941→- Tool handles empty input and invalid input gracefully.
+  1942→  1942→- No tool data is sent outside the browser.
+  1943→  1943→- Related links resolve.
+  1944→  1944→- Lighthouse performance remains within budget.
+  1945→  1945→
+  1946→  1946→### 4. Rotate Image
+  1947→  1947→
+  1948→  1948→| Field | Specification |
+  1949→  1949→|---|---|
+  1950→  1950→| URL | `/rotate-image/` |
+  1951→  1951→| Category | Image |
+  1952→  1952→| Difficulty | Easy |
+  1953→  1953→| Browser-only status | Required |
+  1954→  1954→| Primary technology | Canvas |
+  1955→  1955→| Primary search intent | User wants to complete **rotate image** immediately without signing up or uploading data. |
+  1956→  1956→| Target keywords | rotate image, rotate jpg, rotate png, flip image |
+  1957→  1957→| SEO title | Free Rotate Image - Browser-Based, Private & Fast | Dueneo |
+  1958→  1958→| Meta description | Use Dueneo's free rotate image to rotate images 90, 180, 270 degrees or custom angles. No upload, no signup, browser-based. |
+  1959→  1959→| Related pages | `/flip-image/`, `/crop-image/`, `/image-resizer/` |
+  1960→  1960→
+  1961→  1961→**Purpose**  
+  1962→  1962→Rotate images 90, 180, 270 degrees or custom angles.
+  1963→  1963→
+  1964→  1964→**Required UI**
+  1965→  1965→
+  1966→  1966→- H1, short description, and privacy note above the working area.
+  1967→  1967→- Main input area with clear empty state.
+  1968→  1968→- Primary action button and reset/clear option.
+  1969→  1969→- Result preview where appropriate.
+  1970→  1970→- Copy, download, or export action where appropriate.
+  1971→  1971→- Clear error messages for invalid input or unsupported files.
+  1972→  1972→- Related tools section using the shared card component.
+  1973→  1973→
+  1974→  1974→**Browser-only implementation rules**
+  1975→  1975→
+  1976→  1976→- The tool must not require a backend API.
+  1977→  1977→- User input must not be logged to analytics.
+  1978→  1978→- Heavy processing must run in a Web Worker when it can block the main thread.
+  1979→  1979→- Large file tools must show progress, cancellation, and memory warnings.
+  1980→  1980→- Use lazy-loaded libraries so unrelated pages do not download this tool's code.
+  1981→  1981→
+  1982→  1982→**SEO content requirements**
+  1983→  1983→
+  1984→  1984→- Explain what the tool does in one short paragraph.
+  1985→  1985→- Include a practical “How to use” section.
+  1986→  1986→- Include at least three common use cases.
+  1987→  1987→- Include a privacy FAQ answer.
+  1988→  1988→- Link to the listed related pages.
+  1989→  1989→
+  1990→  1990→**Acceptance tests**
+  1991→  1991→
+  1992→  1992→- Page builds statically.
+  1993→  1993→- Metadata exists and matches the tool registry.
+  1994→  1994→- Tool works on desktop and mobile.
+  1995→  1995→- Tool handles empty input and invalid input gracefully.
+  1996→  1996→- No tool data is sent outside the browser.
+  1997→  1997→- Related links resolve.
+  1998→  1998→- Lighthouse performance remains within budget.
+  1999→  1999→
+  2000→  2000→### 5. Flip Image
+
+[showing lines 1-2000 of 2002; use offset=2001 with limit to continue reading]
