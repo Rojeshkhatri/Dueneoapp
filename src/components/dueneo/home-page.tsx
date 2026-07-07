@@ -76,17 +76,6 @@ export function HomePage() {
             <div className="mx-auto mt-7 max-w-2xl">
               <SearchBox variant="hero" />
             </div>
-            <div className="mt-3 flex flex-wrap items-center justify-center gap-x-4 gap-y-1 text-xs text-muted-foreground">
-              <span className="inline-flex items-center gap-1">
-                <Lock className="h-3 w-3 text-emerald-500" /> Private by default
-              </span>
-              <span className="inline-flex items-center gap-1">
-                <Zap className="h-3 w-3 text-amber-500" /> Instant results
-              </span>
-              <span className="inline-flex items-center gap-1">
-                <ShieldCheck className="h-3 w-3 text-sky-500" /> No accounts
-              </span>
-            </div>
           </div>
         </div>
       </section>

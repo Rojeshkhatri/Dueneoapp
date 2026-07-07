@@ -10,7 +10,6 @@ import { RelatedTools } from "./related-items";
 import type { ToolDefinition } from "@/data/tools";
 import { getCategory } from "@/data/categories";
 import { toolStructuredData } from "@/lib/dueneo/seo";
-import { Lock, Zap, Wifi, Clock } from "lucide-react";
 
 export interface ToolContent {
   intro: React.ReactNode;
@@ -79,21 +78,6 @@ export function ToolLayout({
         </div>
         <h1 className="mt-3 text-3xl font-bold tracking-tight sm:text-4xl">{tool.name}</h1>
         <p className="mt-3 max-w-2xl text-base text-muted-foreground">{content.intro}</p>
-
-        <ul className="mt-4 flex flex-wrap gap-x-5 gap-y-2 text-xs text-muted-foreground">
-          <li className="inline-flex items-center gap-1.5">
-            <Lock className="h-3.5 w-3.5 text-emerald-500" /> Browser-only
-          </li>
-          <li className="inline-flex items-center gap-1.5">
-            <Zap className="h-3.5 w-3.5 text-amber-500" /> No signup
-          </li>
-          <li className="inline-flex items-center gap-1.5">
-            <Wifi className="h-3.5 w-3.5 text-sky-500" /> Works offline after load
-          </li>
-          <li className="inline-flex items-center gap-1.5">
-            <Clock className="h-3.5 w-3.5 text-violet-500" /> Instant
-          </li>
-        </ul>
       </header>
 
       <section aria-label={`${tool.name} tool`} className="mt-6">
