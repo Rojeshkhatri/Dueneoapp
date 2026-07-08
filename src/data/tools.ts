@@ -233,6 +233,8 @@ export const tools: ToolDefinition[] = [
     related: ["avif-to-jpg", "webp-to-jpg", "png-to-jpg", "image-compressor"],
     privacyLevel: "file",
     adProfile: "standard",
+    component: "heic-to-jpg",
+    implemented: true,
   },
   {
     id: 13,
@@ -420,6 +422,7 @@ export const tools: ToolDefinition[] = [
     related: ["pdf-merge", "pdf-split", "image-compressor", "pdf-metadata-viewer"],
     privacyLevel: "file",
     adProfile: "standard",
+    component: "pdf-compress", implemented: true
   },
   {
     id: 24,
@@ -435,6 +438,7 @@ export const tools: ToolDefinition[] = [
     related: ["pdf-merge", "pdf-split", "delete-pdf-pages", "rearrange-pdf-pages"],
     privacyLevel: "file",
     adProfile: "standard",
+    component: "rotate-pdf", implemented: true
   },
   {
     id: 25,
@@ -450,6 +454,7 @@ export const tools: ToolDefinition[] = [
     related: ["pdf-split", "extract-pdf-pages", "rearrange-pdf-pages", "rotate-pdf"],
     privacyLevel: "file",
     adProfile: "standard",
+    component: "delete-pdf-pages", implemented: true
   },
   {
     id: 26,
@@ -465,6 +470,7 @@ export const tools: ToolDefinition[] = [
     related: ["pdf-split", "delete-pdf-pages", "rearrange-pdf-pages", "pdf-merge"],
     privacyLevel: "file",
     adProfile: "standard",
+    component: "extract-pdf-pages", implemented: true
   },
   {
     id: 27,
@@ -480,6 +486,7 @@ export const tools: ToolDefinition[] = [
     related: ["pdf-merge", "pdf-split", "delete-pdf-pages", "rotate-pdf"],
     privacyLevel: "file",
     adProfile: "standard",
+    component: "rearrange-pdf-pages", implemented: true
   },
   {
     id: 28,
@@ -512,6 +519,8 @@ export const tools: ToolDefinition[] = [
     related: ["image-to-pdf", "pdf-split", "jpg-to-pdf", "png-to-pdf"],
     privacyLevel: "file",
     adProfile: "standard",
+    component: "pdf-to-jpg",
+    implemented: true,
   },
   {
     id: 30,
@@ -561,6 +570,7 @@ export const tools: ToolDefinition[] = [
     related: ["pdf-merge", "add-page-numbers-to-pdf", "image-to-pdf", "watermark-image"],
     privacyLevel: "file",
     adProfile: "standard",
+    component: "watermark-pdf", implemented: true
   },
   {
     id: 33,
@@ -610,6 +620,7 @@ export const tools: ToolDefinition[] = [
     related: ["pdf-merge", "pdf-split", "watermark-pdf", "password-generator"],
     privacyLevel: "sensitive",
     adProfile: "reduced",
+    component: "password-protect-pdf", implemented: true
   },
 
   // ───────────────────────────── Developer (36-54) ────────────────────────────
@@ -695,6 +706,7 @@ export const tools: ToolDefinition[] = [
     related: ["json-formatter", "xml-formatter", "csv-to-json", "base64-encoder"],
     privacyLevel: "standard",
     adProfile: "standard",
+    component: "yaml-formatter", implemented: true
   },
   {
     id: 41,
@@ -744,6 +756,7 @@ export const tools: ToolDefinition[] = [
     related: ["excel-to-csv", "csv-to-json", "json-to-csv", "json-formatter"],
     privacyLevel: "standard",
     adProfile: "standard",
+    component: "csv-to-excel", implemented: true
   },
   {
     id: 44,
@@ -759,6 +772,7 @@ export const tools: ToolDefinition[] = [
     related: ["csv-to-excel", "csv-to-json", "json-to-csv", "json-formatter"],
     privacyLevel: "standard",
     adProfile: "standard",
+    component: "excel-to-csv", implemented: true
   },
   {
     id: 45,

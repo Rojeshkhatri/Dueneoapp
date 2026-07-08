@@ -1360,3 +1360,83 @@
   1360→- The 2 intentionally-skipped tools (percentage-calculator, currency-margin-calculator) don't display any user-selectable currency today, so no behavior change for them.
   1361→- Lint clean (0 errors, 0 warnings). TypeScript clean for all touched files. Dev server compiles without errors.
   1362→
+  1363→---
+  1364→
+  1365→Task ID: 4-currency-hr-re-ec
+  1366→Agent: subagent (currency wiring for HR + real-estate + e-commerce)
+  1367→Task: Wire the shared currency infrastructure (`useCurrency`, `CurrencySelector`, `money`) at `src/components/dueneo/currency-selector.tsx` into all HR, real-estate and e-commerce tools that display money, so a single user-selectable currency persists across every money tool on the site (via localStorage `dueneo:currency`).
+  1368→
+  1369→Work Log:
+  1370→
+  1371→**HR tools (4 of 9 updated — 5 skipped as they don't display money):**
+  1372→
+  1373→Updated:
+  1374→- `src/components/tools/hr/salary-comparison-calculator.tsx` — added hook + `<CurrencySelector>`, replaced `result.currentCity.currency` and `result.targetCity.currency` with shared `currency` for all `formatCurrency` and chart tick/label formatters.
+  1375→- `src/components/tools/hr/offer-comparison-tool.tsx` — added hook + `fmt` wrapper + `<CurrencySelector>`, replaced all `formatCurrency(...)` calls with `fmt(...)` so every dollar amount (per-offer cards, comparison table, summary cards) honours the shared currency.
+  1376→- `src/components/tools/hr/cost-to-company-calculator.tsx` — same pattern (hook + `fmt` wrapper + selector near Reset). Updated all `formatCurrency` call sites including the donut tooltip and the per-day/per-hour footer.
+  1377→- `src/components/tools/hr/payslip-analyzer.tsx` — same pattern. Updated limitations + FAQ copy that previously said "currency is auto-detected from your browser locale" to point at the new selector.
+  1378→
+  1379→Skipped (no money displayed — verified by grep for `formatCurrency|currency|USD|money`):
+  1380→- `notice-period-calculator.tsx`, `pto-calculator.tsx`, `interview-scorecard-builder.tsx`, `shift-planner.tsx`, `work-anniversary-tracker.tsx`. The only mentions of "pay"/"salary" in these files are descriptive text — no currency values are ever rendered.
+  1381→
+  1382→**Real-estate tools (10 of 10 updated):**
+  1383→
+  1384→All real-estate tools previously had `const currency = "USD";` (or local `useState<string>("USD")` with a tiny 6-currency inline `<select>` for cap-rate / renovation-budget / property-comparison). All now use the shared `useCurrency()` hook + `<CurrencySelector>`.
+  1385→
+  1386→- `rental-yield-calculator.tsx`, `mortgage-affordability-calculator.tsx`, `cash-flow-analyzer.tsx`, `airbnb-income-estimator.tsx`, `property-roi-calculator.tsx`, `house-flipping-calculator.tsx` — `const currency = "USD"` → `const { code: currency, setCode: setCurrency } = useCurrency()`. The selector is rendered under the Reset button. Every `formatCurrency(value, { currency })` call resolves against the shared currency.
+  1387→- `cap-rate-calculator.tsx`, `property-comparison-dashboard.tsx` — replaced native `<select>` (USD/GBP/EUR/CAD/AUD/INR) with the shared `<CurrencySelector>`. Replaced local `useState<string>("USD")` with the hook so the choice persists across tools.
+  1388→- `renovation-budget-planner.tsx` — replaced the small shadcn `<Select>` (6 currencies) with `<CurrencySelector>`; removed the unused `Select/SelectContent/SelectItem/SelectTrigger/SelectValue` imports.
+  1389→- `stamp-duty-calculator.tsx` — replaced `const currency = REGION_CURRENCY[region]` (per-region native currency) with the shared `useCurrency()` hook. Removed the now-unused `REGION_CURRENCY` constant. Updated `_re-helpers.ts` `computeStampDuty()` to accept an optional `currency` parameter (default "GBP" for backward compatibility) so the breakdown labels match the user's selected display currency. Added a limitations note explaining the bracket-threshold display simplification.
+  1390→
+  1391→**E-commerce tools (10 of 10 updated):**
+  1392→
+  1393→Every e-commerce tool previously called `formatCurrency(value)` (the finance-helper version, default USD, no per-call currency option). Each now imports `useCurrency, CurrencySelector, money` from the shared module, declares `const { code: currency, setCode: setCurrency } = useCurrency();` + `const fmt = (v: number) => money(v, currency);`, adds a `<CurrencySelector>` next to the Reset button, and every `formatCurrency(...)` call site is replaced with `fmt(...)` (using MultiEdit `replace_all`).
+  1394→
+  1395→- `shopify-profit-calculator.tsx`, `amazon-fba-fee-calculator.tsx`, `etsy-fee-calculator.tsx`, `tiktok-shop-profit-calculator.tsx`, `ebay-fee-calculator.tsx`, `stripe-fee-calculator.tsx`, `paypal-fee-calculator.tsx` — added a new limitations bullet per the task spec explaining that the published USD fee-schedule fixed components (e.g. $0.30, $0.49, $0.20) are treated as being denominated in the user's chosen currency — a display simplification, not a currency conversion.
+  1396→- `product-margin-calculator.tsx` — added selector; replaced the stale "All currency is USD" limitation bullet with text pointing at the shared selector.
+  1397→- `bundle-pricing-calculator.tsx`, `discount-stack-calculator.tsx` — added selector + `fmt` wrapper; no limitations text needed since these tools have no fixed-fee components.
+  1398→
+  1399→**Shared helper file:**
+  1400→- `src/components/tools/realestate/_re-helpers.ts` — `computeStampDuty` now accepts an optional `currency` parameter (default "GBP") used purely for the breakdown-label currency symbol; calculation is unchanged.
+  1401→- `src/components/tools/hr/_hr-helpers.ts`, `src/components/tools/ecommerce/_ecommerce-helpers.tsx` — no changes needed (the existing `formatCurrency(value, { currency })` signature already accepts a currency option; the e-commerce helpers just re-export from finance).
+  1402→
+  1403→**Patterns applied:**
+  1404→
+  1405→Pattern A — real-estate tools with `const currency = "USD"` (or local `useState`):
+  1406→```tsx
+  1407→import { useCurrency, CurrencySelector } from "@/components/dueneo/currency-selector";
+  1408→// ...
+  1409→const { code: currency, setCode: setCurrency } = useCurrency();
+  1410→// existing formatCurrency(value, { currency }) calls work unchanged
+  1411→<CurrencySelector value={currency} onChange={setCurrency} id="xx-currency" className="pt-2" />
+  1412→```
+  1413→
+  1414→Pattern B — HR offer/cost/payslip + all e-commerce tools (where `formatCurrency(value)` had no currency arg):
+  1415→```tsx
+  1416→import { useCurrency, CurrencySelector, money } from "@/components/dueneo/currency-selector";
+  1417→// ...
+  1418→const { code: currency, setCode: setCurrency } = useCurrency();
+  1419→const fmt = (v: number) => money(v, currency);  // helper that injects currency
+  1420→// replace_all: formatCurrency( → fmt(
+  1421→<CurrencySelector value={currency} onChange={setCurrency} id="xx-currency" className="pt-2" />
+  1422→```
+  1423→The `fmt` helper is named differently from `formatCurrency` so the `replace_all` of `formatCurrency(` → `fmt(` doesn't recurse into the helper definition (which calls `money`, not `formatCurrency`).
+  1424→
+  1425→**Constraints honored:**
+  1426→- **No calculation logic changed** — every fee, ROI, yield, profit and tax computation is byte-identical to before. Only the display currency symbol and Intl formatting changed.
+  1427→- **No existing features removed** — every tool still has a currency selector (now shared with 58 currencies instead of the prior 6-currency inline list).
+  1428→- **Currency choice persists** across all 24 touched tools via `useCurrency()` → localStorage `dueneo:currency`.
+  1429→- **Existing `<CurrencySelector>` reused** — no new selector component created.
+  1430→- **TypeScript strict, sonner toast, no backend** — all maintained.
+  1431→- **Limitation notes added** to the 7 fee-calculator tools explaining the USD-fee → user-currency simplification, per the task spec.
+  1432→
+  1433→**Verification:**
+  1434→- `cd /home/z/my-project && bun run lint` → exits 0, 0 errors, 0 warnings.
+  1435→- `bunx tsc --noEmit --skipLibCheck` → no new errors introduced by this task. The single error in `cap-rate-calculator.tsx:103` (`Type 'number' is not assignable to type 'string'`) is pre-existing — confirmed by `git stash` test (was at line 112 before my insertion added a few lines above it). The `resume-ats-scanner.tsx` regex-flag error is also pre-existing and unrelated.
+  1436→- `tail -50 /home/z/my-project/dev.log` → only `✓ Compiled in NNNms` lines, no compile errors throughout the edit session.
+  1437→
+  1438→Stage Summary:
+  1439→- All 4 HR money tools + all 10 real-estate tools + all 10 e-commerce tools now share a single user-selectable currency (persisted to localStorage `dueneo:currency`) via the shared `useCurrency()` hook and `<CurrencySelector>` component.
+  1440→- 5 HR tools that don't display money (notice-period, pto, interview-scorecard, shift-planner, work-anniversary) were intentionally skipped after grep-verification confirmed they never render a currency value.
+  1441→- Total: 24 tools wired, 1 shared helper extended (`computeStampDuty` accepts optional currency for breakdown labels), 0 calculation changes, 0 lint errors.
+  1442→

@@ -43,6 +43,7 @@ const TOOL_COMPONENTS: Record<string, LazyToolComp> = {
   "add-border-to-image": lazyNamed(() => import("./image/add-border-to-image"), "AddBorderToImage"),
   "favicon-generator": lazyNamed(() => import("./image/favicon-generator"), "FaviconGenerator"),
   "social-media-image-resizer": lazyNamed(() => import("./image/social-media-image-resizer"), "SocialMediaImageResizer"),
+  "heic-to-jpg": lazyNamed(() => import("./image/heic-to-jpg"), "HeicToJpg"),
 
   // ─── PDF tools ────────────────────────────────────────────────────────────
   "pdf-merge": lazyNamed(() => import("./pdf/pdf-merge"), "PdfMerge"),
@@ -50,12 +51,23 @@ const TOOL_COMPONENTS: Record<string, LazyToolComp> = {
   "image-to-pdf": lazyNamed(() => import("./pdf/image-to-pdf"), "ImageToPdf"),
   "add-page-numbers-to-pdf": lazyNamed(() => import("./pdf/add-page-numbers-to-pdf"), "AddPageNumbersToPdf"),
   "pdf-metadata-viewer": lazyNamed(() => import("./pdf/pdf-metadata-viewer"), "PdfMetadataViewer"),
+  "rotate-pdf": lazyNamed(() => import("./pdf/rotate-pdf"), "RotatePdf"),
+  "delete-pdf-pages": lazyNamed(() => import("./pdf/delete-pdf-pages"), "DeletePdfPages"),
+  "extract-pdf-pages": lazyNamed(() => import("./pdf/extract-pdf-pages"), "ExtractPdfPages"),
+  "rearrange-pdf-pages": lazyNamed(() => import("./pdf/rearrange-pdf-pages"), "RearrangePdfPages"),
+  "watermark-pdf": lazyNamed(() => import("./pdf/watermark-pdf"), "WatermarkPdf"),
+  "pdf-compress": lazyNamed(() => import("./pdf/pdf-compress"), "PdfCompress"),
+  "pdf-to-jpg": lazyNamed(() => import("./pdf/pdf-to-jpg"), "PdfToJpg"),
+  "password-protect-pdf": lazyNamed(() => import("./pdf/password-protect-pdf"), "PasswordProtectPdf"),
 
   // ─── Developer tools ──────────────────────────────────────────────────────
   "json-formatter": lazyNamed(() => import("./developer/json-formatter"), "JsonFormatter"),
   "json-validator": lazyNamed(() => import("./developer/json-validator"), "JsonValidator"),
   "json-minifier": lazyNamed(() => import("./developer/json-minifier"), "JsonMinifier"),
   "xml-formatter": lazyNamed(() => import("./developer/xml-formatter"), "XmlFormatter"),
+  "yaml-formatter": lazyNamed(() => import("./developer/yaml-formatter"), "YamlFormatter"),
+  "csv-to-excel": lazyNamed(() => import("./developer/csv-to-excel"), "CsvToExcel"),
+  "excel-to-csv": lazyNamed(() => import("./developer/excel-to-csv"), "ExcelToCsv"),
   "csv-to-json": lazyNamed(() => import("./developer/csv-to-json"), "CsvToJson"),
   "json-to-csv": lazyNamed(() => import("./developer/json-to-csv"), "JsonToCsv"),
   "base64-encoder": lazyNamed(() => import("./developer/base64-encoder"), "Base64Encoder"),

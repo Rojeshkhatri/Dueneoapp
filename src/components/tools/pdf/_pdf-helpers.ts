@@ -280,3 +280,61 @@ export async function loadPdfDocument(
     throw new Error(`Could not read this PDF. ${msg}`);
   }
 }
+
+/**
+ * Parse a hex colour string (#RGB / #RRGGBB / without #) into a 0-1
+ * triple suitable for `pdf-lib`'s `rgb(r, g, b)` helper. Returns black
+ * on parse failure and is case-insensitive.
+ */
+export function hexToRgb01(hex: string): [number, number, number] {
+  const cleaned = (hex ?? "").trim().replace(/^#/, "");
+  let r = 0;
+  let g = 0;
+  let b = 0;
+  if (/^[0-9a-fA-F]{3}$/.test(cleaned)) {
+    r = parseInt(cleaned[0] + cleaned[0], 16);
+    g = parseInt(cleaned[1] + cleaned[1], 16);
+    b = parseInt(cleaned[2] + cleaned[2], 16);
+  } else if (/^[0-9a-fA-F]{6}$/.test(cleaned)) {
+    r = parseInt(cleaned.slice(0, 2), 16);
+    g = parseInt(cleaned.slice(2, 4), 16);
+    b = parseInt(cleaned.slice(4, 6), 16);
+  } else {
+    return [0, 0, 0];
+  }
+  return [r / 255, g / 255, b / 255];
+}
+
+/**
+ * Build a default output filename for a PDF tool. Strips the .pdf
+ * extension from the source, appends a suffix, and ensures the result
+ * ends with `.pdf`.
+ */
+export function derivedPdfName(sourceName: string | undefined, suffix: string): string {
+  const base = (sourceName ?? "document.pdf").replace(/\.pdf$/i, "");
+  return `${base}-${suffix}.pdf`;
+}
+
+/**
+ * Revoke any previous object URL and store a fresh one. Returns the new
+ * URL. Useful in `setState`-driven download flows to avoid leaking URLs
+ * when an output is regenerated.
+ */
+export function replaceObjectUrl(prev: string | null, blob: Blob): string {
+  if (prev) URL.revokeObjectURL(prev);
+  return URL.createObjectURL(blob);
+}
+
+/**
+ * Trigger a download of an existing object URL. Does NOT revoke the URL
+ * (the caller manages its lifecycle, typically via useEffect cleanup).
+ */
+export function downloadObjectUrl(url: string, filename: string): boolean {
+  const a = document.createElement("a");
+  a.href = url;
+  a.download = filename;
+  document.body.appendChild(a);
+  a.click();
+  document.body.removeChild(a);
+  return true;
+}
