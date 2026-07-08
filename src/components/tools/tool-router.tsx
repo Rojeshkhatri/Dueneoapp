@@ -101,6 +101,14 @@ import { ImageToPdf } from "@/components/tools/pdf/image-to-pdf";
 import { AddPageNumbersToPdf } from "@/components/tools/pdf/add-page-numbers-to-pdf";
 import { PdfMetadataViewer } from "@/components/tools/pdf/pdf-metadata-viewer";
 
+// Viral tools batches (Tasks 2-a-viral through 2-f-viral)
+import { batchAComponents } from "@/components/tools/_batch-a-registry";
+import { batchBComponents } from "@/components/tools/_batch-b-registry";
+import { batchCComponents } from "@/components/tools/_batch-c-registry";
+import { batchDComponents } from "@/components/tools/_batch-d-registry";
+import { batchEComponents } from "@/components/tools/_batch-e-registry";
+import { batchFComponents } from "@/components/tools/_batch-f-registry";
+
 /**
  * Central registry of implemented tool components, keyed by `tool.component`.
  * Subagents append their imports and entries to this map as they build
@@ -211,6 +219,14 @@ const TOOL_COMPONENTS: Record<string, React.ComponentType<{ tool: ToolDefinition
   "image-to-pdf": ImageToPdf,
   "add-page-numbers-to-pdf": AddPageNumbersToPdf,
   "pdf-metadata-viewer": PdfMetadataViewer,
+
+  // Viral tools (Tasks 2-a-viral through 2-f-viral) — 45 new tools
+  ...batchAComponents,
+  ...batchBComponents,
+  ...batchCComponents,
+  ...batchDComponents,
+  ...batchEComponents,
+  ...batchFComponents,
 };
 
 export function ToolRouter({ tool }: { tool: ToolDefinition }) {

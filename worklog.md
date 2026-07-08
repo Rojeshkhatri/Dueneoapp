@@ -636,3 +636,245 @@ Stage Summary:
 - VERIFIED: All 88 implemented tools render with 0 runtime errors. 31 tools tested interactively with correct outputs.
 - The 12 unimplemented tools (HEIC to JPG, PDF Compress/Rotate/Delete/Extract/Rearrange/to-JPG/Watermark/Password-Protect, YAML Formatter, CSV↔Excel) still show a graceful "Coming soon" page — these require heavy libraries (HEIC WASM decoder, PDF encryption) that are out of scope for this build.
 - Final tally: 88/100 tools fully working, 15/15 games fully working, 5 legal pages, 11 category pages. Zero broken links. Zero runtime errors.
+
+---
+Task ID: 2-a-viral
+Agent: random-tools
+Task: Implement 8 random / picker tools (IDs 101-108) — wheel-spinner, yes-no-wheel, name-picker, random-number-generator, dice-roller, coin-flipper, random-letter-generator, team-generator.
+
+Work Log:
+- Read the foundation (`worklog.md` Tasks 1, 2-a, 2-b, 2-c), the tool registry (rows for IDs 101-108), `tool-layout.tsx`, `copy-button.tsx`, `tool-router.tsx`, and skimmed `qr-code-generator.tsx` + `image-compressor.tsx` as structural references.
+- Created `src/components/tools/utility/_random-helpers.ts` with shared crypto-random utilities: `hasCrypto`, `randomInt(max)` (rejection-sampled `crypto.getRandomValues` over `Uint32Array` with `Math.random` fallback), `randomIntInRange`, `randomPick`, `secureShuffle` (Fisher–Yates), `parseLines`, `parseOptions`, plus `WHEEL_PALETTE` (16 fills) and `TEAM_PALETTE` (8 fills with soft backgrounds).
+- Implemented 8 tool components under `src/components/tools/utility/`:
+  1. `wheel-spinner.tsx` (`WheelSpinner`) — SVG wheel with coloured segments, 4-second CSS cubic-bezier spin, fixed top pointer, winner decided up-front and rotation math lands the chosen segment at the pointer. Shuffle, clear, reset, remove-winner (multi-round raffles), 12-entry recent-winners history.
+  2. `yes-no-wheel.tsx` (`YesNoWheel`) — 50/50 YES (green) / NO (red) wheel. Big spin button. Animated result banner. Tracks yes/no counts + percentage bars + reset.
+  3. `name-picker.tsx` (`NamePicker`) — Textarea of names. ~1.4s slot-machine flicker reveal before announcing the winner. Toggle for "Remove picked name from list" (raffle mode) + separate "Remove winner" button. 20-entry recent-picks history.
+  4. `random-number-generator.tsx` (`RandomNumberGenerator`) — Min/max range inputs, quantity 1-1000, unique-only toggle, sort mode (none/asc/desc). Single numbers shown huge; batches shown as a scrollable chip grid. Copy-all button. Range capped at 1 billion. Unique draws from small ranges (≤100k) use Fisher–Yates over a sequential pool; huge ranges use a Set.
+  5. `dice-roller.tsx` (`DiceRoller`) — Dice type select (D4/D6/D8/D10/D12/D20/D100), quantity slider 1-20. ~0.8s flicker reveal. D6 shows traditional pip faces (3×3 grid pip map); other dice show numeric tiles. Total, average, min/max possible, progress bar. 12-entry roll history.
+  6. `coin-flipper.tsx` (`CoinFlipper`) — CSS 3D flip (rotateY with preserve-3d + backface-visibility:hidden) over ~2s with 5-7 full rotations. Heads shows 👑, tails shows ⭐. Tracks heads/tails counts + percentage bars + 20-entry recent-flips emoji history.
+  7. `random-letter-generator.tsx` (`RandomLetterGenerator`) — Case select (upper/lower/both), quantity 1-100, unique-only toggle, output format (joined string vs space-separated list). Big monospace result + 40px square grid. Copy button.
+  8. `team-generator.tsx` (`TeamGenerator`) — Textarea of names. Mode toggle (number of teams vs team size). `secureShuffle` then round-robin distribution for balanced sizes. Teams displayed in coloured columns with palette headers + soft backgrounds + numbered member lists. Re-shuffle and Copy-teams buttons.
+- Created `src/components/tools/_batch-a-registry.ts` exporting `batchAComponents` — a `Record<string, ComponentType<{tool: ToolDefinition}>>` mapping the 8 component keys to their components. Per the task brief, this avoids parallel-edit conflicts on `tool-router.tsx`; the main agent will merge this map into `TOOL_COMPONENTS` after all batches complete.
+- Issues caught & fixed:
+  - Unused-variable lint warning in `name-picker.tsx` (`progress` was declared but never read inside the `setInterval` callback). Removed the variable entirely and simplified the flicker branch.
+- Verified with `bun run lint` (exit 0, no errors or warnings) and `npx tsc --noEmit --skipLibCheck` (no errors in any new file — pre-existing errors in other agents' `src/components/games/`, `examples/` and `skills/` files are out of scope). `tail dev.log` shows only clean `✓ Compiled` and `GET / 200` lines.
+
+Files created:
+- `src/components/tools/utility/_random-helpers.ts`
+- `src/components/tools/utility/wheel-spinner.tsx`
+- `src/components/tools/utility/yes-no-wheel.tsx`
+- `src/components/tools/utility/name-picker.tsx`
+- `src/components/tools/utility/random-number-generator.tsx`
+- `src/components/tools/utility/dice-roller.tsx`
+- `src/components/tools/utility/coin-flipper.tsx`
+- `src/components/tools/utility/random-letter-generator.tsx`
+- `src/components/tools/utility/team-generator.tsx`
+- `src/components/tools/_batch-a-registry.ts`
+- `agent-ctx/2-a-viral-random-tools.md`
+
+Stage Summary:
+- All 8 random/picker tools (IDs 101-108) are implemented, browser-only, and ready to be wired up.
+- Each tool renders via `ToolLayout` with intro, interactive UI, How-To steps, use cases, limitations and FAQ.
+- All randomness uses `crypto.getRandomValues` with rejection sampling (modulo-bias-free) and a `Math.random` fallback. No backend, no uploads.
+- Each tool has a clear reset/re-generate button; visual animations include wheel spin, slot-machine reveal, dice flicker, 3D coin flip, and coloured team columns.
+- Lint clean; TypeScript clean for the new files; dev server compiles without errors.
+- Follow-up for main agent: merge `batchAComponents` from `src/components/tools/_batch-a-registry.ts` into `TOOL_COMPONENTS` in `src/components/tools/tool-router.tsx` (single import + spread). Until then the 8 tools fall through to the "Component not registered yet" placeholder.
+
+---
+Task ID: 2-b-viral
+Agent: ai-image-tools
+Task: Implement 6 AI / image tools (IDs 109-114) — background-remover, image-color-extractor, meme-generator, passport-photo-maker, image-to-ascii, photo-collage-maker.
+
+Work Log:
+- Read the foundation (`worklog.md` Tasks 1, 2-a..2-h, 3, 4-games, 5, 2-a-viral), the tool registry (rows for IDs 109-114), `tool-layout.tsx`, `dropzone.tsx`, `tool-router.tsx`, `_image-helpers.tsx`, and `image-compressor.tsx` as a structural reference.
+- Installed `@imgly/background-removal@1.7.0` (the npm package is `background-removal`, not `background-remover` as the brief suggested) plus its `onnxruntime-web@1.21.0` peer dependency. The library uses ONNX Runtime Web to run a U2Net model entirely in the browser.
+- Created `src/components/tools/_batch-b-registry.ts` exporting `batchBComponents` — a `Record<string, ComponentType<{ tool: ToolDefinition }>>` mapping the 6 component keys. Per the brief, this avoids parallel-edit conflicts on `tool-router.tsx`; the main agent will merge this map into `TOOL_COMPONENTS` after all parallel batches complete.
+- Implemented 6 tool components under `src/components/tools/image/`:
+
+  1. `background-remover.tsx` (`BackgroundRemover`) — Remove image backgrounds with AI, 100% in-browser. The `@imgly/background-removal` library is dynamically imported (`await import("@imgly/background-removal")`) inside the click handler so the heavy ONNX runtime + WASM (~30MB total) never lands in the initial JS bundle. Uses the `isnet_quint8` quantized model for the smallest download. Wires the library's `progress: (key, current, total) => ...` callback to a `<Progress>` bar with friendly phase labels ("Downloading AI model…", "Loading WASM runtime…", "Running neural network…"). First-run banner explicitly warns about the one-time ~30MB model download (cached by the browser for instant subsequent runs). Renders original + transparent PNG result side-by-side — result is shown over a checkerboard backdrop so the alpha channel is visible. Download as PNG via `replaceExtension(file.name, "png")`.
+
+  2. `image-color-extractor.tsx` (`ImageColorExtractor`) — Extract a colour palette from any image. Downscale to max 256×256 on the longest side, sample every visible pixel (alpha < 16 skipped), then quantize. Two algorithms: **median-cut** (Heckbert 1980 — recursively split the colour cube along its longest axis at the median pixel until N boxes form) and **frequency-bucket** (quantize each channel to 4 bits → 4096 buckets, pick N most populous). Each swatch shows HEX, RGB and HSL — every value is a click-to-copy button (`navigator.clipboard.writeText`). Live percentage badge per swatch reflects the share of sampled pixels closest to that colour. Download the full palette as JSON (HEX + RGB + HSL + population + fraction per colour).
+
+  3. `meme-generator.tsx` (`MemeGenerator`) — Add top/bottom text to images. Two source modes: upload an image OR pick from 6 gradient templates (DRAGNEO orange/red, Sky, Forest, Midnight, Sunrise, Concrete). Top text, bottom text, font size slider (20-120 px), text colour picker, black outline toggle, UPPERCASE toggle. Renders on a Canvas using `bold {size}px Impact, "Arial Narrow Bold", "Helvetica Inserat", sans-serif` with `textAlign="center"` and `lineJoin="round"`. Word-wrap helper (`wrapLines`) splits long captions to fit the canvas width — handles explicit `\n` and natural word boundaries. Preview canvas caps at 600 px wide for responsiveness; full-resolution download renders at the source image's natural pixel size. Custom `parseGradient` helper converts a CSS `linear-gradient(...)` string into a `CanvasGradient` for template fills (handles "to top/right/…", `Ndeg`, and percentage stops).
+
+  4. `passport-photo-maker.tsx` (`PassportPhotoMaker`) — Crop and format passport photos. 12 country presets: US (51×51mm), UK/EU/India/Australia/Japan/Singapore/Philippines/Germany/Russia (35×45mm), Canada (50×70mm), China (33×48mm). Each carries official head-size guidance notes. Output rendered at 300 DPI → e.g. 35×45mm = 413×531 px, 51×51mm = 602×602 px, 50×70mm = 591×827 px. Three sliders: horizontal pan (0-1), vertical pan (0-1), zoom (1-4×). Photo drawn "cover" style with the pan-point of the source aligned to the pan-point of the destination — intuitive dragging behaviour. Crop preview overlay shows a dashed blue ellipse (head-position guide) centred on the upper third of the frame plus a centre crosshair. "Fill white background" switch paints behind the photo — use after running Background Remover for a clean cut-out. The tool suggests the Background Remover tool in the upload screen and limitations section.
+
+  5. `image-to-ascii.tsx` (`ImageToAscii`) — Convert images to ASCII art. Three character sets: `standard` (`.:-=+*#%@`, 10 chars), `blocks` (` ░▒▓█`, 5 chars), `minimal` (` .:#`, 4 chars). Width slider 40-200 chars. Height auto-scales from the image's aspect ratio × 0.55 to compensate for character cells being taller than wide. Brightness = `0.299R + 0.587G + 0.114B` (luminance). Char index = `floor(adjusted * (chars.length - 1))`. Invert toggle flips dark/light. Colour toggle renders each character in the source pixel's original RGB (via per-character `<span>` with inline `color`). Preview is a `<pre>` with monospace font on a dark backdrop. Copy text to clipboard or download as `.txt` (always plain text — colour is preview-only).
+
+  6. `photo-collage-maker.tsx` (`PhotoCollageMaker`) — Combine 2-9 photos. 5 layouts: `2-up` (1×2), `3-up` (1×3), `2x2` (2×2), `3x2` (2×3), `3x3` (3×3). Auto-promotes layout when more photos are added than the current layout fits. Dropzone in `multiple` mode accepts up to 9 photos. Each shows as a thumbnail with a ✕ remove button. Spacing slider 0-48 px, background colour picker, rounded-corners switch (radius derived from spacing). Live CSS grid preview that mirrors the canvas output exactly (square cells, `object-fit: cover`). Canvas rendering: each cell is 800×800 px, photos drawn cover-style; rounded cells use `ctx.clip()` on a rounded-rectangle path. Empty cells render a faint "(empty)" placeholder.
+
+- Issues caught & fixed:
+  - **Wrong package name.** Brief said `@imgly/background-remover`; the actual npm package is `@imgly/background-removal`. Discovered when `bun add @imgly/background-remover` returned a 404. Installed `@imgly/background-removal@1.7.0` plus its `onnxruntime-web@1.21.0` peer dep.
+  - **`parseGradient` referenced `ctx!` that wasn't in scope** in `meme-generator.tsx`. The helper needed a `CanvasRenderingContext2D` to call `createLinearGradient`. Fixed by adding `ctx` as the first parameter and passing it from the call site.
+  - **Unused imports.** Removed `Type` from `meme-generator.tsx` and `FileChip` / `formatBytes` from `photo-collage-maker.tsx` after they turned out not to be needed.
+  - **Unused eslint-disable directives.** Removed `// eslint-disable-next-line react-hooks/exhaustive-deps` from `image-to-ascii.tsx` and `photo-collage-maker.tsx` — the rule isn't enabled in this project, so the directives produced warning noise.
+
+- Verification: `bun run lint` exits 0 with 0 errors and 0 warnings. `npx tsc --noEmit` reports 0 errors in any of the 6 new files (56 pre-existing errors in other agents' files — `pdf-merge`, `pdf-split`, `pdf-metadata-viewer`, `add-page-numbers-to-pdf`, `image-to-pdf`, `base64-decoder`, `security/_security-helpers`, plus `examples/` and `skills/` files — all unrelated to this batch). `tail -50 dev.log` is clean: only `✓ Compiled in Nms` lines, no compile errors. The dynamic import of `@imgly/background-removal` is verified — it's loaded via `await import()` inside the click handler so it's code-split into a separate chunk and never blocks the initial page load.
+
+Files created:
+- `src/components/tools/image/background-remover.tsx`
+- `src/components/tools/image/image-color-extractor.tsx`
+- `src/components/tools/image/meme-generator.tsx`
+- `src/components/tools/image/passport-photo-maker.tsx`
+- `src/components/tools/image/image-to-ascii.tsx`
+- `src/components/tools/image/photo-collage-maker.tsx`
+- `src/components/tools/_batch-b-registry.ts`
+- `agent-ctx/2-b-viral-ai-image-tools.md`
+
+Files modified:
+- `package.json` + `bun.lock` — added `@imgly/background-removal@1.7.0` and `onnxruntime-web@1.21.0`.
+
+Stage Summary:
+- All 6 AI/image tools (IDs 109-114) are implemented, browser-only, and ready to be wired up. Each renders via `ToolLayout` with intro, interactive UI, How-To steps, use cases, limitations and FAQ.
+- All processing is 100% client-side: Canvas API for the colour extractor, meme generator, passport photo maker, ASCII converter and collage maker; ONNX Runtime Web + U2Net for the background remover. No backend API routes, no uploads.
+- The `@imgly/background-removal` library is loaded via dynamic `import()` so the ~30MB ONNX runtime + model only loads when the user actually clicks "Remove background". The browser caches the model + WASM files for instant subsequent runs.
+- Each tool handles empty input, invalid files (non-image, >50MB), and gracefully reports errors via `sonner` `toast`.
+- Lint clean; TypeScript clean for the new files; dev server compiles without errors.
+- Follow-up for main agent: merge `batchBComponents` from `src/components/tools/_batch-b-registry.ts` into `TOOL_COMPONENTS` in `src/components/tools/tool-router.tsx` (single `import { batchBComponents }` + spread into the map). Until then the 6 tools fall through to the "Component not registered yet" placeholder. The same merge is still pending for `batchAComponents` from `src/components/tools/_batch-a-registry.ts` (the previous batch's 8 random/picker tools) — both can be merged in a single follow-up. Consider hosting the `@imgly/background-removal` model + WASM files on a first-party CDN (`publicPath` config option) for production; default is `https://staticimgly.com/...` which works fine but adds a third-party dependency for the model download.
+
+---
+Task ID: 2-c-viral
+Agent: unicode-text-tools
+Task: Implement 9 Unicode / text generator tools (IDs 115-123) — fancy-text-generator, strikethrough-text, small-caps-generator, zalgo-text-generator, cursive-text-generator, binary-translator, morse-code-translator, discord-timestamp-generator, wordle-solver.
+
+Work Log:
+- Read the foundation (`worklog.md` Tasks 1, 2-a..2-h, 3, 4-games, 5, 2-a-viral, 2-b-viral), the tool registry (rows for IDs 115-123), `tool-layout.tsx`, `copy-button.tsx`, `tool-router.tsx`, `case-converter.tsx` (as a structural reference), and `_text-helpers.ts`. Skimmed `_batch-b-registry.ts` to mirror the batch-registry pattern.
+- Created `src/components/tools/text/_unicode-maps.ts` — a single `.ts` module (no JSX) with every Unicode character-mapping table the text generators need. Covers Mathematical Alphanumeric Symbols (12 styles with full hole-tables for Script / Fraktur / Double-Struck / Italic-h), Enclosed Alphanumerics (circled / negative-circled / parenthesized / squared / negative-squared / fullwidth), Phonetic Extensions small caps, super/subscripts (with the real Unicode gaps), combining-mark styles (sliced / bubble / underlined / strikethrough / double-under / squiggly / sparkle), regional indicators (🇦–🇿), upside-down map, and curated ZALGO_ABOVE / ZALGO_BELOW / ZALGO_MIDDLE mark tables. Exports three builder helpers (`mathStyle`, `mapByString`, `combineWith`), `generateZalgo(text, intensity, opts)`, and three pre-built catalogues (`FANCY_STYLES` 32 entries, `CURSIVE_STYLES` 3 entries, `SMALL_CAPS_STYLES` 3 entries).
+- Implemented 9 tool components under `src/components/tools/text/`:
+  1. `fancy-text-generator.tsx` (`FancyTextGenerator`) — Single `<Input>` (maxLength 500) drives all 32 styles live. Grid of cards (`sm:grid-cols-2 lg:grid-cols-3`) each with style label, live output, static preview, and `CopyButton` (icon). Sample = "Dueneo rocks". 1 MB safety cap. Empty-input UX shows the sample text instead of empty cards.
+  2. `strikethrough-text.tsx` (`StrikethroughText`) — Three variants: Strikethrough (U+0336), Underline (U+0332), Double strikethrough (stacks U+0336 + U+0337 for a true double-strike). Each card shows the combining-mark code-point + static sample. "Download all variants" emits a labelled .txt. Textarea maxLength 2000.
+  3. `small-caps-generator.tsx` (`SmallCapsGenerator`) — Three variants: Small Caps (with Q/X fallback), Superscript (with the real Unicode gaps), Subscript (with the many consonant gaps). Reuses `SMALL_CAPS_STYLES`. Honest note in UI about which letters are missing.
+  4. `zalgo-text-generator.tsx` (`ZalgoTextGenerator`) — Intensity slider 1-20 (default 5). Three `Switch` toggles for above / below / middle marks. Re-roll button forces re-render so `generateZalgo` picks fresh random marks. Output in `max-h-96 overflow-y-auto` scrollable container (zalgo text can overflow). Input capped at 500 chars.
+  5. `cursive-text-generator.tsx` (`CursiveTextGenerator`) — Three variants: Regular Cursive (Mathematical Script), Bold Cursive (Bold Mathematical Script), Blackletter (Fraktur). Reuses `CURSIVE_STYLES`. Note about the 8 uppercase + 3 lowercase Script "holes" (ℬ ℰ ℱ ℋ ℐ ℒ ℳ ℛ / ℯ ℊ ℴ) that overlap with Letterlike Symbols.
+  6. `binary-translator.tsx` (`BinaryTranslator`) — Tabs: Text → Binary and Binary → Text. Encoder uses `TextEncoder` for full UTF-8; ASCII-only toggle (`charCodeAt`, drops non-ASCII) for legacy 7-bit. Decoder tolerant: accepts space-separated bytes, runs of 0s/1s (multiple of 8), newlines, no separator. Uses `TextDecoder("utf-8", {fatal:true})` with friendly error for invalid UTF-8. Swap button moves output into the other mode's input. Byte/bit/char counters.
+  7. `morse-code-translator.tsx` (`MorseCodeTranslator`) — Standard ITU Morse table (A-Z, 0-9, 17 punctuation marks). Tabs: Text → Morse and Morse → Text. Decoder tolerant (letters by spaces, words by `/`, unknown → `?` with count). **Web Audio API playback** at 600 Hz sine wave with PARIS-standard timing (dot = 1.2 / WPM seconds, dash = 3 dots, intra = 1 dot, letter = 3 dots, word = 7 dots). Speed slider 5-40 WPM with friendly labels. Stop button cancels via `playTokenRef`. Play disabled for >500 chars (encode) / >4000 chars (decode). Cleanup on unmount (stop oscillator, close AudioContext).
+  8. `discord-timestamp-generator.tsx` (`DiscordTimestampGenerator`) — `<Input type="datetime-local">` + quick presets (Now, +1 hour, +1 day, +1 week, +1 month, Christmas). Computes UNIX seconds; shows it alongside local + UTC. Renders all 7 Discord timestamp formats (`<t:UNIX:R|f|F|d|D|t|T>`) as clickable cards. Each card shows style letter, name, description, preview (via `Intl.DateTimeFormat` for non-relative; custom `formatRelative` for `:R`), and raw markdown. Click → copies markdown.
+  9. `wordle-solver.tsx` (`WordleSolver`) — **Embedded dictionary: ~4,034 unique 5-letter English words** (exceeds the brief's ~3,000 minimum) stored as a single space-separated template literal. Parsed at module load into a deduplicated uppercase array. Inputs: 5 green boxes, 5 yellow boxes (yellow = letter in word but NOT at this position), freeform grey-letters field. Matching: green position checks → yellow inclusion + position-exclusion → grey exclusion (with Wordle's nuance that a grey letter can still be in the word if it's also in green/yellow). Sorted by sum of unique-letter frequencies (computed from the dictionary itself), ties broken alphabetically. Output: chips in `max-h-96 overflow-y-auto` scrollable container; first 300 shown with "+N more" indicator. Click chip → copies lowercase. Live filter input. Suggested opening guesses (AROSE, RAISE, AUDIO) shown when no clues.
+- Created `src/components/tools/_batch-c-registry.ts` exporting `batchCComponents` — a `Record<string, ComponentType<{tool: ToolDefinition}>>` mapping the 9 component keys. Per the brief, this avoids parallel-edit conflicts on `tool-router.tsx`; the main agent will merge this map into `TOOL_COMPONENTS` after all batches complete (alongside `batchAComponents` and `batchBComponents`).
+- Issues caught & fixed:
+  - **JSX literal in `_unicode-maps.ts`**: malformed `"\": ",,"",` entry in `UPSIDE_DOWN_MAP`. Fixed to `"\": ",,"`.
+  - **Wrong combining mark for "sliced"**: brief sample was `h̷e̷l̷l̷o̷` (U+0337 short solidus), not U+0338 (long solidus). Switched `T_SLICED` to U+0337.
+  - **"Squiggly" combining mark**: changed from U+033E (vertical tilde above, poorly supported) to U+0330 (tilde below, universally visible).
+  - **Unused imports**: removed `Type` from `fancy-text-generator.tsx`, `Clock` + `CopyButton` from `discord-timestamp-generator.tsx`.
+  - **Pointless `useEffect` in zalgo**: removed an empty `useEffect(() => {}, [seed])` that was only there for lint; replaced with a code comment explaining the seed mechanism.
+  - **`CopyButton` doesn't accept `disabled`**: the shared component's prop type doesn't include `disabled`. Removed `disabled={…}` from 5 `CopyButton` usages across `binary-translator.tsx`, `morse-code-translator.tsx`, and `zalgo-text-generator.tsx`. The component already handles empty values gracefully (shows "Nothing to copy yet." toast), so the visual disabled state wasn't essential.
+- Verified with `bun run lint` (exit 0, no errors or warnings) and `npx tsc --noEmit --skipLibCheck` (zero errors in any of the 9 new files or shared modules; pre-existing errors in other agents' files — `examples/`, `skills/`, `pdf-*`, `base64-decoder`, `security/_security-helpers`, `games/*` — all unrelated to this batch). `tail -50 dev.log` is clean: only `✓ Compiled` and `GET / 200` lines.
+
+Files created:
+- `src/components/tools/text/_unicode-maps.ts`
+- `src/components/tools/text/fancy-text-generator.tsx`
+- `src/components/tools/text/strikethrough-text.tsx`
+- `src/components/tools/text/small-caps-generator.tsx`
+- `src/components/tools/text/zalgo-text-generator.tsx`
+- `src/components/tools/text/cursive-text-generator.tsx`
+- `src/components/tools/text/binary-translator.tsx`
+- `src/components/tools/text/morse-code-translator.tsx`
+- `src/components/tools/text/discord-timestamp-generator.tsx`
+- `src/components/tools/text/wordle-solver.tsx`
+- `src/components/tools/_batch-c-registry.ts`
+- `agent-ctx/2-c-viral-unicode-text-tools.md`
+
+Stage Summary:
+- All 9 Unicode/text generator tools (IDs 115-123) are implemented, browser-only, and ready to be wired up. Each renders via `ToolLayout` with intro, interactive UI, How-To steps, use cases, limitations and FAQ.
+- All processing is 100% client-side: `String.fromCodePoint` / `codePointAt` for Unicode maps, `Math.random` for Zalgo mark selection, `TextEncoder`/`TextDecoder` for binary, `Web Audio API` (600 Hz sine wave + scheduled gain envelopes) for Morse playback, `Intl.DateTimeFormat` + custom relative-time formatter for Discord timestamps, and a pure-TypeScript Wordle matcher with a 4,034-word embedded dictionary. No backend API routes, no file uploads, no external dependencies added.
+- Each tool handles empty input gracefully (shows a sample or a friendly placeholder, never crashes).
+- Lint clean; TypeScript clean for the new files; dev server compiles without errors.
+- Follow-up for main agent: merge `batchCComponents` from `src/components/tools/_batch-c-registry.ts` into `TOOL_COMPONENTS` in `src/components/tools/tool-router.tsx` (single `import { batchCComponents }` + spread into the map). Until then the 9 tools fall through to the "Component not registered yet" placeholder. The same merge is still pending for `batchAComponents` (Task 2-a-viral, 8 random/picker tools) and `batchBComponents` (Task 2-b-viral, 6 AI/image tools) — all three can be merged in a single follow-up.
+
+
+---
+Task ID: 2-e-viral
+Agent: dev-design-tools
+Task: Implement 8 developer/designer tools (IDs 134-141) — json-to-typescript, sql-formatter, css-minifier, js-minifier, jsonpath-tester, http-status-codes, color-shade-generator, px-rem-converter.
+
+Work Log:
+- Read the foundation (`worklog.md` Tasks 1, 2-a..2-d, 2-a-viral, 2-b-viral, 2-c-viral), `tools.ts` (rows 2305-2441), `tool-layout.tsx`, `copy-button.tsx`, `tool-router.tsx`, `_batch-a-registry.ts`, `_batch-b-registry.ts`, `json-formatter.tsx` (as a structural reference), `_dev-helpers.ts` and `_color-helpers.ts` for reusable utilities, and the existing `color-palette-generator.tsx` as a design-tool structural reference.
+- Created `src/components/tools/_batch-e-registry.ts` exporting `batchEComponents` — a `Record<string, ComponentType<{ tool: ToolDefinition }>>` mapping the 8 component keys. Per the brief, this avoids parallel-edit conflicts on `tool-router.tsx`; the main agent will merge this map into `TOOL_COMPONENTS` after all parallel batches complete.
+- Implemented 8 tool components:
+
+  1. `developer/json-to-typescript.tsx` (`JSONToTypeScript`) — Hand-rolled JSON-to-TypeScript interface/type generator. Walks the parsed JSON tree recursively, generating named interfaces for objects (top-level uses the user-supplied root name, nested interfaces named after the parent key in PascalCase, array keys singularised — `users` → `User`, `address` → `Address`). Arrays of objects are merged into a single interface where keys present in some but not all elements become optional (`?`) fields (toggleable). Arrays of mixed primitives produce `(T1 | T2)[]`. Empty arrays become `unknown[]`. Top-level primitives/arrays get a `type Root = …` alias. Options: root name (default "Root"), `interface` vs `type` declaration style, optional-fields toggle. Output rendered in a syntax-highlighted `<pre>` (keywords purple, type names emerald, strings amber). Copy button. Sample = a nested store/user/members payload.
+
+  2. `developer/sql-formatter.tsx` (`SQLFormatter`) — Hand-rolled tokenizer + formatter (NO library). Tokenizer recognises keywords (110-word vocabulary), identifiers, single/double-quoted strings (with `''`/`""` escapes), backtick identifiers, numbers (with exponent), `--` line and `/* */` block comments, single + multi-char operators (`<=`, `>=`, `<>`, `!=`, `||`, `<<`, `>>`). Compound-keyword merger combines `GROUP BY`, `ORDER BY`, `INSERT INTO`, `DELETE FROM`, `UNION ALL`, `IS NULL`, `IS NOT NULL`, `NOT IN/LIKE/BETWEEN/EXISTS/DISTINCT`, `PRIMARY KEY`, `FOREIGN KEY`, `INNER/LEFT/RIGHT/FULL [OUTER] JOIN`, `CROSS JOIN`, `CROSS APPLY`, `START TRANSACTION`. Formatter tracks paren depth with a stack to distinguish subquery parens (indent contents) from function-call parens (inline). Major clauses start a new line at current indent; AND/OR get an indented new line; top-level commas split to new lines (inside-paren commas stay inline); semicolons reset indent. Options: 2/4 spaces or tab indent; keyword case upper/lower/preserve; newline-per-clause toggle. Sample = a JOIN + GROUP BY + HAVING + ORDER BY + LIMIT query.
+
+  3. `developer/css-minifier.tsx` (`CSSMinifier`) — Hand-rolled minifier. String-aware walker (tracks `'`/`"` state, skips comments inside strings) strips `/* */` block comments (toggleable), collapses runs of whitespace to a single space, removes spaces around `{ } : ; , > + ~`, drops trailing semicolons before `}`, trims leading/trailing whitespace. Defensive regex passes at the end collapse any double-spaces that slipped through and normalise `;+}` → `}`. Before/after byte counts + savings % + copy + download as `styles.min.css`. Sample = a 3-rule card CSS with comments and hover state.
+
+  4. `developer/js-minifier.tsx` (`JSMinifier`) — **Conservative** JS minifier (no library). Phase 1: string/regex/char-class-aware comment stripper. The walker tracks `'`/`"`/`` ` `` string state, `//` line-comment state, `/* */` block-comment state, regex-literal state (with `[...]` char-class tracking and `\` escape handling), and uses a heuristic regex-start detector: a `/` is treated as regex start when the previous non-ws token is `(`, `,`, `=`, `:`, `[`, `!`, `&`, `|`, `?`, `{`, `;`, `+`, `-`, `*`, `%`, `~`, `^`, `<`, `>` or one of the keywords `return`, `typeof`, `instanceof`, `in`, `of`, `new`, `delete`, `void`, `throw`, `else`, `case`, `do`, `await`, `yield`, `if`, `while`, `for`, `switch`, `catch` (or no previous token at all). Phase 2: split into lines, trim each, drop blanks, collapse internal whitespace runs. Phase 3: ASI-safe line joining — joins consecutive lines when prev ends with a continuation marker (`,`, `(`, `[`, `{`, `.`, binary operator, ternary `?`/`:`) or a continuation keyword (`return`, `typeof`, …); preserves newline after `;`, `{`, `}`; refuses to join when it would form `++`, `--`, `//`, `<<`, `>>`; refuses to join when next line starts with `(`, `[`, `+`, `-`, `/` and prev doesn't explicitly continue (classic ASI hazards). Prominent yellow "conservative minifier — use Terser/esbuild for production" callout. Before/after byte counts + savings % + copy + download as `app.min.js`. Sample = a `greet()` function with line + block comments.
+
+  5. `developer/jsonpath-tester.tsx` (`JSONPathTester`) — Hand-rolled JSONPath parser + evaluator (no library). Parser produces a `Segment` AST: `root | child | index | wildcard | recursive | filter`. Supports `$` (root), `@` (current in filter), `.name`, `['name']` (single or double quotes, with `\` escapes), `[N]` (including negative indices), `[*]` (wildcard — array elements or object values), `..name` (recursive descent — walks every descendant of every current node, including self), `..[N]`, `..[*]`, and `[?(body)]` filters. Filter evaluator supports `@.path` (truthy check — undefined/null/false/0/"" are falsy) and `@.path OP value` comparisons where OP ∈ `==`, `!=`, `>`, `>=`, `<`, `<=` and value ∈ number, `'string'`, `"string"`, `true`, `false`, `null`. Loose numeric equality (string "5" == number 5). The tool warns (amber alert) when a filter body uses unsupported syntax. Two textareas (JSON + JSONPath) + Run button + 5 clickable sample-path chips. Sample = a `store.books` array with title/author/price/tags. Output is the matched values pretty-printed as a JSON array.
+
+  6. `developer/http-status-codes.tsx` (`HTTPStatusCodes`) — Static reference tool. Embeds 51 IANA-registered HTTP status codes covering all 5 classes (1xx=4, 2xx=10, 3xx=8, 4xx=27, 5xx=11) from RFCs 7231, 7233, 7234, 6585, 7538, 7725, 8297, 9110, 9111 plus WebDAV (207, 208, 226, 422-424, 507, 508) and the 418 teapot. Each entry has code, name, 1-2 sentence description, and class. UI: search box (filters by code, name, OR description — case-insensitive, instant), 6 class-filter tabs (All/1xx/2xx/3xx/4xx/5xx with counts), grouped display by class with class-coloured badges (sky/emerald/amber/orange/rose). Click any card to copy the numeric code to clipboard. No input, no backend — pure reference.
+
+  7. `design/color-shade-generator.tsx` (`ColorShadeGenerator`) — Generates 11 swatches from a base HEX colour: pure white + 4 tints (80/60/40/20% white mix) + base + 4 shades (20/40/60/80% black mix) + pure black, sorted lightest-first. Uses linear RGB interpolation (`base × (1−amount) + mixWith × amount`) rather than HSL lightness — closer to what Figma produces when mixing in RGB mode. Each swatch is a click-to-copy button showing the HEX in monospace; the base swatch gets a "Base" badge. 8 common-colour quick-pick chips (blue/red/emerald/amber/purple/pink/slate/teal). Export panel with two `<pre>`s: CSS variables (`:root { --color-base: #2563eb; --color-tint-80pct: …; … }`) and Tailwind tokens (`"base": "#2563eb", "tint-80pct": "…",`), each with a Copy button. Reuses `_color-helpers.ts` (`hexToRgb`, `rgbToHex`, `isValidHex`, `RGB`).
+
+  8. `design/px-rem-converter.tsx` (`PxRemConverter`) — Three-tab tool. (a) Single value: two-way PX ↔ REM inputs with a swap button (ArrowRightLeft icon); EM shown as a read-only third readout (with a footnote explaining EM is contextual — relative to the parent's font size, here assumed = root). (b) Batch: textarea, one value per line, auto-detects `px`/`rem`/`em` suffix (bare number = px), results in a sticky-header `<table>` with Input/PX/REM/EM columns; invalid rows highlighted rose. Copy button exports valid rows as TSV. (c) Quick reference: pre-computed table for 8, 12, 14, 16, 18, 20, 24, 32, 48, 64 px with REM/EM values and common-use labels ("Body text, default base size", "H3 headings, card padding", etc.). Root font-size input (default 16) at the top drives every calculation. EM is always equal to REM in this tool (with the contextual-parent assumption clearly noted).
+
+- Issues caught & fixed:
+  - **JSDoc comment containing literal `/*` and `*/`** in `js-minifier.tsx` — the description text `Strip // and /* */ comments from JS source` closed the JSDoc block early, causing an SWC parse error at line 53. Rewrote to "Strip line-comment (slash-slash) and block-comment (slash-star) markers…".
+  - **JSX text with literal `${...}`** in the same file's limitations list — `<code>${...}</code>` was parsed as a JSX expression (the `${` triggers template-literal parsing inside JSX). Wrapped in `{"${...}"}`.
+  - **JSX text with literal `{`** in the same limitations list — `<code>{</code>` was parsed as the start of a JSX expression. Changed to `<code>{"{"}</code>`. Also escaped a literal `&` to `&amp;` in the same list for cleanliness.
+
+- Verification: `bun run lint` exits 0 with 0 errors and 0 warnings. `npx tsc --noEmit --skipLibCheck` reports 0 errors in any of the 8 new files or the registry file (pre-existing errors in other agents' files — pdf-*, security/_security-helpers, base64-decoder — are unrelated). `tail -50 dev.log` is clean: only `✓ Compiled in Nms` and `GET / 200` lines, no compile errors. All 8 routes (`/#/json-to-typescript`, `/#/sql-formatter`, `/#/css-minifier`, `/#/js-minifier`, `/#/jsonpath-tester`, `/#/http-status-codes`, `/#/color-shade-generator`, `/#/px-rem-converter`) return HTTP 200 from Caddy on port 81.
+
+Files created:
+- `src/components/tools/developer/json-to-typescript.tsx`
+- `src/components/tools/developer/sql-formatter.tsx`
+- `src/components/tools/developer/css-minifier.tsx`
+- `src/components/tools/developer/js-minifier.tsx`
+- `src/components/tools/developer/jsonpath-tester.tsx`
+- `src/components/tools/developer/http-status-codes.tsx`
+- `src/components/tools/design/color-shade-generator.tsx`
+- `src/components/tools/design/px-rem-converter.tsx`
+- `src/components/tools/_batch-e-registry.ts`
+- `agent-ctx/2-e-viral-dev-design-tools.md`
+
+Files modified: none (per the brief, `tool-router.tsx` was NOT modified).
+
+Stage Summary:
+- All 8 developer/designer tools (IDs 134-141) are implemented, browser-only, and ready to be wired up. Each renders via `ToolLayout` with intro, interactive UI, How-To steps (4), use cases (4), limitations (JSX `<ul>`), and FAQ (4 Q&A pairs).
+- All processing is 100% client-side: hand-rolled JSON-to-TS type inference, SQL tokenizer + formatter, CSS minifier (string-aware), JS minifier (string/regex/char-class-aware comment stripper + ASI-safe line joining), JSONPath parser + evaluator (recursive descent over a `Segment` AST), embedded HTTP status code data table, linear RGB colour mixing, px/rem/em math. No backend API routes, no file uploads, no new libraries installed.
+- Each tool handles empty input (friendly "Please paste …" message), invalid input (parse errors with line/column for JSON tools), and oversized input (> 1 MB cap via `MAX_INPUT_BYTES`).
+- The JS minifier explicitly warns users it's a conservative minifier (10–30% savings) and recommends Terser/esbuild for production (40–70% savings) — both in a yellow callout box and in the limitations list — per the brief.
+- The HTTP status codes tool includes the 418 teapot, 451 legal, 425 too-early, 103 early-hints, 308 permanent-redirect, and all standard WebDAV codes — a comprehensive reference.
+- Lint clean; TypeScript clean for the new files; dev server compiles without errors.
+- Follow-up for main agent: merge `batchEComponents` from `src/components/tools/_batch-e-registry.ts` into `TOOL_COMPONENTS` in `src/components/tools/tool-router.tsx` (single `import { batchEComponents }` + spread into the map). Until then the 8 tools fall through to the "Component not registered yet" placeholder. The same merge is still pending for `batchAComponents`, `batchBComponents`, `batchCComponents`, and `batchDComponents` from earlier parallel batches — all five can be merged in a single follow-up.
+
+---
+
+## Task ID: 2-f-viral — Time utility tools (Stopwatch, World Clock, Working Days, Pregnancy Due Date)
+
+**Agent:** time-utilities
+**Built:** 4 browser-only tools under `src/components/tools/utility/`, registered in `src/components/tools/_batch-f-registry.ts`.
+
+### Files created
+1. `src/components/tools/utility/working-days-calculator.tsx` — `WorkingDaysCalculator`
+2. `src/components/tools/utility/pregnancy-due-date-calculator.tsx` — `PregnancyDueDateCalculator`
+3. `src/components/tools/utility/stopwatch.tsx` — `Stopwatch`
+4. `src/components/tools/utility/world-clock.tsx` — `WorldClock`
+5. `src/components/tools/_batch-f-registry.ts` — registry exporting `batchFComponents` (4 entries).
+
+### What each tool does
+
+**Working Days Calculator** — Two date pickers (start, end). Per-weekday weekend toggles (default Sat + Sun) using shadcn `Checkbox`. Custom holiday list with add/remove buttons (date inputs). Computes total days (inclusive), weekend days, holidays in range, holidays on working days, and final working-day count. Uses `Date.UTC` midnight keys for safe holiday/weekend matching. Handles end-before-start by swapping internally (with on-screen amber warning). Holiday list scrollable with `max-h-72 overflow-y-auto`.
+
+**Pregnancy Due Date Calculator** — `RadioGroup` toggle between LMP (Naegele +280d) and Conception (+266d). Switching modes carries the equivalent date across (LMP ↔ conception differ by 14d) so users don't lose their entry. Shows estimated due date, current gestational age (weeks + days from LMP), trimester (1st: 1–12, 2nd: 13–27, 3rd: 28–40), days until due date (signed), and both LMP and conception dates regardless of which mode was used. Includes an explicit amber "Estimate only — consult your healthcare provider" disclaimer in the tool body AND a longer one in the limitations section. Future date inputs are rejected with a rose-coloured error message.
+
+**Stopwatch** — Big monospace `HH:MM:SS.mmm` display driven by `requestAnimationFrame` + `performance.now()` (NOT setInterval — display is smooth and frame-locked). Start / Pause / Lap / Reset buttons. Lap list shows split time + total time per lap; auto-scrolls to newest entry via ref + `scrollTop = scrollHeight`. Best lap (Trophy, emerald) and worst lap (Turtle, rose) are highlighted automatically when there are ≥2 laps. Full state persisted to `localStorage` (`dueneo-stopwatch-v1`): snapshots are taken on every control action AND every 1s while running, so the timer survives page refresh / tab close and resumes from the correct elapsed time (recomputed via `Date.now() - snapshotWallAt` on mount, then continues with `performance.now()` baseline).
+
+**World Clock** — Default cities: New York, London, Tokyo, Sydney, Dubai, Los Angeles, Paris, Singapore. Add/remove from a wider list of 50+ cities across 6 continents. Each card shows city name, country, current time (HH:MM:SS via `Intl.DateTimeFormat` with `timeZone`), current date, timezone abbreviation (via `timeZoneName: "short"` — e.g. EST, GMT, JST), UTC offset (e.g. `UTC+09:00`), and a sun/moon day/night indicator (computed from the zone's local hour, 06:00–18:00 = day). 12-hour / 24-hour toggle via `Switch`. Updates every 1s via `setInterval` (clock precision is fine; sub-second is unnecessary). DST handled natively by the browser's ICU library. Selection + format preference persisted to `localStorage` (`dueneo-world-clock-v1`). Cards are responsive: 1 col mobile, 2 col sm, 3 col lg, 4 col xl. Remove button appears on hover (`opacity-0 group-hover:opacity-100`).
+
+### Tech / design notes
+- All 4 use `ToolLayout` with full `ToolContent` (intro, tool, how-to steps, use cases, limitations, FAQ). Each tool has 4 how-to steps, 4 use cases, 4 FAQ entries, and meaningful limitations.
+- All 4 use `CopyButton` for summary copy-to-clipboard.
+- No backend, no API routes — pure browser computation.
+- `sonner` `toast` used for add/remove/reset feedback in world-clock, stopwatch, and working-days-calc.
+- Mobile-first: grids collapse to single column on mobile; touch targets ≥44px for primary buttons; lap list and holiday list both have `max-h-* overflow-y-auto` with thin scrollbars.
+- Reused existing helpers from `_calc-date-helpers.ts` (`parseDateInput`, `toDateInputValue`, `addDays`, `formatPrettyDate`, `formatInt`, `DOW_LABELS`) — no new helper file needed.
+- World-clock offset calculation follows the same `getZoneOffsetMs` pattern already in `time-zone-converter.tsx` for consistency.
+
+### Verification
+- `bun run lint` — **clean** (0 errors, 0 warnings).
+- `tail /home/z/my-project/dev.log` — only `✓ Compiled in NNN ms` and `GET / 200` lines; no compile or runtime errors.
+- All 4 components are typed (`{ tool }: { tool: ToolDefinition }` props) and use TypeScript strict patterns (no `any`, no untyped refs).
+
+### Follow-up for main agent
+Merge `batchFComponents` from `src/components/tools/_batch-f-registry.ts` into `TOOL_COMPONENTS` in `src/components/tools/tool-router.tsx` (single `import { batchFComponents }` + spread into the map). Until then the 4 tools fall through to the "Component not registered yet" placeholder. This merge can be batched with the still-pending merges for `batchAComponents`, `batchBComponents`, `batchCComponents`, `batchDComponents`, and `batchEComponents` from earlier parallel batches.

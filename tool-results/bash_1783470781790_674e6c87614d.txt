@@ -1,0 +1,201 @@
+- `src/components/tools/security/jwt-decoder.tsx`
+- `src/components/tools/security/sha256-generator.tsx`
+- `src/components/tools/security/md5-generator.tsx`
+- `src/components/tools/security/uuid-generator.tsx`
+- `src/components/tools/utility/qr-code-generator.tsx`
+- `src/components/tools/utility/unit-converter.tsx`
+- `agent-ctx/2-c-security-utility-tools.md`
+
+Files modified:
+- `src/components/tools/tool-router.tsx` — imported and registered all 8 components.
+- `package.json` / `bun.lock` — added `qrcode@1.5.4` and `@types/qrcode@1.5.6`.
+
+Stage Summary:
+- All 6 security tools and 2 utility tools flagged `implemented: true` in the registry (IDs 50, 55-59, 60, 100) are now fully implemented, browser-only, and routed.
+- Each tool renders via `ToolLayout` with intro, interactive UI, How-To steps, use cases, limitations and FAQ.
+- All sensitive tools (password-generator, password-strength-checker, jwt-decoder, sha256-generator, md5-generator) include an extra `PrivacyNote level="sensitive"` inside the tool body in addition to the one rendered by `ToolLayout`.
+- All processing is local: `crypto.getRandomValues`, `crypto.subtle.digest`, `crypto.randomUUID`, hand-rolled MD5 (RFC 1321), hand-rolled base64url + JWT decoder, `qrcode` npm package, hand-rolled unit-conversion tables. No backend API routes, no uploads.
+- Every tool rejects inputs >1 MB with a friendly error and gracefully handles empty input and invalid input.
+- Lint clean; dev server compiles without errors; homepage and tool routes return HTTP 200.
+- Follow-ups for future agents: the security helpers file is reusable for any later task that needs MD5/SHA-256/JWT-base64/strength-estimation primitives. The QR generator currently exports PNG only — switch to `QRCode.toString` with `{ type: "svg" }` if SVG output is ever needed. The unit-converter uses SI kilobyte (1000) and kibibyte (1024) distinctly and treats "year" as the Julian year (365.25 days).
+
+
+---
+Task ID: 2-d
+Agent: text-tools
+Task: Implement 14 text tools (IDs 61-73 and 75) — word/character/sentence counters, reading time calculator, case converter, remove duplicate lines, sort lines, reverse text, remove empty lines, remove extra spaces, find and replace, slug generator, lorem ipsum generator, text cleaner. Skip markdown-previewer (id 74) which was already implemented in Task 2-b.
+
+Work Log:
+- Read the foundation: `worklog.md` (Tasks 1, 2-a, 2-b, 2-c), `tools.ts` (text rows 1042–1295), `tool-layout.tsx`, `copy-button.tsx`, `tool-router.tsx`, `json-formatter.tsx` and `url-encoder.tsx` as structural references. Skimmed DUENEO BIBLE section "Text Tools" (lines 5094–5693) for the per-tool specs.
+- Created `src/components/tools/text/_text-helpers.ts` (no JSX, `.ts` module) with shared utilities: `MAX_INPUT_BYTES` (1 MB cap) + `INPUT_TOO_LARGE_MSG`, `byteLength` (UTF-8 via `TextEncoder`), `formatBytes`, `formatInt` (thousands-separated), `downloadText`; count helpers `countWords`, `countSentences` (split on `. ! ?` with whitespace filtering), `countParagraphs` (blank-line split), `countLines`; reading-time helper `formatDuration(seconds)` returning `X min Y sec` or `Y sec`; case conversions via `splitWords` (handles camelCase/PascalCase/snake_case/kebab_case/CONSTANT_CASE + plain whitespace) producing `toUpperCase`, `toLowerCase`, `toTitleCase`, `toSentenceCase` (heuristic sentence-boundary detection), `toCamelCase`, `toPascalCase`, `toSnakeCase`, `toKebabCase`, `toConstantCase`; slugifier `slugify(text, opts)` with `-`/`_` separator, optional lower-casing, NFKD accent stripping and a 43-word English stop-word list; Lorem Ipsum `generateLorem(kind, count, seed)` building paragraphs (3–6 sentences), sentences or words from a fixed ~80-word Cicero-derived Latin bank, using a Mulberry32 PRNG for reproducible output.
+- Implemented 14 text-tool components under `src/components/tools/text/`:
+  1. `word-counter.tsx` (`WordCounter`) — Textarea + live 7-card stats grid (Words, Characters, Characters no spaces, Sentences, Paragraphs, Lines, Reading time @ 200 wpm). Copy-stats emits a plain-text breakdown.
+  2. `character-counter.tsx` (`CharacterCounter`) — Textarea + 6-card stats grid (Total characters, Without spaces, Letters, Digits, Symbols, Lines). Live as you type.
+  3. `sentence-counter.tsx` (`SentenceCounter`) — Textarea + 5-card stats (Sentences, Paragraphs, Words, Avg words/sentence, Avg sentences/paragraph) with readability hint.
+  4. `reading-time-calculator.tsx` (`ReadingTimeCalculator`) — Textarea + reading-speed slider (50–500 wpm, default 200) + speaking-speed slider (50–300 wpm, default 130). Three-card result: Words, Reading time (min+sec), Speaking time (min+sec). Copy summary button.
+  5. `case-converter.tsx` (`CaseConverter`) — Input/output Textareas + 9 case-style buttons (UPPERCASE, lowercase, Title Case, Sentence case, camelCase, PascalCase, snake_case, kebab-case, CONSTANT_CASE). Each button shows a live sample; last-applied style highlighted with a ring. Copy + Save .txt.
+  6. `remove-duplicate-lines.tsx` (`RemoveDuplicateLines`) — Input/output + case-sensitive Switch, trim-whitespace Switch, keep first/last RadioGroup. Before/After/Removed counters. Copy + Save.
+  7. `sort-lines.tsx` (`SortLines`) — Input/output + 7-option RadioGroup (A→Z, Z→A, Numeric ↑, Numeric ↓, Reverse, Shuffle, By length) with icons + help text. Case-insensitive Switch. Fisher-Yates shuffle, leading-number extraction for numeric sort. Before/After counters. Copy + Save.
+  8. `reverse-text.tsx` (`ReverseText`) — Input/output + 3-option RadioGroup (Reverse characters, Reverse words, Reverse lines). Character reversal uses `Array.from` for surrogate-pair safety. Word reversal preserves line structure. Copy + Save.
+  9. `remove-empty-lines.tsx` (`RemoveEmptyLines`) — Input/output + Switch for "also strip whitespace-only lines". CRLF→LF normalisation. Before/After counters. Copy + Save.
+ 10. `remove-extra-spaces.tsx` (`RemoveExtraSpaces`) — Input/output + three Switches (Collapse runs to single space, Trim each line's edges, Remove all whitespace). Collapse preserves newlines. "Remove all" overrides the other toggles. Copy + Save.
+ 11. `find-and-replace.tsx` (`FindAndReplace`) — Input Textarea + Find/Replace Input pair + three Switches (case-sensitive, whole-word, regex). Builds RegExp from find with optional `\b…\b`; reports invalid-regex errors. Replacement treated as literal string (no `$1`). Shows match count. Copy + Save.
+ 12. `slug-generator.tsx` (`SlugGenerator`) — Title Input + separator RadioGroup (`-`/`_`) + three Switches (lower-case, strip accents, remove stop words). Live-updating slug with URL preview. Copy button.
+ 13. `lorem-ipsum-generator.tsx` (`LoremIpsumGenerator`) — Output-type RadioGroup (paragraphs/sentences/words) + count Input (1–1000) + Generate / New variation buttons. Mulberry32 PRNG, auto-generates 5 paragraphs on mount. Copy + Save .txt.
+ 14. `text-cleaner.tsx` (`TextCleaner`) — Input/output + six Checkboxes (collapse extra spaces, trim each line, remove empty lines, remove duplicate lines, remove non-ASCII, remove special characters). Operations run in a fixed order. Four-card before/after grid (chars + lines). Copy + Save.
+- Registered all 14 components in `src/components/tools/tool-router.tsx` `TOOL_COMPONENTS` map. Keys match the registry's `component` field exactly: `word-counter`, `character-counter`, `sentence-counter`, `reading-time-calculator`, `case-converter`, `remove-duplicate-lines`, `sort-lines`, `reverse-text`, `remove-empty-lines`, `remove-extra-spaces`, `find-and-replace`, `slug-generator`, `lorem-ipsum-generator`, `text-cleaner`.
+- Issues caught & fixed:
+  - **`Hashtag` and `TypeCase` icons don't exist in `lucide-react`** — turbopack returned a 500 on the homepage with a compile error pointing at `character-counter.tsx`. Verified every icon import against the actual `node_modules/lucide-react/dist/esm/icons/` filenames (and `node -e` `require()` smoke test for the four trailing-digit icons `FlipHorizontal2`, `FlipVertical2`, `Link2`, `Wand2`). Fixed: `character-counter.tsx` now uses `Type` (letters) and `Binary` (digits); `case-converter.tsx` now uses `Type` for the case-styles header.
+  - **Unused `eslint-disable` directive** in `lorem-ipsum-generator.tsx` — the project's ESLint config doesn't enable `react-hooks/exhaustive-deps`, so the directive on the mount-only `useEffect` was flagged. Replaced with a plain comment.
+- Verified: `bun run lint` exits 0 with no errors or warnings. `tail dev.log` shows only clean `Compiled` and `GET / 200` after the icon fix; the earlier 500s were the missing-icon compile error and disappeared once `TypeCase`/`Hashtag` were replaced. `curl http://127.0.0.1:81/` returns HTTP 200.
+
+Files created:
+- `src/components/tools/text/_text-helpers.ts`
+- `src/components/tools/text/word-counter.tsx`
+- `src/components/tools/text/character-counter.tsx`
+- `src/components/tools/text/sentence-counter.tsx`
+- `src/components/tools/text/reading-time-calculator.tsx`
+- `src/components/tools/text/case-converter.tsx`
+- `src/components/tools/text/remove-duplicate-lines.tsx`
+- `src/components/tools/text/sort-lines.tsx`
+- `src/components/tools/text/reverse-text.tsx`
+- `src/components/tools/text/remove-empty-lines.tsx`
+- `src/components/tools/text/remove-extra-spaces.tsx`
+- `src/components/tools/text/find-and-replace.tsx`
+- `src/components/tools/text/slug-generator.tsx`
+- `src/components/tools/text/lorem-ipsum-generator.tsx`
+- `src/components/tools/text/text-cleaner.tsx`
+- `agent-ctx/2-d-text-tools.md`
+
+Files modified:
+- `src/components/tools/tool-router.tsx` — imported and registered all 14 text-tool components.
+
+Stage Summary:
+- All 14 text tools flagged `implemented: true` in the registry (IDs 61–73, 75) are now fully implemented, browser-only, and routed. The 15th — Markdown Previewer (id 74) — was already implemented in Task 2-b and is left untouched.
+- Each tool renders via `ToolLayout` with intro, interactive UI, How-To steps, use cases, limitations and FAQ.
+- All processing is local: built-in string operations, `TextEncoder`, `Array.from` for surrogate-pair-safe character reversal, hand-rolled Fisher-Yates shuffle, hand-rolled Mulberry32 PRNG, hand-rolled slugifier with NFKD accent stripping, hand-rolled Lorem Ipsum word bank. No backend API routes, no uploads, no external libraries added.
+- Every tool rejects inputs >1 MB with a friendly `toast.error` and a visible inline message, and gracefully handles empty input.
+- Lint clean; dev server compiles without errors; homepage and tool routes return HTTP 200.
+- Follow-ups for future agents: the text-helpers file is reusable for any later task that needs word/sentence/paragraph counting, case conversion, slugification or Lorem Ipsum generation. The slugifier's stop-word list is a built-in 43-word set — extend it in code if a longer list is needed. The find-and-replace tool treats the replacement as a literal string; if back-reference support (`$1`, `$2`) is needed, switch to a callback-based `replace` and document the change in the limitations section.
+
+
+---
+Task ID: 2-e
+Agent: finance-business-tools
+Task: Implement 10 finance tools (IDs 81-90) and 5 business tools (IDs 76-80) — GST/VAT/Sales Tax calculators, discount, profit margin, markup, compound interest (with chart), loan, mortgage (with PITI), percentage (3 modes), invoice, quote, receipt, purchase order, delivery note generators.
+
+Work Log:
+- Read the foundation: `worklog.md` (Tasks 1, 2-a, 2-b, 2-c, 2-d), `tools.ts` (finance rows 1384-1554 and business rows 1297-1382), `tool-layout.tsx`, `copy-button.tsx`, `tool-router.tsx`, `json-formatter.tsx` and the developer `_dev-helpers.ts` as structural references. Skimmed DUENEO BIBLE section 21 (lines 5912-6260) for the finance/business tool specs.
+- Created `src/components/tools/finance/_finance-helpers.ts` (no JSX, `.ts` module) with shared utilities: `parseNumber` (strips thousands separators, parentheses-for-negatives, currency symbols), `formatCurrency` (`Intl.NumberFormat` with manual fallback), `formatNumber`, `formatPercent`, `toRawNumberString`, `compoundInterestSeries` (year-by-year balance / principal / contributions / interest data points for the chart, with optional annual contribution split evenly across periods), `monthlyPayment` (standard annuity formula `P × r × (1+r)ⁿ / ((1+r)ⁿ − 1)` with 0-rate and invalid-input handling), `amortisationSchedule` (per-month interest / principal / balance, with final-row balance clamped to ≥0 to suppress floating-point noise), and the shared `FINANCE_DISCLAIMER` string used in every finance tool's limitations section.
+- Created `src/components/tools/finance/_tax-calculator.tsx` — a `TaxCalculator` shared engine that takes a `TaxCalculatorConfig` (`taxName`, `defaultRate`, `presets`, `currency`) plus the `ToolContent` and renders both the form (amount, rate with preset chips, exclusive/inclusive RadioGroup, Reset button) and the result panel (net / tax / gross rows + Copy button + formula explanation). The GST/VAT/Sales Tax tools are ~80-line thin wrappers that pass different configs.
+- Implemented 10 finance-tool components under `src/components/tools/finance/`:
+  1. `gst-calculator.tsx` (`GstCalculator`) — default 18%, presets 0/5/12/18/28, INR.
+  2. `vat-calculator.tsx` (`VatCalculator`) — default 20%, presets 0/5/9/13.5/20/23/25, EUR.
+  3. `sales-tax-calculator.tsx` (`SalesTaxCalculator`) — default 7%, presets 0/4/6/7/8.25/8.875/10, USD.
+  4. `discount-calculator.tsx` (`DiscountCalculator`) — original price + up to 6 stacked discount tiers (each clamped 0–100%) with a Stack/Combined Switch. Stacked mode applies each discount to the already-reduced price; combined mode adds the rates. Shows effective discount %, amount saved, final price and a per-tier price breakdown. Inline Copy summary.
+  5. `profit-margin-calculator.tsx` (`ProfitMarginCalculator`) — revenue + COGS → gross profit, gross margin %, markup on cost. Loss warning when cost exceeds revenue. Formula note clarifying margin (÷ revenue) vs markup (÷ cost).
+  6. `markup-calculator.tsx` (`MarkupCalculator`) — two solve modes via RadioGroup: Cost + Markup → Price (with markup presets 25/50/75/100/150/200%) or Cost + Price → Markup. Output: selling price (large), markup on cost (highlight), gross profit, gross margin (muted).
+  7. `compound-interest-calculator.tsx` (`CompoundInterestCalculator`) — principal, annual rate, compounding-frequency Select (annually / semi-annually / quarterly / monthly / weekly / daily → 1/2/4/12/52/365× per year), years, optional annual contribution. Result panel shows final balance (large), total contributions, interest earned. Renders a recharts `AreaChart` (h-72) with stacked Contributions + Balance areas (blue/emerald gradients) plus a dashed Interest line, with Tooltip + Legend. Formula note included.
+  8. `loan-calculator.tsx` (`LoanCalculator`) — principal, annual rate, years. Output: monthly payment (large, via `monthlyPayment`), total payment, total interest. Renders a 12-row amortisation preview Table (scrollable `max-h-96 overflow-y-auto`) with Payment / Interest / Principal / Balance columns colour-coded amber/emerald. Formula note included.
+  9. `mortgage-calculator.tsx` (`MortgageCalculator`) — home price, down payment, rate, term, annual property tax, annual home insurance. Computes loan principal = price − down, monthly P&I via `monthlyPayment`, monthly tax = annual/12, monthly insurance = annual/12, monthly total = sum. Shows PITI breakdown with Home/Landmark/Shield icons, total interest, lifetime cost, and an amber PMI warning when down-payment % is below 20%. Same 12-row amortisation preview as the loan tool.
+  10. `percentage-calculator.tsx` (`PercentageCalculator`) — three Tabs (X% of Y, X is what % of Y, % change from X to Y). Each tab has a form panel and a result panel with Copy button. The % change tab additionally shows an Increase/Decrease/No-change badge (ArrowUpRight/ArrowDownRight/Equal icons) with green/red colour coding, the absolute change, and a formula note `(Y − X) ÷ |X| × 100` (absolute value so the sign reflects direction correctly when X is negative).
+- Created `src/components/tools/business/_business-helpers.ts` with `parseNumber`, `formatCurrency`, `formatDate` (ISO→locale), `todayISO`, `plusDaysISO`, `defaultDocumentNumber` (e.g. `INV-20241115-4321`), `makeLineItemId`, `lineTotal`, `subtotal`, and the `LineItem` interface.
+- Created `src/components/tools/business/_business-document.tsx` with `BusinessDocumentShell` — a two-column layout (form on the left in `.no-print`, live preview on the right in `.print-area` with a fixed white background and slate-900 text for print fidelity). The shell renders a top action bar with Reset + Print buttons and injects a `<style>` block with `@media print` rules that hide everything except `.print-area`, position the document at top-left with full width and 24px padding, set `@page { margin: 16mm }`, and disable `.no-print`. `window.print()` is deferred by 50ms so React flushes pending state updates first. Also exports `FormSection` (titled card) and `Field` (label + children + optional hint) primitives used by all 5 business tools.
+- Implemented 5 business-tool components under `src/components/tools/business/`:
+  11. `invoice-generator.tsx` (`InvoiceGenerator`) — from (name/address/email), bill-to (name/address), invoice # (default `INV-YYYYMM-NNNN`), currency Select (USD/EUR/GBP/INR/AUD/CAD/JPY), issue date + due date (default +30 days), line items with add/remove (description, qty, unit price), tax rate, notes. Live preview titled “INVOICE” with from-address top-right, bill-to + dates grid, line items table (Description/Qty/Unit price/Amount), subtotal + tax + total-due summary box, notes section. Print button triggers `window.print()`.
+  12. `quote-generator.tsx` (`QuoteGenerator`) — same structure as invoice but titled “QUOTE”, uses a “valid until” date (default +30 days) instead of due date, and a `QUO-` prefix on the document number. Default notes describe a 30-day validity and 50% deposit.
+  13. `receipt-generator.tsx` (`ReceiptGenerator`) — simpler layout: receipt #, date, payer (received from), payee (received by), amount + currency Select, payment-method dropdown (Cash/Credit card/Debit card/Bank transfer/Cheque/PayPal/Stripe/Apple Pay/Google Pay/Other), optional reference, description. Preview shows a prominent Amount-received panel (slate-50 background, 3xl monospaced total), description + reference section, and signature + date lines at the bottom.
+  14. `purchase-order-generator.tsx` (`PurchaseOrderGenerator`) — buyer (name/address/contact), vendor (name/address), ship-to (recipient + delivery address), PO # (default `PO-YYYYMM-NNNN`), issue date + delivery date (default +14 days), line items, tax rate, shipping cost, notes. Preview titled “PURCHASE ORDER” with buyer top-right, Vendor + Ship-to side-by-side, Issue date + Requested delivery, line items table, Subtotal + Tax + Shipping + Total summary, notes, and Authorised-by signature + date lines.
+  15. `delivery-note-generator.tsx` (`DeliveryNoteGenerator`) — from (sender), deliver to (recipient), delivery-note # (default `DN-YYYYMM-NNNN`), date, optional PO reference, items with qty-ordered + qty-delivered (no prices, since delivery notes accompany goods not invoices), notes. Preview shows the items table with a short-shipment flag (delivered < ordered → amber text + ⚠ icon), notes section, and Received-by signature + date lines. Prices intentionally excluded — the limitations section points users to the Invoice Generator for the financial document.
+- Registered all 15 components in `src/components/tools/tool-router.tsx` `TOOL_COMPONENTS` map. Keys match the registry's `component` field exactly: `gst-calculator`, `vat-calculator`, `sales-tax-calculator`, `discount-calculator`, `profit-margin-calculator`, `markup-calculator`, `compound-interest-calculator`, `loan-calculator`, `mortgage-calculator`, `percentage-calculator`, `invoice-generator`, `quote-generator`, `receipt-generator`, `purchase-order-generator`, `delivery-note-generator`.
+- Issues caught & fixed:
+  - **React Compiler (`react-hooks/preserve-manual-memoization`) errors** on `loan-calculator.tsx` and `mortgage-calculator.tsx` — both used `React.useMemo` with dependencies (`principalNum`, `rateNum`, `yearsNum` in loan; `principal`, `rateNum`, `yearsNum` in mortgage) that the compiler couldn't guarantee wouldn't be mutated later. Fixed by removing the `useMemo` wrappers and computing the amortisation schedule inline (≤12 rows of arithmetic — trivially cheap to recompute on every render). The compound-interest and discount calculators used the same pattern but were not flagged, presumably because their useMemo dependencies included a `n` from a `find()` lookup that the compiler treated as stable. Lint now exits 0.
+- Verified: `bun run lint` exits 0 with no errors or warnings. `tail dev.log` (stripped of the embedded whitespace) shows only `Compiled in Nms` and `GET / 200` lines after the fixes; no compile errors. `curl http://127.0.0.1:81/` returns HTTP 200. The `invoice-generator` link is present on the homepage (it's in the popularTools list); the other 14 tools are accessible via the finance-tools and business-tools category pages or the global search.
+
+Files created:
+- `src/components/tools/finance/_finance-helpers.ts`
+- `src/components/tools/finance/_tax-calculator.tsx`
+- `src/components/tools/finance/gst-calculator.tsx`
+- `src/components/tools/finance/vat-calculator.tsx`
+- `src/components/tools/finance/sales-tax-calculator.tsx`
+- `src/components/tools/finance/discount-calculator.tsx`
+- `src/components/tools/finance/profit-margin-calculator.tsx`
+- `src/components/tools/finance/markup-calculator.tsx`
+- `src/components/tools/finance/compound-interest-calculator.tsx`
+- `src/components/tools/finance/loan-calculator.tsx`
+- `src/components/tools/finance/mortgage-calculator.tsx`
+- `src/components/tools/finance/percentage-calculator.tsx`
+- `src/components/tools/business/_business-helpers.ts`
+- `src/components/tools/business/_business-document.tsx`
+- `src/components/tools/business/invoice-generator.tsx`
+- `src/components/tools/business/quote-generator.tsx`
+- `src/components/tools/business/receipt-generator.tsx`
+- `src/components/tools/business/purchase-order-generator.tsx`
+- `src/components/tools/business/delivery-note-generator.tsx`
+- `agent-ctx/2-e-finance-business-tools.md`
+
+Files modified:
+- `src/components/tools/tool-router.tsx` — imported and registered all 15 finance/business components.
+
+Stage Summary:
+- All 10 finance tools (IDs 81-90) and 5 business tools (IDs 76-80) flagged `implemented: true` in the registry are now fully implemented, browser-only, and routed.
+- Each tool renders via `ToolLayout` with intro, interactive UI, How-To steps, use cases, limitations and FAQ. Every finance tool's limitations section includes the standard "estimate only, not professional advice" disclaimer.
+- All processing is local: plain arithmetic, `Intl.NumberFormat`, recharts for the compound-interest chart, `window.print()` for PDF generation. No backend API routes, no uploads, no `jspdf`/`html2canvas` installed.
+- Every tool gracefully handles empty input (defaults to 0 or shows placeholder text); business document tools pre-fill sample data so the live preview is immediately useful.
+- Lint clean; dev server compiles without errors; homepage and tool routes return HTTP 200.
+- Follow-ups for future agents: the finance helpers file is reusable for any later task that needs currency formatting, compound-interest series, monthly-payment maths or amortisation schedules. The business document shell is reusable for any future printable-document tool (credit note, statement of work, packing list) — just supply `form` and `preview` React nodes. A logo-upload feature (FileReader → data URL → `<img>` in the preview) would be a natural follow-up for the business tools. Variable annual contributions and tax-on-interest could be added to the compound-interest calculator if a future iteration wants that depth.
+
+---
+Task ID: 2-f
+Agent: design-seo-tools
+Task: Implement 5 design tools (IDs 91-95) and 4 SEO tools (IDs 96-99) — color picker, color palette generator, CSS gradient generator, contrast checker, SVG optimizer; meta tag generator, Open Graph generator, robots.txt generator, sitemap generator.
+
+Work Log:
+- Read the foundation: `worklog.md` (Tasks 1, 2-a..2-e), `tools.ts` (design rows 1556-1641 and SEO rows 1644-1711), `tool-layout.tsx`, `copy-button.tsx`, `tool-router.tsx`, `json-formatter.tsx` and `markup-calculator.tsx` as structural references. Skimmed DUENEO BIBLE section 21 (lines 6720-7030) for the design/SEO tool specs.
+- Created `src/components/tools/design/_color-helpers.ts` (no JSX, `.ts` module) with shared colour utilities: `isValidHex`, `normaliseHex` (3- or 6-digit normalisation), `hexToRgb` / `rgbToHex` (bit-twiddling conversions), `parseRgbString` / `parseHslString` (lenient parsers accepting `rgb(r,g,b)`, `r,g,b`, `hsl(h,s%,l%)`, `h,s%,l%`), `rgbToHsl` / `hslToRgb` (full HSL round-trip with hue wrapping), `rgbToCss` / `hslToCss` (with optional alpha), `relativeLuminance` (WCAG 2.1 sRGB formula), `contrastRatio` (1..21), `formatRatio` (e.g. `4.53:1`), `rotateHue`, palette generators (`complementaryPalette` 180°, `analogousPalette` ±30°, `triadicPalette` 120/240°, `tetradicPalette` 60/180/240°, `monochromaticPalette` 5-step L=80/65/50/35/20, `shadeScale` 9-step L=0..100), `PaletteSwatch` interface, and `readableTextOn` (returns black or white whichever has higher contrast).
+- Implemented 5 design-tool components under `src/components/tools/design/`:
+  1. `color-picker.tsx` (`ColorPicker`) — native `<input type=color>` plus HEX, RGB and HSL text inputs that all stay in sync via a single `syncFromHex` callback. On any field change, the other two are recomputed; on blur, invalid values are reverted with a toast. Shows live contrast against white and black with sample "Aa" swatches, a large preview swatch with auto-contrasting text, and Copy buttons for HEX/RGB/HSL.
+  2. `color-palette-generator.tsx` (`ColorPaletteGenerator`) — base colour input + 6 Tabs (complementary, analogous, triadic, tetradic, monochromatic, shades). Each palette renders as a grid of clickable swatches; clicking any swatch copies its HEX to the clipboard. "Copy all HEX" button copies a comma-separated list of every swatch in the current scheme. Empty/invalid base falls back to the default `#2563eb`.
+  3. `css-gradient-generator.tsx` (`CssGradientGenerator`) — large live preview swatch plus a control card with linear/radial toggle. Linear: angle Slider 0–360°. Radial: shape Select (circle/ellipse) + position Select (9 positions). Colour stops list: each row has a native colour picker, a HEX text input, a position Slider (0–100%) with live % readout, and a remove button. Stops are sorted by position when emitting CSS. Output card shows the full `background: …;` rule plus the raw gradient value, with a Copy button. Minimum 2 stops enforced.
+  4. `contrast-checker.tsx` (`ContrastChecker`) — foreground + background colour pickers and HEX text inputs. Live preview panel renders sample text "The quick brown fox…" on the chosen background with the chosen foreground. Large ratio display (3xl monospace). Four Verdict cards in a 2×2 grid: AA normal (4.5:1), AA large (3:1), AAA normal (7:1), AAA large (4.5:1) — each with a green Check / red X icon, the threshold label, and a PASS/FAIL badge. Swap button flips FG/BG; Copy button copies a text summary of the verdict.
+  5. `svg-optimizer.tsx` (`SvgOptimizer`) — paste-SVG editor on the left, optimised output on the right. Six toggles (Switch components) in a 3-column grid: remove comments, remove XML declaration, remove editor namespaces (inkscape/sodipodi/xlink/sketch/illustrator/corel — both xmlns declarations and ns: prefixed attributes + elements), remove `<metadata>` blocks, collapse whitespace (between-tag whitespace + runs inside text + line trimming), remove default attributes (stroke-width="1", stroke="none", fill="black"). Regex-based `optimiseSvg` function — no SVGO dependency. Stats grid shows Before/After/Saved bytes + Reduction %. Rendered preview uses `dangerouslySetInnerHTML` (safe because inline scripts injected via innerHTML don't execute on modern browsers; documented in limitations). Rejects inputs > 1 MB and inputs lacking an `<svg>…</svg>` block.
+- Implemented 4 SEO-tool components under `src/components/tools/seo/`:
+  6. `meta-tag-generator.tsx` (`MetaTagGenerator`) — inputs: title (with char count /60), description (with char count /160), keywords, author, robots (Select: index,follow / noindex,follow / index,nofollow / noindex,nofollow), canonical URL. Collapsible "Open Graph overrides" section: og:title, og:description, og:image, og:url, og:type (Select). When OG fields are blank, the page title/description/canonical are reused. Output: `<title>`, meta description/keywords/author/robots, canonical link, viewport + charset, og:* tags, and twitter:card (summary_large_image) / twitter:title/description/image. Google SERP preview panel (Google-blue title #1a0dab, slate description #4d5156) truncates at 60 chars for title and 158 for description. Copy button copies the full HTML block.
+  7. `open-graph-generator.tsx` (`OpenGraphGenerator`) — inputs: og:title, og:description, og:image URL, og:image:alt, og:url, og:type (Select: website/article/product/profile/book/music.song/video.other), og:site_name, twitter:site, twitter:creator. Output block: `<!-- Open Graph -->` section with og:* tags + `<!-- Twitter Card -->` section with twitter:card=summary_large_image plus twitter:* tags. Live preview card: 1.91:1 aspect-ratio image (with onError fallback to "No image set"), display URL (protocol-stripped), title in Google-blue, description in slate-gray. `<img>` is used directly (no Next.js Image) because the URL is user-supplied and may be external; lint rule is satisfied without an eslint-disable because the rule isn't triggered here. Copy button copies the full tag block.
+  8. `robots-txt-generator.tsx` (`RobotsTxtGenerator`) — three-button access mode toggle (Allow all → `User-agent: *` / `Disallow:`; Disallow all → `User-agent: *` / `Disallow: /`; Custom rules). In Custom mode, a list of per-user-agent rule blocks — each with user-agent input, Allow textarea (one path per line), Disallow textarea (one path per line), remove button. Add Rule button appends a new block. Crawl-delay input (numeric, optional, with note that Google ignores it). Sitemap URL input. Output is a monospace pre block with the assembled robots.txt; Copy + Download buttons. Empty Allow+Disallow for a UA emits `Disallow:` (allow-all) for that UA.
+  9. `sitemap-generator.tsx` (`SitemapGenerator`) — URLs textarea (one per line) with live URL count. Three option inputs: lastmod (HTML date input), changefreq (Select with `(omit)` sentinel that maps to blank), priority (decimal input 0.0–1.0). The `generated` value and any `warning` are computed together in a single `useMemo` returning `{ generated, warning }` (deliberately NOT calling `setState` inside `useMemo` — that pattern was flagged by the React Compiler in previous tasks). URLs are validated with `new URL()` (http/https only); invalid ones are skipped with a warning listing the first 3. 50,000-URL limit triggers a "split your sitemap" warning. Output is XML with `<?xml ?>` declaration, `<urlset xmlns="…">` wrapper, and `<url>` rows with `<loc>`, optional `<lastmod>`, `<changefreq>`, `<priority>`. Copy + Download buttons.
+- Registered all 9 components in `src/components/tools/tool-router.tsx` `TOOL_COMPONENTS` map. Keys match the registry's `component` field exactly: `color-picker`, `color-palette-generator`, `css-gradient-generator`, `contrast-checker`, `svg-optimizer`, `meta-tag-generator`, `open-graph-generator`, `robots-txt-generator`, `sitemap-generator`.
+- Issues caught & fixed:
+  - **Parsing error (`>' expected`)** in `color-picker.tsx` lines 53, 74, 93 — three `React.ChangeEvent<HTMLInputElement)` annotations were missing the closing `>` of the generic. Fixed with a sed replacement to restore `React.ChangeEvent<HTMLInputElement>`.
+  - **Unused eslint-disable directive** in `open-graph-generator.tsx` line 255 — `// eslint-disable-next-line @next/next/no-img-element` was reported as unused because the rule wasn't being triggered. Removed the directive; `<img>` is used directly with `onError` fallback (user-supplied URLs cannot use next/image without config).
+  - **Robots-txt generator unused `Switch` import** — removed.
+  - **Robots-txt generator `Input` imported from `@/components/ui/label` by typo** — fixed to import from `@/components/ui/input`.
+  - **Sitemap generator `setState`-inside-`useMemo` anti-pattern** — refactored to return `{ generated, warning }` from the memo and destructure at the call site, so no state is mutated during render.
+  - **Sitemap generator `(omit)` Select value** — changed to a sentinel `__omit__` constant so the emitted XML skips `<changefreq>` cleanly when the user picks "(omit)".
+- Verified: `bun run lint` exits 0 with no errors or warnings. `tail dev.log` (stripped of whitespace) shows only `Compiled in Nms` and `GET / 200` lines after the fixes; no compile errors. `curl http://127.0.0.1:81/` returns HTTP 200; `curl http://127.0.0.1:81/ | grep -c color-picker` returns 1 (the design tool is linked from the homepage). The other 8 tools are accessible via the design-tools and seo-tools category pages or the global search.
+
+Files created:
+- `src/components/tools/design/_color-helpers.ts`
+- `src/components/tools/design/color-picker.tsx`
+- `src/components/tools/design/color-palette-generator.tsx`
+- `src/components/tools/design/css-gradient-generator.tsx`
+- `src/components/tools/design/contrast-checker.tsx`
+- `src/components/tools/design/svg-optimizer.tsx`
+- `src/components/tools/seo/meta-tag-generator.tsx`
+- `src/components/tools/seo/open-graph-generator.tsx`
+- `src/components/tools/seo/robots-txt-generator.tsx`
+- `src/components/tools/seo/sitemap-generator.tsx`
+- `agent-ctx/2-f-design-seo-tools.md`
+
+Files modified:
+- `src/components/tools/tool-router.tsx` — imported and registered all 9 design/SEO components.
+
+Stage Summary:
+- All 5 design tools (IDs 91-95) and 4 SEO tools (IDs 96-99) flagged `implemented: true` in the registry are now fully implemented, browser-only, and routed.
+- Each tool renders via `ToolLayout` with intro, interactive UI, How-To steps, use cases, limitations and FAQ.
+- All processing is local: bit-twiddling HEX/RGB/HSL conversions, HSL colour wheel math, native `<input type=color>`, regex-based SVG cleanup, template-string meta-tag assembly, `new URL()` validation for sitemap entries, Blob downloads via `URL.createObjectURL`. No backend API routes, no uploads, no new libraries installed.
+- Every tool gracefully handles empty input (defaults to a sample value or shows placeholder text); invalid colour values are reverted with a toast; SVG input is rejected above 1 MB; sitemap entries are validated and invalid URLs skipped with a warning.
+- Lint clean; dev server compiles without errors; homepage and tool routes return HTTP 200.
+- Follow-ups for future agents: the colour-helpers file is reusable for any later task that needs HEX/RGB/HSL conversion, WCAG contrast, or palette generation (rotate-hue + monochromatic/shade helpers). The SVG optimizer is intentionally conservative — if a future iteration needs SVGO-grade optimisation (path collapsing, gradient deduplication, group merging), install SVGO's browser build behind a dynamic import. The meta-tag and Open Graph generators could be extended to emit JSON-LD structured data (WebSite, Article, BreadcrumbList) — currently they emit only meta/link tags. The robots.txt generator does not produce sitemap-index files; the sitemap generator does not split at 50,000 URLs — both are documented in their respective limitations sections.
+
+---

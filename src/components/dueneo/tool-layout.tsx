@@ -43,7 +43,9 @@ export function ToolLayout({
     : [{ label: tool.name }];
 
   React.useEffect(() => {
-    document.title = `${tool.seoTitle} | Dueneo`;
+    document.title = tool.seoTitle.trim().endsWith("| Dueneo")
+      ? tool.seoTitle
+      : `${tool.seoTitle} | Dueneo`;
     const desc = document.querySelector('meta[name="description"]');
     if (desc) desc.setAttribute("content", tool.metaDescription);
   }, [tool.seoTitle, tool.metaDescription]);
