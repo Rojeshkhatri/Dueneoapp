@@ -1,0 +1,200 @@
+## Task ID: 3-ecommerce — E-commerce fee/profit calculators (10 tools, IDs 146-155)
+
+**Agent:** ecommerce-calculators
+**Built:** 10 browser-only fee/profit calculators under `src/components/tools/ecommerce/`, registered in `src/components/tools/_batch-ecommerce-registry.ts`.
+
+### Files created
+1. `src/components/tools/ecommerce/_ecommerce-helpers.tsx` — shared helpers + fee tables + UI primitives.
+2. `src/components/tools/ecommerce/shopify-profit-calculator.tsx` — `ShopifyProfitCalculator`
+3. `src/components/tools/ecommerce/amazon-fba-fee-calculator.tsx` — `AmazonFbaFeeCalculator`
+4. `src/components/tools/ecommerce/etsy-fee-calculator.tsx` — `EtsyFeeCalculator`
+5. `src/components/tools/ecommerce/tiktok-shop-profit-calculator.tsx` — `TikTokShopProfitCalculator`
+6. `src/components/tools/ecommerce/ebay-fee-calculator.tsx` — `EbayFeeCalculator`
+7. `src/components/tools/ecommerce/stripe-fee-calculator.tsx` — `StripeFeeCalculator`
+8. `src/components/tools/ecommerce/paypal-fee-calculator.tsx` — `PaypalFeeCalculator`
+9. `src/components/tools/ecommerce/product-margin-calculator.tsx` — `ProductMarginCalculator`
+10. `src/components/tools/ecommerce/bundle-pricing-calculator.tsx` — `BundlePricingCalculator`
+11. `src/components/tools/ecommerce/discount-stack-calculator.tsx` — `DiscountStackCalculator`
+12. `src/components/tools/_batch-ecommerce-registry.ts` — registry exporting `batchEcommerceComponents` (10 entries).
+13. `agent-ctx/3-ecommerce-ecommerce-calculators.md` — agent worklog.
+
+### What each tool does
+
+**Shopify Profit Calculator** — Per-order profit after COGS, shipping, ad cost, Shopify Payments credit-card fee (plan-determined: 2.9%+$0.30 Basic, 2.6%+$0.30 Shopify, 2.4%+$0.30 Advanced), plan subscription allocation (monthly fee ÷ orders/mo input), and optional external-gateway surcharge (2%/1%/0.5% by plan). Two-card layout (inputs/result). Loss warning when costs exceed revenue.
+
+**Amazon FBA Fee Calculator** — Referral fee (8–20% by 22 categories, $0.30 minimum where applicable), FBA fulfilment fee (Standard-Size weight brackets 2oz–3lb + $0.19/lb slope; Large Bulky 2lb–10lb + $0.32/lb slope), monthly storage fee ($0.87/cf standard Jan–Sep, $2.40/cf Oct–Dec; $0.56/$1.40 for large). Auto-detects Standard vs Large Bulky size tier from dimensions (longest ≤ 18", median ≤ 14", shortest ≤ 8", weight ≤ 20 lb). Season toggle (Jan–Sep vs Oct–Dec) shows peak-season storage impact.
+
+**Etsy Fee Calculator** — $0.20 listing fee × quantity (4-month auto-renewal noted in helper text), 6.5% transaction fee on order total (items + shipping), 3% + $0.25 payment processing (Etsy Payments US, one transaction not per item), optional 15% offsite ads fee (Switch toggle).
+
+**TikTok Shop Profit Calculator** — User-adjustable commission via Slider (0–30%) + numeric Input (defaults 8%); 2.5% + $0.30 payment processing. Net profit + margin per sale.
+
+**eBay Fee Calculator** — Listing-type buttons (Fixed-price vs Auction), 13 categories with 11–15% final-value fees, $0.30 per-order surcharge, $750 fee cap. Insertion fee: $0.35 for auctions always; free for first 250 fixed-price listings/month (tracked via "free listings already used" input). Optional reserve price ($5 fee, auction only). 6 listing upgrades (Subtitle $0.50, Gallery Plus $0.35, Bold $2.00, Listing Designer $0.10, Highlight $5.00, Featured Plus $19.99) with Checkbox toggles.
+
+**Stripe Fee Calculator** — Two-tab interface (forward: charge → net received; reverse: target net → charge amount). Four payment types: domestic card 2.9%+$0.30, international 3.9%+$0.30, ACH 0.8% capped at $5, in-person terminal 2.7%+$0.05. Reverse calculator correctly handles ACH cap auto-switching (gross = net + $5 when percentage would exceed cap, flagged with "cap hit" note).
+
+**PayPal Fee Calculator** — Same two-tab structure as Stripe. Four transaction types: G&S domestic 2.99%+$0.49, G&S international 4.99%+$0.49, F&F balance/bank free, F&F card 2.99%+$0.49. Free-transfer path shows zero fee and net = target.
+
+**Product Margin Calculator** — Multi-row table (name/cost/price per product); per-row profit (green/red), margin %, markup %, break-even (= cost). Blended totals across all rows (total revenue, total cost, total profit, blended margin/markup). Desktop Table view + mobile card view (responsive). Add/remove rows. 3 sample rows pre-filled (T-shirt, mug, sticker pack).
+
+**Bundle Pricing Calculator** — Multi-row product list (name + price + optional cost). Auto mode (Slider 0–80% discount, with numeric input override) vs custom mode (Switch toggle, type bundle price directly). Computes total individual price, bundle price, buyer savings + effective discount %, bundle cost/profit/margin (margin requires cost on items).
+
+**Discount Stack Calculator** — Multi-step discounts in apply order. Each step is percent or fixed ($), with optional label. Up/down arrow buttons to reorder steps. Step-by-step breakdown showing amount off, price after, cumulative saved per step. Final price + total savings + effective discount %. Floor at $0 (clamps over-discounts to remaining subtotal). 3 sample steps pre-filled (20% loyalty + 10% newsletter + $5 refer-a-friend).
+
+### Tech / design notes
+- All 10 use `ToolLayout` with full `ToolContent` (intro, tool body, 4 how-to steps, 4 use cases, JSX `<ul>` limitations, 4 FAQ entries).
+- All 10 use `CopyButton` for summary copy-to-clipboard; all 10 use `sonner` `toast` for reset feedback.
+- All 10 use shared `Row` and `StatCard` primitives from `_ecommerce-helpers.tsx` for consistent result-panel styling (label/value pairs with optional icon/hint/highlight/large/muted tones, and 2×2 stat-card grids with tone variants default/primary/emerald/rose/amber).
+- All processing 100% browser-only — no API routes, no uploads. Every fee schedule embedded as constants in `_ecommerce-helpers.tsx`.
+- Live calculation: every input change triggers immediate recompute (React state, no debounce, no `useEffect` round-trips).
+- Mobile-first responsive: all multi-column grids collapse to single-column on mobile; product-margin table switches to card layout under `md`; touch targets ≥44px for primary buttons (Sm size buttons use h-7 = 28px for secondary actions only, primary actions use h-9 default).
+- Long lists (product-margin table rows, bundle items, discount steps) all scrollable with `max-h-* overflow-y-auto` + `scrollbarWidth: "thin"`.
+- Loss warnings (rose-tinted StatCard + destructive alert) appear when profit < 0 in shopify, etsy, tiktok, ebay (net proceeds), product-margin (total), bundle (negative margin).
+- Stripe & PayPal reverse calculators: mathematically derived formula `gross = (target + fixed) / (1 − rate)` for simple rate+fixed; ACH cap-aware fallback to `gross = target + cap + fixed` when the percentage at the simple-formula gross would exceed the cap, flagged visually with an amber "cap hit" note.
+
+### Issues caught & fixed
+- **JSX text with literal `>`** in two limitations list items: `aged inventory > 271 days` (amazon) and `sellers with >$10k/yr` (etsy). Both triggered ESLint JSX parsing errors (`Parsing error: Unexpected token. Did you mean '{'>'}' or '&gt;'?`). Fixed by replacing `>` with the `&gt;` HTML entity.
+- **Stray import** in `stripe-fee-calculator.tsx` — accidentally imported `Input` from `@/components/ui/label` (wrong module — there's no `Input` export in label). Removed the line and aliased the input-field import as `InputField` to avoid the name clash with the label prop interface.
+
+### Verification
+- `bun run lint` — **clean** (0 errors, 0 warnings).
+- `npx tsc --noEmit --skipLibCheck` — 0 errors in any of the 11 new files (`_ecommerce-helpers.tsx`, 10 tool components, `_batch-ecommerce-registry.ts`). Pre-existing errors in `pdf-*/`, `security/_security-helpers`, and `base64-decoder` (other agents' files) are unrelated and unchanged.
+- `tail -60 dev.log` — only `✓ Compiled in NNN ms` and `GET / 200` lines; no compile or runtime errors.
+
+### Follow-up for main agent
+Merge `batchEcommerceComponents` from `src/components/tools/_batch-ecommerce-registry.ts` into `TOOL_COMPONENTS` in `src/components/tools/tool-router.tsx` (single `import { batchEcommerceComponents }` + spread into the map). Until then the 10 e-commerce tools fall through to the "Component not registered yet" placeholder. This merge can be batched with the still-pending merges for `batchAComponents` through `batchFComponents` from earlier parallel batches — total of 7 batch maps to merge in one follow-up.
+
+---
+Task ID: 3-seo
+Agent: seo-tools-2
+Task: Build 9 SEO tools (IDs 156-164) — robots.txt tester, sitemap visualizer, internal link visualizer, canonical tag checker, Open Graph preview, schema validator, SERP snippet preview, keyword clustering tool, FAQ schema generator.
+
+Work Log:
+- Read prior agent records in /agent-ctx (2-f-design-seo-tools.md, 2-b-developer-tools.md) and the existing SEO tool components (sitemap-generator, open-graph-generator, robots-txt-generator, meta-tag-generator) to align with established patterns: ToolLayout with full ToolContent (intro/tool/howTo/useCases/limitations/faq), CopyButton, sonner toasts, "use client", browser-only.
+- Created 9 components in src/components/tools/seo/:
+  • robots-txt-tester.tsx — hand-rolled robots.txt parser (User-agent, Allow, Disallow, Sitemap, Crawl-delay), wildcard `*` and end-anchor `$` patterns, Google's most-specific-match algorithm with Allow-beats-Disallow tie-break, user-agent group picker (exact → longest-prefix → `*`), per-URL ALLOWED/BLOCKED verdicts table + parsed rule groups reference.
+  • sitemap-visualizer.tsx — DOMParser-based XML sitemap parser supporting both urlset and sitemapindex. Renders summary stats (URL count, lastmod coverage, earliest/latest date), a collapsible URL tree grouped by host then path segment, and a full URL table with loc/lastmod/changefreq/priority. For index files, lists child sitemaps.
+  • internal-link-visualizer.tsx — DOMParser extracts every <a href>, classifies as internal/external/anchor/mailto/other using the base URL (with <base href> override). Summary stats (counts + nofollow), inline SVG radial graph (page in centre, distinct targets around it, colour-coded by type), and a full link table with anchor text, href, rel, target.
+  • canonical-tag-checker.tsx — DOMParser extracts <title>, <meta description>, canonical, robots, hreflang, all og:* tags, charset, viewport. Validates: missing/over-long title, missing/over-long description, missing/invalid canonical, noindex+canonical conflict, missing x-default hreflang, missing og tags, og:url vs canonical mismatch, non-HTTPS og:image. Severity-tagged issue list + extracted tags table with character counts.
+  • open-graph-preview.tsx — Form inputs for og:title/description/image/url/site_name/type. Live preview cards for Facebook (1.91:1 large image, 2-line title/desc), Twitter/X (2:1 image, 1-line title), LinkedIn (site name + tinted footer), Slack/iMessage (small square thumbnail + 1-line title). Tabs to switch between platforms.
+  • schema-validator.tsx — JSON.parse then validate against 10 schema.org types (Article, Product, Event, FAQPage, HowTo, Recipe, BreadcrumbList, Organization, LocalBusiness, VideoObject). Per-type required + recommended field lists. LocalBusiness inherits Organization fields. Deep checks for FAQPage mainEntity, BreadcrumbList itemListElement, Article author shape, Product offers price. Status banner (valid/warnings/errors/parse-error/unknown-type) + field-by-field checklist + supported types reference grid.
+  • serp-snippet-preview.tsx — Inputs for title/URL/description. Google-style SERP preview with breadcrumb URL display, blue title, gray description. Pixel-width estimate per character (separate average for CJK, wide letters MW, narrow il1, default) with separate desktop (600px title / 980px desc) and mobile (520px / 700px) limits. Desktop/mobile toggle. Length status badges (ideal/ok/too long).
+  • keyword-clustering-tool.tsx — Tokenize keywords (lowercase, strip punctuation, remove stop-words). Jaccard similarity between all pairs. Union-find single-link clustering at user-controlled threshold (0.30–0.80 via slider + +/- buttons). Clusters sorted by size, each shows shared words (intersection of token sets) and member keywords. Export as JSON (copy + download).
+  • faq-schema-generator.tsx — Add/remove Q&A rows (question input + answer textarea with live char count). Validation: empty question/answer, over-long question, short answer, HTML-in-answer, duplicate questions. Generates FAQPage JSON-LD with Question/Answer nested structure. Copy as bare JSON or as full <script type="application/ld+json"> block. Download as faq-schema.json.
+- Created src/components/tools/_batch-seo2-registry.ts exporting batchSeo2Components map keyed by the component slugs. Did NOT edit tool-router.tsx (per instructions) — main agent will merge this map.
+- All 9 components are "use client", browser-only, use sonner toast, shadcn/ui components, ToolLayout with full content (intro, tool, howTo, useCases, limitations, faq).
+- Reused downloadText helper from src/components/tools/developer/_dev-helpers.ts in keyword-clustering-tool and faq-schema-generator.
+
+Issues fixed:
+1. open-graph-preview.tsx initially declared ImageBlock as a nested function component inside OpenGraphPreview's render — triggered react-hooks/static-components ESLint error ("Cannot create components during render"). Refactored to a top-level ImageBlock component taking src/alt/className/placeholder props. Also removed the now-unused eslint-disable-next-line @next/next/no-img-element comment (the rule isn't enabled in this project's config).
+2. sitemap-visualizer.tsx initially used Badge variant="ghost" which doesn't exist in the local badge.tsx (only default/secondary/destructive/outline). Switched to variant="outline" with muted-foreground text.
+3. internal-link-visualizer.tsx had an unused Badge import (used inline spans for type badges instead) — removed. Also removed an over-complicated NODE_TEXT_FILL constant after simplifying the SVG legend text styling to use the `fill-muted-foreground` Tailwind class.
+4. schema-validator.tsx BreadcrumbList check had wrong operator precedence (`!A || !B && !C` evaluated as `!A || (!B && !C)` due to JS precedence, but the original code lacked the parens for clarity) — added explicit parentheses.
+5. serp-snippet-preview.tsx useCases array had a syntax-breaking string with embedded unescaped double quotes ("…| Brand") — replaced with \u2026 escape. Also removed unused TabsContent import (only Tabs/TabsList/TabsTrigger used for the segmented desktop/mobile toggle).
+
+Verification:
+- bun run lint → exit 0, 0 errors, 0 warnings.
+- tail -50 dev.log → only "✓ Compiled in Nms" and "GET / 200" lines, no compile errors after the refactor.
+- All 9 named exports (RobotsTxtTester, SitemapVisualizer, InternalLinkVisualizer, CanonicalTagChecker, OpenGraphPreview, SchemaValidator, SerpSnippetPreview, KeywordClusteringTool, FaqSchemaGenerator) verified present.
+- Registry file batchSeo2Components exports all 9 components keyed by their slug.
+
+Reusable artifacts for future agents:
+- robots.txt parser (parseRobots, patternToRegex, evaluateGroup, pickGroup) in robots-txt-tester.tsx — implements Google's most-specific-match spec including wildcard and $ anchor.
+- Sitemap XML parser (parseSitemap) and URL tree builder (buildTree) in sitemap-visualizer.tsx — DOMParser-based, supports urlset and sitemapindex.
+- HTML head extractor (parseHead) and SEO issue validator (validate) in canonical-tag-checker.tsx — reusable for any future SEO audit tool.
+- Schema.org type spec table (SCHEMA_SPECS) in schema-validator.tsx — extensible with more types.
+- Pixel-width estimator (pixelWidth, truncateByPixels) in serp-snippet-preview.tsx — handles CJK and wide/narrow Latin letters separately.
+- Jaccard similarity + union-find clustering (tokenize, jaccard, clusterKeywords) in keyword-clustering-tool.tsx.
+
+
+---
+Task ID: 3-social
+Agent: social-media-tools
+Task: Implement 9 social media tools (IDs 165-173) — Instagram Grid Planner, YouTube Thumbnail Tester, TikTok Caption Formatter, LinkedIn Carousel Creator, Twitter Thread Formatter, Hashtag Analyzer, Bio Link Preview, Reel Cover Generator, Post Scheduling Calculator.
+
+Work Log:
+- Read the foundation (`worklog.md`, `tools.ts` social rows 2711–2801, `tool-router.tsx`, `_batch-ecommerce-registry.ts` as a structural reference, `tool-layout.tsx`, `dropzone.tsx`, `image/_image-helpers.tsx`, `social-media-image-resizer.tsx`, `time-zone-converter.tsx`, `utility/_calc-date-helpers.ts`) and skimmed the per-tool spec in the task brief.
+- Created `src/components/tools/social/_social-helpers.ts` (pure functions, no JSX, .ts module) with: `MAX_IMAGE_BYTES` (50 MB), `formatBytes`, `getCanvas2D` (friendly-error wrapper), `downloadBlob` (with auto-cleanup), `loadImageFromFile` (File → HTMLImageElement), `hexToRgba`, `readableTextOn` (W3C relative-luminance contrast → black or white text), `wrapText` (canvas word-boundary wrapper honouring explicit newlines), `drawWrappedText`, `uid`.
+- Implemented 9 tool components under `src/components/tools/social/`:
+  1. `instagram-grid-planner.tsx` (`InstagramGridPlanner`) — multi-image Dropzone upload (multiple=true), 3-column grid with HTML5 drag-and-drop reordering + up/down buttons for accessibility, per-tile caption editor, full Instagram profile preview (mock header + 3-col grid), JSON export of the arrangement (position, row, column, filename, size, type, caption). ObjectURL cleanup on unmount via ref-synced effect.
+  2. `youtube-thumbnail-tester.tsx` (`YoutubeThumbnailTester`) — single image upload; reports dimensions + aspect ratio + ideal-1280×720 indicator. Title overlay text input + show/hide toggle. Dark/Light background theme button pair. Four real-world size previews: full (1280×720 watch page), medium (320×180 sidebar), small (168×94 mobile search), tiny (120×68 mobile row). Overlay mimics YouTube's dark-to-transparent gradient with 2-line clamp.
+  3. `tiktok-caption-formatter.tsx` (`TiktokCaptionFormatter`) — Textarea editor with live counter against 2,200-char TikTok limit (green/amber/red states). Word/line/hashtag/unique/duplicate counts. Auto-format strips hashtags out of body, de-duplicates (case-insensitive), groups at end with blank line. Mock TikTok preview card with handle + formatted caption body + sky-blue hashtag colouring. Unicode-aware hashtag regex `#[\p{L}\p{N}_]+/gu`.
+  4. `linkedin-carousel-creator.tsx` (`LinkedinCarouselCreator`) — slide list (title + body) with add/duplicate/remove/move + drag-to-reorder thumbnails + prev/next navigation. Four layouts: title-top, title-bottom, centred, split. Two aspect ratios: square 1080×1080, portrait 1208×1520. Solid colour OR two-stop linear gradient at any angle (0–360°). Auto text colour (W3C luminance) or manual colour picker. Page number position: bottom-right / bottom-center / top-right / none. Live full-resolution canvas preview, single-slide PNG download, batch download of all slides (named slide-01.png, slide-02.png, …). Per-thumbnail canvas re-renders on settings change.
+  5. `twitter-thread-formatter.tsx` (`TwitterThreadFormatter`) — long-text input, splits into tweets of ≤280 chars on word boundaries. Honours blank-line paragraph breaks (forces a new tweet). Hard-splits words longer than 280. Toggles: number tweets (1/N), add 🧵 to first tweet, show character counts. Optional first-tweet prefix. Each tweet card shows live char count + Copy tweet button + Copy all (joins with `---` separators). Tweet body truncated with ellipsis if labels push it over 280.
+  6. `hashtag-analyzer.tsx` (`HashtagAnalyzer`) — paste caption, extract #hashtags (Unicode-aware regex). Stat cards: total, unique, duplicates, characters used. Hashtag density % with spam/reasonable/conservative guidance. Unique hashtag list with per-tag count badges. Duplicate warning panel. Suggestions library of 105 popular hashtags across 7 categories (General, Business, Tech, Lifestyle, Food, Travel, Fitness) with filter box. Click-to-add; already-used tags crossed out. Copy unique button.
+  7. `bio-link-preview.tsx` (`BioLinkPreview`) — four inputs: title, description, image URL, URL. CharMeter for title (target 70, ideal 50) and description (target 200, ideal 140). Live previews of four platform cards: Instagram bio (text-only), Twitter / X card (1.91:1 image + title + desc), Facebook share (1.91:1 image + grey-bg metadata block), iMessage rich link (blue bubble with image + title + desc + domain). Each preview truncates at the platform's real-world limits. Warnings flag invalid URLs, missing images, non-image extensions, titles >70 chars. Character limits reference table.
+  8. `reel-cover-generator.tsx` (`ReelCoverGenerator`) — 1080×1920 (9:16) canvas. Inputs: title (textarea, multi-line), optional subtitle, font-size slider 48–180px, vertical position (top/center/bottom), horizontal alignment (left/center/right), background (solid colour OR two-stop gradient at any angle), text colour (manual OR auto-contrast), optional dark overlay (5–80% strength) for legibility. Live preview canvas, PNG download named from slugified title.
+  9. `post-scheduling-calculator.tsx` (`PostSchedulingCalculator`) — source timezone select (defaults to browser tz), target timezone select (defaults to America/New_York), datetime-local input. Conversion card: source time → target time with UTC offsets and ±1 day flag if calendar differs. Four peak-hour badges (morning 7–9, lunch 12–13, evening 17–19, night 20–22) — the one containing the target-hour is highlighted. 7-day recommendation table: midpoint of each peak window in target tz converted back to source tz, with day offset (Today / Tomorrow / +Nd). Uses `Intl.DateTimeFormat` for all zone math (DST-aware). Reuses `COMMON_TIMEZONES` + `toDateTimeInputValue` from `utility/_calc-date-helpers`.
+- Created `src/components/tools/_batch-social-registry.ts` exporting `batchSocialComponents` (9 keys matching the `component` field in `tools.ts`). Per task instructions I did NOT edit `tool-router.tsx`; the main agent should add `...batchSocialComponents` to the `TOOL_COMPONENTS` map.
+- Issues caught & fixed:
+  - **JSX parse error in `youtube-thumbnail-tester.tsx`** — doubled `}` in `className={`rounded-lg ${bgClass} p-4 sm:p-6`}``}>`. ESLint caught it as "Parsing error: Identifier expected". Removed the extra `}`.
+  - **`react-hooks/refs` violation in `instagram-grid-planner.tsx`** — `itemsRef.current = items` was being assigned during render. ESLint flagged "Cannot access refs during render". Restructured to update the ref inside a `useEffect` (with a separate unmount-only effect for the cleanup).
+  - **Missing higher-order-function invocation in `linkedin-carousel-creator.tsx`** — `onDrop={onThumbDrop}` was passing the higher-order function itself instead of `onThumbDrop(idx)`. TypeScript caught it (`Type '(idx: number) => (e: React.DragEvent) => void' is not assignable to type 'DragEventHandler<HTMLButtonElement>'`). Fixed.
+  - **Unused `eslint-disable` directives in `bio-link-preview.tsx`** — the project's ESLint config doesn't enable `@next/next/no-img-element`. I had added three `// eslint-disable-next-line @next/next/no-img-element` directives for the `<img>` tags rendering user-provided image URLs in the link-card previews. Removed all three with a sed one-liner.
+
+Files created:
+- `src/components/tools/social/_social-helpers.ts`
+- `src/components/tools/social/instagram-grid-planner.tsx`
+- `src/components/tools/social/youtube-thumbnail-tester.tsx`
+- `src/components/tools/social/tiktok-caption-formatter.tsx`
+- `src/components/tools/social/linkedin-carousel-creator.tsx`
+- `src/components/tools/social/twitter-thread-formatter.tsx`
+- `src/components/tools/social/hashtag-analyzer.tsx`
+- `src/components/tools/social/bio-link-preview.tsx`
+- `src/components/tools/social/reel-cover-generator.tsx`
+- `src/components/tools/social/post-scheduling-calculator.tsx`
+- `src/components/tools/_batch-social-registry.ts`
+- `agent-ctx/3-social-social-media-tools.md`
+
+Files modified:
+- (none — per task instructions, I did NOT edit `tool-router.tsx`)
+
+Stage Summary:
+- All 9 social media tools (IDs 165-173) flagged `implemented: true` in the registry are now fully implemented, browser-only, and ready to route.
+- Each tool renders via `ToolLayout` with intro, interactive UI, How-To steps, use cases, limitations and FAQ.
+- All processing is local: Canvas API + FileReader + URL.createObjectURL + navigator.clipboard + Intl.DateTimeFormat. No backend API routes, no file uploads (ObjectURLs stay in the browser).
+- Lint clean (`bun run lint` exits 0 with no errors and no warnings). TypeScript clean for all 11 new files (`bunx tsc --noEmit` shows zero errors in `social/` — the pre-existing errors in `games/freecell.tsx`, `games/solitaire.tsx`, `developer/base64-decoder.tsx`, `pdf/*.tsx`, `security/_security-helpers.ts` were already present before this task).
+- Dev server (Next.js 16.1.3 Turbopack) compiles cleanly; homepage returns HTTP 200.
+- Follow-ups for the main agent: merge `batchSocialComponents` into `TOOL_COMPONENTS` in `tool-router.tsx` (one-line spread, same pattern as `...batchAComponents`). After the merge, smoke-test the 9 routes `#/instagram-grid-planner`, `#/youtube-thumbnail-tester`, `#/tiktok-caption-formatter`, `#/linkedin-carousel-creator`, `#/twitter-thread-formatter`, `#/hashtag-analyzer`, `#/bio-link-preview`, `#/reel-cover-generator`, `#/post-scheduling-calculator`.
+
+---
+Task ID: 3-design
+Agent: design-tools
+Task: Implement 7 designer tools (IDs 183-189) — Color Accessibility Tester, Typography Scale Generator, Icon Optimizer, Design Token Generator, Border Radius Playground, Component Spacing Calculator, Shadow Generator.
+
+Work Log:
+- Read the foundation (`worklog.md`, `tools.ts` design rows 2895–2965, `_color-helpers.ts`, `_dev-helpers.ts`, `color-palette-generator.tsx`, `contrast-checker.tsx`, `svg-optimizer.tsx`, `css-gradient-generator.tsx`, `tool-layout.tsx`, `copy-button.tsx`, `slider.tsx`, `switch.tsx`, `_batch-dev2-registry.ts` as a structural reference) before writing any code.
+- Created `src/components/tools/design/_accessibility-helpers.ts` (pure functions, no JSX, .ts module) with: `CvdType` union, `CvdDef` interface (label + description + 3×3 matrix), `CVD_DEFS` array with the standard Vienot (1999) / Brettel (1997) simulation matrices for protanopia, deuteranopia, tritanopia and achromatopsia (Rec 601 luminance), `simulateCvd(rgb, def)` (matrix multiplication with 0–255 clamping), `evaluateWcag(ratio)` (returns ratio + aaNormal/aaLarge/aaaNormal/aaaLarge booleans + a `bestLabel` short text).
+- Implemented 7 tool components under `src/components/tools/design/`:
+  1. `color-accessibility-tester.tsx` (`ColorAccessibilityTester`) — palette editor (add/remove, HEX picker + label per colour, defaults to primary/success/warning/danger/ink/paper). Simulation tabs: Original + Protanopia, Deuteranopia, Tritanopia, Achromatopsia. Two views: (a) palette swatches re-rendered for the active condition, (b) a side-by-side comparison table with rows = conditions × cols = palette so you can see all 5 conditions at once. Pairwise contrast matrix (n × (n-1) / 2 rows) with ratio + AA / AA Large / AAA pass-fail badges, computed on the ORIGINAL palette (WCAG compliance is measured on real colours, not simulated). Copy-report button outputs a plain-text summary of every pair and its verdict.
+  2. `typography-scale-generator.tsx` (`TypographyScaleGenerator`) — base size input (8–48 px), ratio select (1.125 minor third, 1.2 major second, 1.25 major third, 1.333 perfect fourth, 1.5 perfect fifth, 1.618 golden ratio), steps-above and steps-below sliders (Tailwind naming convention: 3xs, 2xs, xs, sm, base, lg, xl, 2xl, 3xl, 4xl, 5xl, 6xl, 7xl, 8xl, 9xl, 10xl). Live preview rows rendering `The quick brown fox` at the actual px size with px + rem labels. Three output tabs: CSS custom properties (`--text-{name}: Npx; /* Mrem */`), Tailwind config snippet (`fontSize: { ... }`), SCSS variables (`$text-{name}: Npx; // Mrem`).
+  3. `icon-optimizer.tsx` (`IconOptimizer`) — paste SVG markup (1 MB cap). Seven toggleable optimisations: remove XML declaration, remove comments, remove editor namespaces (inkscape/sodipodi/xlink/sketch/illustrator/corel — both attributes and elements), remove `<metadata>` blocks, remove default attributes (fill="black", stroke="none", stroke-width="1"), **round coordinates to 2 dp** (operates on known numeric attributes d, points, x, y, x1, y1, x2, y2, cx, cy, r, rx, ry, width, height, fx, fy, offset — parses every number including scientific notation, rounds to 2 dp, drops trailing zeros), collapse whitespace (between tags, runs of whitespace, per-line trim). Before/after size, saved bytes, saved %. Live preview rendered as inline SVG data-URL at 48/96/144 px. Copy + download (`icon-optimised.svg`). Reuses `byteLength`, `formatBytes`, `downloadText` from `developer/_dev-helpers.ts`.
+  4. `design-token-generator.tsx` (`DesignTokenGenerator`) — three input sections (colour palette with add/remove + slugified names, typography scale with base + ratio + steps above/below, spacing system with 4 px / 8 px base + step count). Three output tabs: CSS custom properties (with section comments), Tailwind config snippet (`colors`, `fontSize`, `spacing`), nested JSON with `{ color, fontSize: { px, rem }, spacing: { px } }`. Spacing uses the canonical Tailwind multiplier set (0, 0.5, 1, 1.5, 2, 2.5, 3, 3.5, 4, 5, 6, 7, 8, 9, 10, 11, 12, 14, 16, 20, 24, 28, 32, 36, 40, 44, 48, 52, 56, 60, 64, 72, 80, 96).
+  5. `border-radius-playground.tsx` (`BorderRadiusPlayground`) — 8 sliders (TL-X, TL-Y, TR-X, TR-Y, BR-X, BR-Y, BL-X, BL-Y) each with a paired numeric input (0–200). Live preview on a primary-coloured square. CSS output collapses to the simple `Npx` form when all 8 radii match; otherwise emits the per-corner `horizontal / vertical` shorthand (`Npx Npx Npx Npx / Npx Npx Npx Npx`). 9999 px is used for fully-rounded (pill/circle) values. Presets: Sharp (all 0), Card (16/16), Pill (9999/9999), Circle (9999/9999), Squircle (32/28 asymmetric approximation of the superellipse). Editable preview background via colour picker.
+  6. `component-spacing-calculator.tsx` (`ComponentSpacingCalculator`) — base unit 4 or 8 px (Tailwind default vs Material/iOS), step-count slider (1 to 34). Generates a scale using the canonical Tailwind multipliers so names map cleanly to Tailwind utilities. Each step is rendered as a visual swatch (capped at 320 px width for readability) with the px label. Output tabs: CSS variables (`--space-{name}: Npx;`), Tailwind config snippet (`spacing: { ... }`).
+  7. `shadow-generator.tsx` (`ShadowGenerator`) — multi-layer editor. Each layer has offsetX/offsetY (−50..50), blur (0..100), spread (−50..50) sliders, a colour field accepting any valid CSS colour (hex, rgb, rgba, hsl, hsla, named), an inset toggle, plus reorder-up/down and remove buttons. Layers stack top-to-bottom in the same order as the cards. Presets: Material Elevation 0 (none), 1 (0 1px 2px + 0 1px 3px), 2 (0 1px 5px + 0 2px 8px), 3 (0 1px 8px + 0 3px 14px 1px), 4 (0 2px 12px + 0 6px 20px 1px), 5 (0 4px 18px + 0 10px 28px 2px), Neumorphic (8/8/16 dark + -8/-8/16 light), Glow (0 0 20px + 0 0 40px blue). Editable preview background. Live `box-shadow: ...;` CSS output with copy button.
+- Created `src/components/tools/_batch-design2-registry.ts` exporting `batchDesign2Components` (7 keys matching the `component` field in `tools.ts`). Per task instructions I did NOT edit `tool-router.tsx`; the main agent should add `...batchDesign2Components` to the `TOOL_COMPONENTS` map.
+- Issues caught & fixed:
+  - **Import typo in `shadow-generator.tsx`** — first draft imported `Input` from `@/components/ui/label` instead of `@/components/ui/input`. Caught during self-review before linting. Fixed.
+
+Files created:
+- `src/components/tools/design/_accessibility-helpers.ts`
+- `src/components/tools/design/color-accessibility-tester.tsx`
+- `src/components/tools/design/typography-scale-generator.tsx`
+- `src/components/tools/design/icon-optimizer.tsx`
+- `src/components/tools/design/design-token-generator.tsx`
+- `src/components/tools/design/border-radius-playground.tsx`
+- `src/components/tools/design/component-spacing-calculator.tsx`
+- `src/components/tools/design/shadow-generator.tsx`
+- `src/components/tools/_batch-design2-registry.ts`
+- `agent-ctx/3-design-design-tools.md`
+
+Files modified:
+- (none — per task instructions, I did NOT edit `tool-router.tsx`)
+
+Stage Summary:
+- All 7 designer tools (IDs 183-189) flagged `implemented: true` in the registry are now fully implemented, browser-only, and ready to route.
+- Each tool renders via `ToolLayout` with intro, interactive UI, How-To steps, use cases, limitations and FAQ.
+- All processing is local: Canvas/CSS for previews, `navigator.clipboard` for copy, `Blob` + `<a download>` for the icon-optimizer download. No backend API routes, no file uploads.
+- Lint clean (`bun run lint` exits 0 with no errors and no warnings).
+- Dev server (Next.js 16.1.3 Turbopack) keeps compiling cleanly — last several `dev.log` entries are `✓ Compiled in …` with no errors.
+- Follow-ups for the main agent: merge `batchDesign2Components` into `TOOL_COMPONENTS` in `tool-router.tsx` (one-line spread, same pattern as `...batchSocialComponents`). After the merge, smoke-test the 7 routes `#/color-accessibility-tester`, `#/typography-scale-generator`, `#/icon-optimizer`, `#/design-token-generator`, `#/border-radius-playground`, `#/component-spacing-calculator`, `#/shadow-generator`.

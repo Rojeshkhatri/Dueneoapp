@@ -11,6 +11,12 @@ import {
   Search,
   Gamepad2,
   Wrench,
+  ShoppingCart,
+  Share2,
+  PenTool,
+  Users,
+  GraduationCap,
+  Home,
 } from "lucide-react";
 
 export type CategorySlug =
@@ -24,7 +30,13 @@ export type CategorySlug =
   | "design"
   | "seo"
   | "utility"
-  | "games";
+  | "games"
+  | "ecommerce"
+  | "social"
+  | "content"
+  | "hr"
+  | "education"
+  | "realestate";
 
 export interface Category {
   slug: CategorySlug;
@@ -159,6 +171,72 @@ export const categories: Category[] = [
     icon: Gamepad2,
     color: "text-indigo-500",
     accent: "bg-indigo-500/10",
+  },
+  {
+    slug: "ecommerce",
+    name: "E-commerce Tools",
+    route: "ecommerce-tools",
+    description: "Calculate fees and profits for Shopify, Amazon, Etsy, eBay and more.",
+    longDescription:
+      "Calculate marketplace fees, payment processor fees, profit margins, bundle pricing and discount stacks for Shopify, Amazon FBA, Etsy, TikTok Shop, eBay, Stripe and PayPal.",
+    icon: ShoppingCart,
+    color: "text-emerald-500",
+    accent: "bg-emerald-500/10",
+  },
+  {
+    slug: "social",
+    name: "Social Media Tools",
+    route: "social-tools",
+    description: "Plan Instagram grids, format captions and build carousels.",
+    longDescription:
+      "Plan Instagram grids, test YouTube thumbnails, format TikTok captions, build LinkedIn carousels, format Twitter threads, analyze hashtags and generate reel covers.",
+    icon: Share2,
+    color: "text-pink-500",
+    accent: "bg-pink-500/10",
+  },
+  {
+    slug: "content",
+    name: "Content Creator Tools",
+    route: "content-tools",
+    description: "Chapters, timestamps, subtitles, transcripts and script tools.",
+    longDescription:
+      "Generate podcast chapters, format YouTube timestamps, edit subtitles, clean transcripts, compare thumbnails, score video titles, analyze hooks and format scripts.",
+    icon: PenTool,
+    color: "text-orange-500",
+    accent: "bg-orange-500/10",
+  },
+  {
+    slug: "hr",
+    name: "HR & Recruiting Tools",
+    route: "hr-tools",
+    description: "ATS resume scanner, salary comparison, PTO and offer tools.",
+    longDescription:
+      "Scan resumes for ATS compatibility, compare salaries, calculate notice periods and PTO, build interview scorecards, compare offers, calculate cost-to-company and plan shifts.",
+    icon: Users,
+    color: "text-violet-500",
+    accent: "bg-violet-500/10",
+  },
+  {
+    slug: "education",
+    name: "Education Tools",
+    route: "education-tools",
+    description: "Citations, flashcards, quizzes, study planners and grade tools.",
+    longDescription:
+      "Format citations, generate flashcards, randomize quizzes, plan study schedules, count down to assignments, create formula sheets, predict grades, calculate attendance and time exams.",
+    icon: GraduationCap,
+    color: "text-blue-500",
+    accent: "bg-blue-500/10",
+  },
+  {
+    slug: "realestate",
+    name: "Real Estate Tools",
+    route: "realestate-tools",
+    description: "Rental yield, mortgage affordability, stamp duty and ROI.",
+    longDescription:
+      "Calculate rental yield, mortgage affordability, stamp duty, renovation budgets, property ROI, Airbnb income, cap rates, house flipping costs and compare properties side by side.",
+    icon: Home,
+    color: "text-amber-500",
+    accent: "bg-amber-500/10",
   },
 ];
 

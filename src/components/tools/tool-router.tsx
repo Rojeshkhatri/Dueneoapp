@@ -109,6 +109,18 @@ import { batchDComponents } from "@/components/tools/_batch-d-registry";
 import { batchEComponents } from "@/components/tools/_batch-e-registry";
 import { batchFComponents } from "@/components/tools/_batch-f-registry";
 
+// Niche/viral tools batch 2 (Tasks 3-ecommerce through 3-edu-real)
+import { batchEcommerceComponents } from "@/components/tools/_batch-ecommerce-registry";
+import { batchSeo2Components } from "@/components/tools/_batch-seo2-registry";
+import { batchSocialComponents } from "@/components/tools/_batch-social-registry";
+import { batchDev2Components } from "@/components/tools/_batch-dev2-registry";
+import { batchDesign2Components } from "@/components/tools/_batch-design2-registry";
+import { batchContentComponents } from "@/components/tools/_batch-content-registry";
+import { batchHrComponents } from "@/components/tools/_batch-hr-registry";
+import { batchFinance2Components } from "@/components/tools/_batch-finance2-registry";
+import { batchEducationComponents } from "@/components/tools/_batch-education-registry";
+import { batchRealestateComponents } from "@/components/tools/_batch-realestate-registry";
+
 /**
  * Central registry of implemented tool components, keyed by `tool.component`.
  * Subagents append their imports and entries to this map as they build
@@ -227,6 +239,18 @@ const TOOL_COMPONENTS: Record<string, React.ComponentType<{ tool: ToolDefinition
   ...batchDComponents,
   ...batchEComponents,
   ...batchFComponents,
+
+  // Niche/viral tools batch 2 (Tasks 3-ecommerce through 3-edu-real) — 89 new tools
+  ...batchEcommerceComponents,
+  ...batchSeo2Components,
+  ...batchSocialComponents,
+  ...batchDev2Components,
+  ...batchDesign2Components,
+  ...batchContentComponents,
+  ...batchHrComponents,
+  ...batchFinance2Components,
+  ...batchEducationComponents,
+  ...batchRealestateComponents,
 };
 
 export function ToolRouter({ tool }: { tool: ToolDefinition }) {
