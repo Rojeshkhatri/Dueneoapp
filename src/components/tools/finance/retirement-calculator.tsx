@@ -31,17 +31,7 @@ import {
   formatNumber,
   FINANCE_DISCLAIMER,
 } from "./_finance-helpers";
-
-const CURRENCIES = [
-  { code: "USD", symbol: "$" },
-  { code: "EUR", symbol: "€" },
-  { code: "GBP", symbol: "£" },
-  { code: "CAD", symbol: "$" },
-  { code: "AUD", symbol: "$" },
-  { code: "INR", symbol: "₹" },
-  { code: "JPY", symbol: "¥" },
-  { code: "CNY", symbol: "¥" },
-];
+import { useCurrency, CurrencySelector } from "@/components/dueneo/currency-selector";
 
 interface SeriesPoint {
   year: number;
@@ -104,7 +94,7 @@ export function RetirementCalculator({ tool }: { tool: ToolDefinition }) {
   const [currentSavings, setCurrentSavings] = React.useState<string>("25000");
   const [monthlyContribution, setMonthlyContribution] = React.useState<string>("500");
   const [annualReturn, setAnnualReturn] = React.useState<string>("7");
-  const [currency, setCurrency] = React.useState<string>("USD");
+  const { code: currency, setCode: setCurrency } = useCurrency();
 
   const a = parseNumber(currentAge);
   const r = parseNumber(retirementAge);
@@ -134,7 +124,6 @@ export function RetirementCalculator({ tool }: { tool: ToolDefinition }) {
     setCurrentSavings("25000");
     setMonthlyContribution("500");
     setAnnualReturn("7");
-    setCurrency("USD");
   };
 
   const summary = valid
@@ -211,19 +200,7 @@ Investment growth: ${fmt(totalGrowth)}`
               />
             </div>
             <div className="space-y-2">
-              <Label htmlFor="ret-currency">Currency</Label>
-              <select
-                id="ret-currency"
-                value={currency}
-                onChange={(e) => setCurrency(e.target.value)}
-                className="flex h-9 w-full rounded-md border border-input bg-transparent px-3 py-1 text-sm shadow-sm transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring"
-              >
-                {CURRENCIES.map((c) => (
-                  <option key={c.code} value={c.code}>
-                    {c.code} ({c.symbol})
-                  </option>
-                ))}
-              </select>
+              <CurrencySelector value={currency} onChange={setCurrency} id="ret-currency" />
             </div>
           </div>
 

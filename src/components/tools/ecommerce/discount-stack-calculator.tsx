@@ -33,6 +33,7 @@ import {
   ECOMMERCE_DISCLAIMER,
   StatCard,
 } from "./_ecommerce-helpers";
+import { useCurrency, CurrencySelector, money } from "@/components/dueneo/currency-selector";
 
 type DiscountType = "percent" | "fixed";
 
@@ -101,6 +102,8 @@ function computeSteps(
 export function DiscountStackCalculator({ tool }: { tool: ToolDefinition }) {
   const [originalPrice, setOriginalPrice] = React.useState<string>("199.99");
   const [steps, setSteps] = React.useState<DiscountStep[]>(SAMPLE_STEPS);
+  const { code: currency, setCode: setCurrency } = useCurrency();
+  const fmt = (v: number) => money(v, currency);
 
   const priceNum = Math.max(0, parseNumber(originalPrice));
   const result = computeSteps(priceNum, steps);
@@ -137,7 +140,7 @@ export function DiscountStackCalculator({ tool }: { tool: ToolDefinition }) {
   };
 
   const summary = `Discount stack summary
-Original price:        ${formatCurrency(priceNum)}
+Original price:        ${fmt(priceNum)}
 
 ${result.steps.length === 0 ? "(no discounts applied)" : result.steps
     .map((s, i) => {
@@ -146,12 +149,12 @@ ${result.steps.length === 0 ? "(no discounts applied)" : result.steps
           ? `${parseNumber(s.step.value).toFixed(0)}%`
           : `$${parseNumber(s.step.value).toFixed(2)}`;
       const lbl = s.step.label ? ` — ${s.step.label}` : "";
-      return `  ${i + 1}. ${s.step.type === "percent" ? "Percent" : "Fixed"} ${v}${lbl}: −${formatCurrency(s.amountOff)}, price after = ${formatCurrency(s.priceAfter)}`;
+      return `  ${i + 1}. ${s.step.type === "percent" ? "Percent" : "Fixed"} ${v}${lbl}: −${fmt(s.amountOff)}, price after = ${fmt(s.priceAfter)}`;
     })
     .join("\n")}
 
-Final price:           ${formatCurrency(result.finalPrice)}
-Total savings:         ${formatCurrency(result.totalSaved)}
+Final price:           ${fmt(result.finalPrice)}
+Total savings:         ${fmt(result.totalSaved)}
 Effective discount:    ${formatPercent(result.effectivePct)}`;
 
   const toolBody = (
@@ -159,19 +162,19 @@ Effective discount:    ${formatPercent(result.effectivePct)}`;
       <div className="grid grid-cols-2 gap-3 lg:grid-cols-4">
         <StatCard
           label="Original price"
-          value={formatCurrency(priceNum)}
+          value={fmt(priceNum)}
           tone="default"
           icon={<Tag className="h-3.5 w-3.5 text-primary" />}
         />
         <StatCard
           label="Final price"
-          value={formatCurrency(result.finalPrice)}
+          value={fmt(result.finalPrice)}
           tone="emerald"
           icon={<TrendingDown className="h-3.5 w-3.5 text-emerald-500" />}
         />
         <StatCard
           label="Total savings"
-          value={formatCurrency(result.totalSaved)}
+          value={fmt(result.totalSaved)}
           tone="primary"
           icon={<DollarSign className="h-3.5 w-3.5 text-primary" />}
           hint={`${result.steps.length} discount(s)`}
@@ -208,6 +211,7 @@ Effective discount:    ${formatPercent(result.effectivePct)}`;
                 <RotateCcw className="mr-1.5 h-3.5 w-3.5" /> Reset
               </Button>
             </div>
+            <CurrencySelector value={currency} onChange={setCurrency} id="ds-currency" />
             <p className="text-xs text-muted-foreground">
               Order matters — discounts apply to the running subtotal, so 20%
               then 10% off is not the same as 10% then 20% off the original
@@ -322,7 +326,7 @@ Effective discount:    ${formatPercent(result.effectivePct)}`;
               <div className="space-y-2">
                 <div className="flex items-center justify-between rounded-md bg-background px-3 py-2 text-sm">
                   <span className="text-muted-foreground">Starting price</span>
-                  <span className="font-mono tabular-nums">{formatCurrency(priceNum)}</span>
+                  <span className="font-mono tabular-nums">{fmt(priceNum)}</span>
                 </div>
 
                 {result.steps.map((s, idx) => (
@@ -340,17 +344,17 @@ Effective discount:    ${formatPercent(result.effectivePct)}`;
                         </span>
                       </div>
                       <span className="font-mono tabular-nums text-rose-600 dark:text-rose-400">
-                        −{formatCurrency(s.amountOff)}
+                        −{fmt(s.amountOff)}
                       </span>
                     </div>
                     <div className="mt-1.5 pl-7 text-xs text-muted-foreground">
                       {s.step.type === "percent"
-                        ? `${parseNumber(s.step.value).toFixed(0)}% of ${formatCurrency(priceNum - s.cumulativeSaved + s.amountOff)}`
+                        ? `${parseNumber(s.step.value).toFixed(0)}% of ${fmt(priceNum - s.cumulativeSaved + s.amountOff)}`
                         : `$${parseNumber(s.step.value).toFixed(2)} off`}
                       {" · "}
-                      price after = <span className="font-mono text-foreground">{formatCurrency(s.priceAfter)}</span>
+                      price after = <span className="font-mono text-foreground">{fmt(s.priceAfter)}</span>
                       {" · "}
-                      cumulative saved = <span className="font-mono text-foreground">{formatCurrency(s.cumulativeSaved)}</span>
+                      cumulative saved = <span className="font-mono text-foreground">{fmt(s.cumulativeSaved)}</span>
                     </div>
                   </div>
                 ))}
@@ -358,7 +362,7 @@ Effective discount:    ${formatPercent(result.effectivePct)}`;
                 <div className="flex items-center justify-between rounded-md border border-primary/40 bg-primary/10 px-3 py-2 text-sm font-semibold">
                   <span>Final price</span>
                   <span className="font-mono tabular-nums text-primary">
-                    {formatCurrency(result.finalPrice)}
+                    {fmt(result.finalPrice)}
                   </span>
                 </div>
               </div>
@@ -366,12 +370,12 @@ Effective discount:    ${formatPercent(result.effectivePct)}`;
               <div className="rounded-lg border bg-background p-4">
                 <div className="flex items-center justify-between text-sm">
                   <span className="text-muted-foreground">Original price</span>
-                  <span className="font-mono tabular-nums">{formatCurrency(priceNum)}</span>
+                  <span className="font-mono tabular-nums">{fmt(priceNum)}</span>
                 </div>
                 <div className="mt-1 flex items-center justify-between text-sm">
                   <span className="text-muted-foreground">Total savings</span>
                   <span className="font-mono tabular-nums text-rose-600 dark:text-rose-400">
-                    −{formatCurrency(result.totalSaved)}
+                    −{fmt(result.totalSaved)}
                   </span>
                 </div>
                 <div className="mt-2 flex items-center justify-between border-t pt-2 text-base font-semibold">

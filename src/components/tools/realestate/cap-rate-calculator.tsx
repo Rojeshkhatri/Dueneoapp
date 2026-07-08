@@ -12,6 +12,7 @@ import { toast } from "sonner";
 import { RotateCcw, Plus, Trash2, Trophy, Building2, TrendingUp } from "lucide-react";
 import type { ToolDefinition } from "@/data/tools";
 import { uid, parseNumber, formatCurrency, formatPercent, RE_DISCLAIMER } from "./_re-helpers";
+import { useCurrency, CurrencySelector } from "@/components/dueneo/currency-selector";
 
 interface Property {
   id: string;
@@ -26,7 +27,7 @@ export function CapRateCalculator({ tool }: { tool: ToolDefinition }) {
     { id: uid(), label: "Duplex A", value: "650000", grossIncome: "68000", operatingExpenses: "22000" },
     { id: uid(), label: "Four-plex B", value: "920000", grossIncome: "108000", operatingExpenses: "38000" },
   ]);
-  const [currency, setCurrency] = React.useState<string>("USD");
+  const { code: currency, setCode: setCurrency } = useCurrency();
 
   const computed = React.useMemo(() => {
     return properties.map((p) => {
@@ -58,18 +59,8 @@ export function CapRateCalculator({ tool }: { tool: ToolDefinition }) {
       "Calculate the capitalization rate (cap rate) for one or more investment properties from net operating income and value. Compare cap rates side by side to see which property offers the highest unleveraged yield — and learn what 'good' and 'bad' cap rates mean in context.",
     tool: (
       <div className="space-y-5">
-        <div className="flex flex-wrap items-center gap-2">
-          <Label htmlFor="cr-cur" className="text-xs">Currency</Label>
-          <select
-            id="cr-cur"
-            value={currency}
-            onChange={(e) => setCurrency(e.target.value)}
-            className="h-8 rounded-md border border-input bg-transparent px-2 text-xs"
-          >
-            {["USD", "GBP", "EUR", "CAD", "AUD", "INR"].map((c) => (
-              <option key={c} value={c}>{c}</option>
-            ))}
-          </select>
+        <div className="flex flex-wrap items-end gap-2">
+          <CurrencySelector value={currency} onChange={setCurrency} id="cr-currency" />
           <Button size="sm" variant="outline" onClick={add}>
             <Plus className="mr-1.5 h-3.5 w-3.5" /> Add property
           </Button>

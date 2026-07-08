@@ -37,15 +37,7 @@ import {
   formatCurrency,
   FINANCE_DISCLAIMER,
 } from "./_finance-helpers";
-
-const CURRENCIES = [
-  { code: "USD", symbol: "$" },
-  { code: "EUR", symbol: "€" },
-  { code: "GBP", symbol: "£" },
-  { code: "CAD", symbol: "$" },
-  { code: "AUD", symbol: "$" },
-  { code: "INR", symbol: "₹" },
-];
+import { useCurrency, CurrencySelector } from "@/components/dueneo/currency-selector";
 
 type TermsKind = "net7" | "net15" | "net30" | "net60" | "eom" | "custom";
 
@@ -212,7 +204,7 @@ function newId(): string {
 }
 
 export function InvoiceDueDateTracker({ tool }: { tool: ToolDefinition }) {
-  const [currencyCode, setCurrencyCode] = React.useState("USD");
+  const { code: currency, setCode: setCurrency } = useCurrency();
   const [invoices, setInvoices] = React.useState<Invoice[]>([]);
   const [hydrated, setHydrated] = React.useState(false);
 
@@ -231,8 +223,6 @@ export function InvoiceDueDateTracker({ tool }: { tool: ToolDefinition }) {
       // storage full / disabled — silently ignore
     }
   }, [invoices, hydrated]);
-
-  const currency = currencyCode;
 
   const enriched = React.useMemo(
     () =>
@@ -332,21 +322,11 @@ export function InvoiceDueDateTracker({ tool }: { tool: ToolDefinition }) {
             tone="success"
           />
           <div className="flex flex-col justify-between rounded-xl border bg-card p-4">
-            <div className="flex items-center justify-between">
-              <Label htmlFor="it-cur" className="text-xs text-muted-foreground">Currency</Label>
-            </div>
-            <Select value={currencyCode} onValueChange={setCurrencyCode}>
-              <SelectTrigger id="it-cur" className="w-full">
-                <SelectValue />
-              </SelectTrigger>
-              <SelectContent>
-                {CURRENCIES.map((c) => (
-                  <SelectItem key={c.code} value={c.code}>
-                    {c.code} ({c.symbol})
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
+            <CurrencySelector
+              value={currency}
+              onChange={setCurrency}
+              id="it-cur"
+            />
           </div>
         </div>
 

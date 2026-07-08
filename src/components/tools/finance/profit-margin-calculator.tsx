@@ -15,11 +15,12 @@ import {
   formatPercent,
   FINANCE_DISCLAIMER,
 } from "./_finance-helpers";
+import { useCurrency, CurrencySelector } from "@/components/dueneo/currency-selector";
 
 export function ProfitMarginCalculator({ tool }: { tool: ToolDefinition }) {
   const [revenue, setRevenue] = React.useState<string>("");
   const [cost, setCost] = React.useState<string>("");
-  const currency = "USD";
+  const { code: currency, setCode: setCurrency } = useCurrency();
 
   const revenueNum = Math.max(0, parseNumber(revenue));
   const costNum = Math.max(0, parseNumber(cost));
@@ -76,6 +77,7 @@ Markup on cost: ${formatPercent(markup)}`;
                 Direct costs to produce or buy the goods you sold.
               </p>
             </div>
+            <CurrencySelector value={currency} onChange={setCurrency} id="pm-currency" />
             <Button variant="ghost" size="sm" onClick={reset}>
               <RotateCcw className="mr-1.5 h-3.5 w-3.5" /> Reset
             </Button>
@@ -160,7 +162,6 @@ Markup on cost: ${formatPercent(markup)}`;
           depreciation, interest and tax. Use a full P&L for net profitability.
         </li>
         <li>Cost of goods sold should include only direct production costs.</li>
-        <li>Currency defaults to USD; mentally substitute your local currency as needed.</li>
       </ul>
     ),
     faq: [

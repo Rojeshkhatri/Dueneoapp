@@ -18,16 +18,7 @@ import {
   todayISO,
   defaultDocumentNumber,
 } from "./_business-helpers";
-
-const CURRENCY_OPTIONS = [
-  { code: "USD", symbol: "$" },
-  { code: "EUR", symbol: "€" },
-  { code: "GBP", symbol: "£" },
-  { code: "INR", symbol: "₹" },
-  { code: "AUD", symbol: "A$" },
-  { code: "CAD", symbol: "C$" },
-  { code: "JPY", symbol: "¥" },
-];
+import { useCurrency, CurrencySelector } from "@/components/dueneo/currency-selector";
 
 const PAYMENT_METHODS = [
   "Cash",
@@ -57,14 +48,13 @@ export function ReceiptGenerator({ tool }: { tool: ToolDefinition }) {
   );
 
   const [amount, setAmount] = React.useState("1296.00");
-  const [currencyCode, setCurrencyCode] = React.useState("USD");
   const [paymentMethod, setPaymentMethod] = React.useState("Bank transfer");
   const [reference, setReference] = React.useState("");
   const [description, setDescription] = React.useState(
     "Payment for invoice INV-2024-1042 — Website design and development services."
   );
 
-  const currency = CURRENCY_OPTIONS.find((c) => c.code === currencyCode) ?? CURRENCY_OPTIONS[0];
+  const { code: currency, setCode: setCurrency } = useCurrency();
   const amountNum = parseNumber(amount);
 
   const reset = () => {
@@ -75,7 +65,6 @@ export function ReceiptGenerator({ tool }: { tool: ToolDefinition }) {
     setPayerName("Client Name");
     setPayerAddress("456 Client Avenue\nNew York, NY 10001\nUnited States");
     setAmount("1296.00");
-    setCurrencyCode("USD");
     setPaymentMethod("Bank transfer");
     setReference("");
     setDescription(
@@ -148,18 +137,12 @@ export function ReceiptGenerator({ tool }: { tool: ToolDefinition }) {
             />
           </Field>
           <Field label="Currency" htmlFor="rcp-currency">
-            <select
+            <CurrencySelector
+              value={currency}
+              onChange={setCurrency}
               id="rcp-currency"
-              value={currencyCode}
-              onChange={(e) => setCurrencyCode(e.target.value)}
-              className="h-9 w-full rounded-md border border-input bg-transparent px-3 text-sm shadow-xs outline-none focus-visible:ring-[3px] focus-visible:ring-ring/50"
-            >
-              {CURRENCY_OPTIONS.map((c) => (
-                <option key={c.code} value={c.code}>
-                  {c.code} ({c.symbol})
-                </option>
-              ))}
-            </select>
+              className="[&_label]:hidden"
+            />
           </Field>
         </div>
         <div className="grid grid-cols-2 gap-3">
@@ -233,7 +216,7 @@ export function ReceiptGenerator({ tool }: { tool: ToolDefinition }) {
       <div className="rounded-lg border border-slate-200 bg-slate-50 p-4">
         <div className="text-xs uppercase tracking-wide text-slate-500">Amount received</div>
         <div className="mt-1 font-mono text-3xl font-bold tabular-nums text-slate-900">
-          {formatCurrency(amountNum, { currency: currency.code })}
+          {formatCurrency(amountNum, { currency })}
         </div>
       </div>
 

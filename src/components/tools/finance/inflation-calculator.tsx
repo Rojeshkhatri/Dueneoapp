@@ -18,17 +18,7 @@ import {
   formatPercent,
   FINANCE_DISCLAIMER,
 } from "./_finance-helpers";
-
-const CURRENCIES = [
-  { code: "USD", symbol: "$" },
-  { code: "EUR", symbol: "€" },
-  { code: "GBP", symbol: "£" },
-  { code: "CAD", symbol: "$" },
-  { code: "AUD", symbol: "$" },
-  { code: "INR", symbol: "₹" },
-  { code: "JPY", symbol: "¥" },
-  { code: "CNY", symbol: "¥" },
-];
+import { useCurrency, CurrencySelector } from "@/components/dueneo/currency-selector";
 
 const HISTORICAL_RATES: { label: string; value: number; period: string }[] = [
   { label: "US avg 2000–2020", value: 2.4, period: "2000–2020" },
@@ -45,7 +35,7 @@ export function InflationCalculator({ tool }: { tool: ToolDefinition }) {
   const [years, setYears] = React.useState<string>("10");
   const [rate, setRate] = React.useState<string>("3");
   const [direction, setDirection] = React.useState<Direction>("future");
-  const [currency, setCurrency] = React.useState<string>("USD");
+  const { code: currency, setCode: setCurrency } = useCurrency();
 
   const a = Math.max(0, parseNumber(amount));
   const y = Math.max(0, parseNumber(years));
@@ -66,7 +56,6 @@ export function InflationCalculator({ tool }: { tool: ToolDefinition }) {
     setYears("10");
     setRate("3");
     setDirection("future");
-    setCurrency("USD");
   };
 
   const summary = `${direction === "future" ? "Future" : "Past"} inflation calc
@@ -120,19 +109,7 @@ ${
               />
             </div>
             <div className="space-y-2">
-              <Label htmlFor="inf-currency">Currency</Label>
-              <select
-                id="inf-currency"
-                value={currency}
-                onChange={(e) => setCurrency(e.target.value)}
-                className="flex h-9 w-full rounded-md border border-input bg-transparent px-3 py-1 text-sm shadow-sm transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring"
-              >
-                {CURRENCIES.map((c) => (
-                  <option key={c.code} value={c.code}>
-                    {c.code} ({c.symbol})
-                  </option>
-                ))}
-              </select>
+              <CurrencySelector value={currency} onChange={setCurrency} id="inf-currency" />
             </div>
             <div className="space-y-2">
               <Label htmlFor="inf-years">

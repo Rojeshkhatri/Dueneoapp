@@ -16,6 +16,7 @@ import {
   formatPercent,
   FINANCE_DISCLAIMER,
 } from "./_finance-helpers";
+import { useCurrency, CurrencySelector } from "@/components/dueneo/currency-selector";
 
 interface DiscountTier {
   id: string;
@@ -32,7 +33,7 @@ export function DiscountCalculator({ tool }: { tool: ToolDefinition }) {
     { id: makeId(), rate: "20" },
   ]);
   const [stacked, setStacked] = React.useState<boolean>(true);
-  const currency = "USD";
+  const { code: currency, setCode: setCurrency } = useCurrency();
 
   const originalPrice = Math.max(0, parseNumber(price));
 
@@ -140,6 +141,8 @@ Final price: ${formatCurrency(finalPrice, { currency })}`;
                 placeholder="0.00"
               />
             </div>
+
+            <CurrencySelector value={currency} onChange={setCurrency} id="dc-currency" />
 
             <div className="flex items-center justify-between rounded-lg border p-3">
               <div>

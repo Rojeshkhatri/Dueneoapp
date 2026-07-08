@@ -30,15 +30,7 @@ import {
   formatCurrency,
   FINANCE_DISCLAIMER,
 } from "./_finance-helpers";
-
-const CURRENCIES = [
-  { code: "USD", symbol: "$" },
-  { code: "EUR", symbol: "€" },
-  { code: "GBP", symbol: "£" },
-  { code: "CAD", symbol: "$" },
-  { code: "AUD", symbol: "$" },
-  { code: "INR", symbol: "₹" },
-];
+import { useCurrency, CurrencySelector } from "@/components/dueneo/currency-selector";
 
 type Period = "weekly" | "monthly" | "yearly";
 type Status = "active" | "cancelled";
@@ -177,7 +169,7 @@ interface ComputedSub {
 }
 
 export function SubscriptionCostTracker({ tool }: { tool: ToolDefinition }) {
-  const [currencyCode, setCurrencyCode] = React.useState("USD");
+  const { code: currency, setCode: setCurrency } = useCurrency();
   const [subs, setSubs] = React.useState<Subscription[]>([]);
   const [hydrated, setHydrated] = React.useState(false);
 
@@ -194,8 +186,6 @@ export function SubscriptionCostTracker({ tool }: { tool: ToolDefinition }) {
       // storage full / disabled
     }
   }, [subs, hydrated]);
-
-  const currency = currencyCode;
 
   const computed = React.useMemo<ComputedSub[]>(() => {
     return subs.map((sub) => {
@@ -288,19 +278,11 @@ export function SubscriptionCostTracker({ tool }: { tool: ToolDefinition }) {
             tone="warning"
           />
           <div className="flex flex-col justify-between rounded-xl border bg-card p-4">
-            <Label htmlFor="st-cur" className="text-xs text-muted-foreground">Currency</Label>
-            <Select value={currencyCode} onValueChange={setCurrencyCode}>
-              <SelectTrigger id="st-cur" className="mt-1 w-full">
-                <SelectValue />
-              </SelectTrigger>
-              <SelectContent>
-                {CURRENCIES.map((c) => (
-                  <SelectItem key={c.code} value={c.code}>
-                    {c.code} ({c.symbol})
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
+            <CurrencySelector
+              value={currency}
+              onChange={setCurrency}
+              id="st-cur"
+            />
           </div>
         </div>
 

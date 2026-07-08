@@ -39,6 +39,7 @@ import {
   Row,
   StatCard,
 } from "./_ecommerce-helpers";
+import { useCurrency, CurrencySelector, money } from "@/components/dueneo/currency-selector";
 
 const LISTING_TYPES: { key: EbayListingType; label: string; hint: string }[] = [
   { key: "fixed", label: "Fixed-price", hint: "First 250 listings/mo are free; $0.35 after" },
@@ -52,6 +53,8 @@ export function EbayFeeCalculator({ tool }: { tool: ToolDefinition }) {
   const [reservePrice, setReservePrice] = React.useState<string>("");
   const [upgrades, setUpgrades] = React.useState<Record<string, boolean>>({});
   const [freeListingsUsed, setFreeListingsUsed] = React.useState<string>("0");
+  const { code: currency, setCode: setCurrency } = useCurrency();
+  const fmt = (v: number) => money(v, currency);
 
   const category = React.useMemo<EbayCategory>(
     () => EBAY_CATEGORIES.find((c) => c.key === categoryKey) ?? EBAY_CATEGORIES[0],
@@ -113,16 +116,16 @@ export function EbayFeeCalculator({ tool }: { tool: ToolDefinition }) {
   const summary = `eBay fee breakdown
 Listing type:         ${isAuction ? "Auction" : "Fixed-price"}
 Category:             ${category.label}
-Final price:          ${formatCurrency(price)}
+Final price:          ${fmt(price)}
 Free listings used:   ${freeUsed} of ${FREE_ALLOTMENT_FIXED} (fixed-price)
 
-Insertion fee:        ${formatCurrency(insertionFee)}${!isAuction && insertionFee === 0 ? " (within free allotment)" : ` ($${INSERTION_FEE.toFixed(2)} per listing)`}
-Final value fee:      ${formatCurrency(finalValueFee)} (${category.finalValuePct}%${category.perOrderFee > 0 ? ` + $${category.perOrderFee.toFixed(2)}` : ""}, capped at $${category.feeCap})
-Reserve fee:          ${formatCurrency(reserveFee)}${reserveFee > 0 ? ` ($${EBAY_RESERVE_FEE} reserve)` : ""}
-Upgrades:             ${formatCurrency(upgradesTotal)}
+Insertion fee:        ${fmt(insertionFee)}${!isAuction && insertionFee === 0 ? " (within free allotment)" : ` ($${INSERTION_FEE.toFixed(2)} per listing)`}
+Final value fee:      ${fmt(finalValueFee)} (${category.finalValuePct}%${category.perOrderFee > 0 ? ` + $${category.perOrderFee.toFixed(2)}` : ""}, capped at $${category.feeCap})
+Reserve fee:          ${fmt(reserveFee)}${reserveFee > 0 ? ` ($${EBAY_RESERVE_FEE} reserve)` : ""}
+Upgrades:             ${fmt(upgradesTotal)}
 
-Total fees:           ${formatCurrency(totalFees)} (${formatPercent(feePctOfPrice)} of final price)
-Net proceeds:         ${formatCurrency(netProceeds)}`;
+Total fees:           ${fmt(totalFees)} (${formatPercent(feePctOfPrice)} of final price)
+Net proceeds:         ${fmt(netProceeds)}`;
 
   const toolBody = (
     <div className="space-y-5">
@@ -258,6 +261,7 @@ Net proceeds:         ${formatCurrency(netProceeds)}`;
           <Button variant="ghost" size="sm" onClick={reset}>
             <RotateCcw className="mr-1.5 h-3.5 w-3.5" /> Reset
           </Button>
+          <CurrencySelector value={currency} onChange={setCurrency} id="eb-currency" className="pt-2" />
         </div>
 
         <div className="space-y-4 rounded-xl border bg-muted/30 p-5">
@@ -279,7 +283,7 @@ Net proceeds:         ${formatCurrency(netProceeds)}`;
                   <AlertCircle className="mt-0.5 h-3.5 w-3.5 flex-none" />
                   <p>
                     Fees exceed the sale price — net result is a loss of{" "}
-                    {formatCurrency(Math.abs(netProceeds))}.
+                    {fmt(Math.abs(netProceeds))}.
                   </p>
                 </div>
               )}
@@ -287,14 +291,14 @@ Net proceeds:         ${formatCurrency(netProceeds)}`;
               <div className="grid grid-cols-2 gap-3">
                 <StatCard
                   label="Net proceeds"
-                  value={formatCurrency(netProceeds)}
+                  value={fmt(netProceeds)}
                   tone={netProceeds < 0 ? "rose" : "emerald"}
                   icon={<TrendingUp className="h-3.5 w-3.5 text-emerald-500" />}
-                  hint={`After ${formatCurrency(totalFees)} in fees`}
+                  hint={`After ${fmt(totalFees)} in fees`}
                 />
                 <StatCard
                   label="Total fees"
-                  value={formatCurrency(totalFees)}
+                  value={fmt(totalFees)}
                   tone="primary"
                   icon={<Tag className="h-3.5 w-3.5 text-primary" />}
                   hint={`${formatPercent(feePctOfPrice)} of price`}
@@ -302,11 +306,11 @@ Net proceeds:         ${formatCurrency(netProceeds)}`;
               </div>
 
               <div className="space-y-2 rounded-lg border bg-background p-4">
-                <Row label="Final sale price" value={formatCurrency(price)} />
+                <Row label="Final sale price" value={fmt(price)} />
                 <div className="border-t pt-2">
                   <Row
                     label="Insertion fee"
-                    value={formatCurrency(insertionFee)}
+                    value={fmt(insertionFee)}
                     hint={
                       !isAuction && insertionFee === 0
                         ? `Free (within ${FREE_ALLOTMENT_FIXED}/mo)`
@@ -315,29 +319,29 @@ Net proceeds:         ${formatCurrency(netProceeds)}`;
                   />
                   <Row
                     label="Final value fee"
-                    value={formatCurrency(finalValueFee)}
+                    value={fmt(finalValueFee)}
                     hint={`${category.finalValuePct}%${category.perOrderFee > 0 ? ` + $${category.perOrderFee.toFixed(2)}` : ""}, cap $${category.feeCap}`}
                   />
                   {reserveFee > 0 && (
                     <Row
                       label="Reserve fee"
-                      value={formatCurrency(reserveFee)}
+                      value={fmt(reserveFee)}
                       hint={`$${EBAY_RESERVE_FEE} reserve`}
                     />
                   )}
                   {upgradesTotal > 0 && (
                     <Row
                       label="Listing upgrades"
-                      value={formatCurrency(upgradesTotal)}
+                      value={fmt(upgradesTotal)}
                       hint={`${selectedUpgradeFees.length} upgrade(s)`}
                     />
                   )}
                 </div>
                 <div className="border-t pt-2">
-                  <Row label="Total fees" value={formatCurrency(totalFees)} highlight />
+                  <Row label="Total fees" value={fmt(totalFees)} highlight />
                   <Row
                     label="Net proceeds"
-                    value={formatCurrency(netProceeds)}
+                    value={fmt(netProceeds)}
                     large
                     highlight={netProceeds >= 0}
                   />
@@ -423,6 +427,13 @@ Net proceeds:         ${formatCurrency(netProceeds)}`;
           International fees, managed payments cross-border surcharges,
           promoted-listing ad fees (cost-per-click or percentage-on-sale), and
           eBay Stores subscription fees are not modelled.
+        </li>
+        <li>
+          eBay&rsquo;s fee schedule is published in USD. This calculator displays
+          amounts in your selected currency and treats the fixed USD fee
+          components (e.g. $0.35 insertion, $0.30 per-order, $5 reserve, $750 cap)
+          as if denominated in your chosen currency &mdash; a display
+          simplification, not a currency conversion.
         </li>
       </ul>
     ),

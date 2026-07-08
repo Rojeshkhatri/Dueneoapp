@@ -27,6 +27,7 @@ import {
 } from "lucide-react";
 import type { ToolDefinition } from "@/data/tools";
 import { toast } from "sonner";
+import { useCurrency, CurrencySelector, money } from "@/components/dueneo/currency-selector";
 import { formatCurrency, formatNumber, parseNumber } from "./_hr-helpers";
 
 interface Offer {
@@ -111,6 +112,9 @@ function computeMetrics(o: Offer): OfferMetrics {
 
 export function OfferComparisonTool({ tool }: { tool: ToolDefinition }) {
   const [offers, setOffers] = React.useState<Offer[]>(DEFAULT_OFFERS);
+  const { code: currency, setCode: setCurrency } = useCurrency();
+  const fmt = (v: number, opts?: { minimumFractionDigits?: number; maximumFractionDigits?: number }) =>
+    money(v, currency, opts);
 
   const addOffer = () => {
     if (offers.length >= 4) {
@@ -167,7 +171,8 @@ export function OfferComparisonTool({ tool }: { tool: ToolDefinition }) {
 
   const toolBody = (
     <div className="space-y-5">
-      <div className="flex flex-wrap items-center gap-2">
+      <div className="flex flex-wrap items-end gap-2">
+        <CurrencySelector value={currency} onChange={setCurrency} id="oc-currency" />
         <Button variant="outline" size="sm" onClick={addOffer} disabled={offers.length >= 4}>
           <Plus className="mr-1.5 h-3.5 w-3.5" /> Add offer ({offers.length}/4)
         </Button>
@@ -281,7 +286,7 @@ export function OfferComparisonTool({ tool }: { tool: ToolDefinition }) {
                     <Briefcase className="h-3 w-3" /> Total comp
                   </div>
                   <div className="mt-0.5 font-mono text-lg font-bold tabular-nums">
-                    {formatCurrency(m.totalComp)}
+                    {fmt(m.totalComp)}
                   </div>
                   {isBestComp && (
                     <div className="flex items-center gap-1 text-[10px] font-medium text-emerald-700 dark:text-emerald-300">
@@ -298,7 +303,7 @@ export function OfferComparisonTool({ tool }: { tool: ToolDefinition }) {
                     <Clock className="h-3 w-3" /> Eff. hourly rate
                   </div>
                   <div className="mt-0.5 font-mono text-lg font-bold tabular-nums">
-                    {formatCurrency(m.effectiveHourlyRate, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+                    {fmt(m.effectiveHourlyRate, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
                   </div>
                   {isBestHourly && (
                     <div className="flex items-center gap-1 text-[10px] font-medium text-sky-700 dark:text-sky-300">
@@ -347,7 +352,7 @@ export function OfferComparisonTool({ tool }: { tool: ToolDefinition }) {
                   <TableCell className="font-medium">Base salary</TableCell>
                   {offers.map((o) => (
                     <TableCell key={o.id} className="text-right font-mono tabular-nums">
-                      {formatCurrency(o.baseSalary)}
+                      {fmt(o.baseSalary)}
                     </TableCell>
                   ))}
                 </TableRow>
@@ -355,7 +360,7 @@ export function OfferComparisonTool({ tool }: { tool: ToolDefinition }) {
                   <TableCell className="font-medium">Annual bonus</TableCell>
                   {offers.map((o) => (
                     <TableCell key={o.id} className="text-right font-mono tabular-nums">
-                      {formatCurrency(o.bonus)}
+                      {fmt(o.bonus)}
                     </TableCell>
                   ))}
                 </TableRow>
@@ -363,7 +368,7 @@ export function OfferComparisonTool({ tool }: { tool: ToolDefinition }) {
                   <TableCell className="font-medium">Equity (annualised)</TableCell>
                   {offers.map((o) => (
                     <TableCell key={o.id} className="text-right font-mono tabular-nums">
-                      {formatCurrency(o.equityAnnualized)}
+                      {fmt(o.equityAnnualized)}
                     </TableCell>
                   ))}
                 </TableRow>
@@ -375,7 +380,7 @@ export function OfferComparisonTool({ tool }: { tool: ToolDefinition }) {
                   </TableCell>
                   {offers.map((o) => (
                     <TableCell key={o.id} className="text-right font-mono tabular-nums">
-                      {formatCurrency(o.benefitsValue)}
+                      {fmt(o.benefitsValue)}
                     </TableCell>
                   ))}
                 </TableRow>
@@ -412,7 +417,7 @@ export function OfferComparisonTool({ tool }: { tool: ToolDefinition }) {
                         idx === bestTotalCompIdx ? "text-emerald-600 dark:text-emerald-400" : ""
                       }`}
                     >
-                      {formatCurrency(m.totalComp)}
+                      {fmt(m.totalComp)}
                     </TableCell>
                   ))}
                 </TableRow>
@@ -441,7 +446,7 @@ export function OfferComparisonTool({ tool }: { tool: ToolDefinition }) {
                         idx === bestHourlyIdx ? "text-sky-600 dark:text-sky-400" : ""
                       }`}
                     >
-                      {formatCurrency(m.effectiveHourlyRate, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+                      {fmt(m.effectiveHourlyRate, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
                     </TableCell>
                   ))}
                 </TableRow>
@@ -457,7 +462,7 @@ export function OfferComparisonTool({ tool }: { tool: ToolDefinition }) {
               <p className="mt-1 text-sm">
                 {offers[bestTotalCompIdx]?.company || "—"} pays the highest total comp at{" "}
                 <span className="font-mono font-semibold">
-                  {formatCurrency(metrics[bestTotalCompIdx]?.totalComp ?? 0)}
+                  {fmt(metrics[bestTotalCompIdx]?.totalComp ?? 0)}
                 </span>
                 .
               </p>
@@ -469,7 +474,7 @@ export function OfferComparisonTool({ tool }: { tool: ToolDefinition }) {
               <p className="mt-1 text-sm">
                 {offers[bestHourlyIdx]?.company || "—"} has the highest effective hourly rate at{" "}
                 <span className="font-mono font-semibold">
-                  {formatCurrency(metrics[bestHourlyIdx]?.effectiveHourlyRate ?? 0, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+                  {fmt(metrics[bestHourlyIdx]?.effectiveHourlyRate ?? 0, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
                   /hr
                 </span>{" "}
                 — factoring in commute time and PTO.

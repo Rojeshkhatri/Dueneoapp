@@ -18,6 +18,7 @@ import { Slider } from "@/components/ui/slider";
 import { RotateCcw, Building2, Wallet, PieChart as PieIcon, Percent } from "lucide-react";
 import type { ToolDefinition } from "@/data/tools";
 import { toast } from "sonner";
+import { useCurrency, CurrencySelector, money } from "@/components/dueneo/currency-selector";
 import { formatCurrency, formatNumber, formatPercent, parseNumber } from "./_hr-helpers";
 
 interface CtcBreakdown {
@@ -54,6 +55,9 @@ export function CostToCompanyCalculator({ tool }: { tool: ToolDefinition }) {
   const [healthInsurance, setHealthInsurance] = React.useState("8000");
   const [otherBenefits, setOtherBenefits] = React.useState("5000");
   const [payrollTaxPct, setPayrollTaxPct] = React.useState(15);
+  const { code: currency, setCode: setCurrency } = useCurrency();
+  const fmt = (v: number, opts?: { minimumFractionDigits?: number; maximumFractionDigits?: number }) =>
+    money(v, currency, opts);
 
   const result = React.useMemo<CtcResult | null>(() => {
     const baseN = parseNumber(base);
@@ -198,7 +202,8 @@ export function CostToCompanyCalculator({ tool }: { tool: ToolDefinition }) {
             </p>
           </div>
 
-          <div className="flex flex-wrap gap-2">
+          <div className="flex flex-wrap items-end gap-2">
+            <CurrencySelector value={currency} onChange={setCurrency} id="ctc-currency" />
             <Button variant="ghost" size="sm" onClick={reset}>
               <RotateCcw className="mr-1.5 h-3.5 w-3.5" /> Reset
             </Button>
@@ -221,10 +226,10 @@ export function CostToCompanyCalculator({ tool }: { tool: ToolDefinition }) {
                   Annual CTC
                 </div>
                 <div className="mt-1 font-mono text-3xl font-bold tabular-nums sm:text-4xl">
-                  {formatCurrency(result.totalCtc)}
+                  {fmt(result.totalCtc)}
                 </div>
                 <div className="mt-1 text-xs text-muted-foreground">
-                  ≈ {formatCurrency(result.monthlyCtc)} / month
+                  ≈ {fmt(result.monthlyCtc)} / month
                 </div>
               </div>
 
@@ -234,7 +239,7 @@ export function CostToCompanyCalculator({ tool }: { tool: ToolDefinition }) {
                     Base + Bonus
                   </div>
                   <div className="mt-0.5 font-mono text-sm font-bold tabular-nums">
-                    {formatCurrency(result.base + result.bonus)}
+                    {fmt(result.base + result.bonus)}
                   </div>
                 </div>
                 <div className="rounded-lg border bg-background p-3">
@@ -242,7 +247,7 @@ export function CostToCompanyCalculator({ tool }: { tool: ToolDefinition }) {
                     Benefits + Taxes
                   </div>
                   <div className="mt-0.5 font-mono text-sm font-bold tabular-nums">
-                    {formatCurrency(result.pension + result.healthInsurance + result.otherBenefits + result.payrollTaxes)}
+                    {fmt(result.pension + result.healthInsurance + result.otherBenefits + result.payrollTaxes)}
                   </div>
                 </div>
               </div>
@@ -265,7 +270,7 @@ export function CostToCompanyCalculator({ tool }: { tool: ToolDefinition }) {
                           {formatPercent(pct, 1)}
                         </span>
                         <span className="w-24 text-right font-mono font-semibold tabular-nums">
-                          {formatCurrency(b.value)}
+                          {fmt(b.value)}
                         </span>
                       </li>
                     );
@@ -312,7 +317,7 @@ export function CostToCompanyCalculator({ tool }: { tool: ToolDefinition }) {
                     fontSize: 12,
                   }}
                   formatter={(v: number, name: string) => [
-                    formatCurrency(v),
+                    fmt(v),
                     name,
                   ]}
                 />
@@ -332,7 +337,7 @@ export function CostToCompanyCalculator({ tool }: { tool: ToolDefinition }) {
                   className="h-2 w-2 rounded-full"
                   style={{ backgroundColor: b.color }}
                 />
-                {b.name}: {formatCurrency(b.value)}
+                {b.name}: {fmt(b.value)}
               </Badge>
             ))}
           </div>
@@ -350,13 +355,13 @@ export function CostToCompanyCalculator({ tool }: { tool: ToolDefinition }) {
           <p className="mt-1 text-xs text-muted-foreground">
             Employer cost per working day (260 days/yr):{" "}
             <span className="font-mono font-medium text-foreground">
-              {formatCurrency(result.totalCtc / 260, { minimumFractionDigits: 0, maximumFractionDigits: 0 })}
+              {fmt(result.totalCtc / 260, { minimumFractionDigits: 0, maximumFractionDigits: 0 })}
             </span>
           </p>
           <p className="mt-1 text-xs text-muted-foreground">
             Employer cost per working hour (2080 hrs/yr):{" "}
             <span className="font-mono font-medium text-foreground">
-              {formatCurrency(result.totalCtc / 2080, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+              {fmt(result.totalCtc / 2080, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
             </span>
           </p>
         </div>

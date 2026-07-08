@@ -35,6 +35,7 @@ import {
   compoundInterestSeries,
   FINANCE_DISCLAIMER,
 } from "./_finance-helpers";
+import { useCurrency, CurrencySelector } from "@/components/dueneo/currency-selector";
 
 const COMPOUND_OPTIONS = [
   { value: "1", label: "Annually (1× / year)", n: 1 },
@@ -51,7 +52,7 @@ export function CompoundInterestCalculator({ tool }: { tool: ToolDefinition }) {
   const [compounds, setCompounds] = React.useState<string>("12");
   const [years, setYears] = React.useState<string>("10");
   const [annualContribution, setAnnualContribution] = React.useState<string>("0");
-  const currency = "USD";
+  const { code: currency, setCode: setCurrency } = useCurrency();
 
   const principalNum = Math.max(0, parseNumber(principal));
   const rateNum = parseNumber(rate);
@@ -172,6 +173,8 @@ Interest earned: ${formatCurrency(totalInterest, { currency })}`;
                 Added at the end of each compounding period, spread evenly through the year.
               </p>
             </div>
+
+            <CurrencySelector value={currency} onChange={setCurrency} id="ci-currency" />
 
             <Button variant="ghost" size="sm" onClick={reset}>
               <RotateCcw className="mr-1.5 h-3.5 w-3.5" /> Reset

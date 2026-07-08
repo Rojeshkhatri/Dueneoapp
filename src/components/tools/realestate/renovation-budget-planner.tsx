@@ -6,18 +6,12 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
 import { Badge } from "@/components/ui/badge";
 import { toast } from "sonner";
 import { Plus, Trash2, Download, RotateCcw } from "lucide-react";
 import type { ToolDefinition } from "@/data/tools";
 import { uid, parseNumber, formatCurrency, toCsv, downloadText, loadJSON, saveJSON, RE_DISCLAIMER } from "./_re-helpers";
+import { useCurrency, CurrencySelector } from "@/components/dueneo/currency-selector";
 
 type Room = "Kitchen" | "Bathroom" | "Bedroom" | "Living Room" | "Garage" | "Garden" | "Whole House" | "Other";
 
@@ -41,7 +35,7 @@ export function RenovationBudgetPlanner({ tool }: { tool: ToolDefinition }) {
       { id: uid(), room: "Bathroom", description: "Full refit", estimated: "5000", actual: "" },
     ])
   );
-  const [currency, setCurrency] = React.useState<string>("USD");
+  const { code: currency, setCode: setCurrency } = useCurrency();
   const [loaded, setLoaded] = React.useState(false);
 
   React.useEffect(() => {
@@ -136,14 +130,7 @@ export function RenovationBudgetPlanner({ tool }: { tool: ToolDefinition }) {
             <div className="flex flex-wrap items-center justify-between gap-3">
               <CardTitle className="text-sm">Budget summary</CardTitle>
               <div className="flex items-center gap-2">
-                <Select value={currency} onValueChange={setCurrency}>
-                  <SelectTrigger className="h-8 w-24 text-xs"><SelectValue /></SelectTrigger>
-                  <SelectContent>
-                    {["USD", "GBP", "EUR", "CAD", "AUD", "INR"].map((c) => (
-                      <SelectItem key={c} value={c}>{c}</SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
+                <CurrencySelector value={currency} onChange={setCurrency} id="rb-currency" />
                 <Button size="sm" variant="outline" onClick={exportCsv} disabled={items.length === 0}>
                   <Download className="mr-1.5 h-3.5 w-3.5" /> Export CSV
                 </Button>

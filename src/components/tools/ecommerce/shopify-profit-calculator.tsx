@@ -36,6 +36,7 @@ import {
   Row,
   StatCard,
 } from "./_ecommerce-helpers";
+import { useCurrency, CurrencySelector, money } from "@/components/dueneo/currency-selector";
 
 /** Payment processor selector — affects whether the external-gateway
  *  surcharge applies. Shopify Payments is the default and uses only the
@@ -56,6 +57,8 @@ export function ShopifyProfitCalculator({ tool }: { tool: ToolDefinition }) {
   const [planKey, setPlanKey] = React.useState<string>(SHOPIFY_PLANS[0].key);
   const [processorKey, setProcessorKey] = React.useState<ProcessorKey>("shopify-payments");
   const [ordersPerMonth, setOrdersPerMonth] = React.useState<string>("100");
+  const { code: currency, setCode: setCurrency } = useCurrency();
+  const fmt = (v: number) => money(v, currency);
 
   const plan = React.useMemo<ShopifyPlan>(
     () => SHOPIFY_PLANS.find((p) => p.key === planKey) ?? SHOPIFY_PLANS[0],
@@ -95,17 +98,17 @@ export function ShopifyProfitCalculator({ tool }: { tool: ToolDefinition }) {
   };
 
   const summary = `Shopify profit summary
-Selling price:        ${formatCurrency(price)}
-COGS:                 ${formatCurrency(cogsNum)}
-Shipping cost:        ${formatCurrency(shipNum)}
-Ad cost per sale:     ${formatCurrency(adNum)}
+Selling price:        ${fmt(price)}
+COGS:                 ${fmt(cogsNum)}
+Shipping cost:        ${fmt(shipNum)}
+Ad cost per sale:     ${fmt(adNum)}
 Plan:                 ${plan.label}
 Processor:            ${usesExternal ? "External gateway" : "Shopify Payments"}
-CC processing fee:    ${formatCurrency(ccFee)} (${plan.ccRatePct}% + $${plan.ccFixed.toFixed(2)})
-${usesExternal ? `External surcharge:   ${formatCurrency(surcharge)} (${plan.externalSurchargePct}%)\n` : ""}Plan fee allocated:   ${formatCurrency(planAllocated)} ($${plan.monthlyFee}/mo ÷ ${orders} orders)
-Total fees:           ${formatCurrency(totalFees)}
-Total costs:          ${formatCurrency(totalCosts)}
-Profit per order:     ${formatCurrency(profit)}
+CC processing fee:    ${fmt(ccFee)} (${plan.ccRatePct}% + $${plan.ccFixed.toFixed(2)})
+${usesExternal ? `External surcharge:   ${fmt(surcharge)} (${plan.externalSurchargePct}%)\n` : ""}Plan fee allocated:   ${fmt(planAllocated)} ($${plan.monthlyFee}/mo ÷ ${orders} orders)
+Total fees:           ${fmt(totalFees)}
+Total costs:          ${fmt(totalCosts)}
+Profit per order:     ${fmt(profit)}
 Margin:               ${formatPercent(margin)}`;
 
   const toolBody = (
@@ -211,6 +214,7 @@ Margin:               ${formatPercent(margin)}`;
           <Button variant="ghost" size="sm" onClick={reset}>
             <RotateCcw className="mr-1.5 h-3.5 w-3.5" /> Reset
           </Button>
+          <CurrencySelector value={currency} onChange={setCurrency} id="sp-currency" className="pt-2" />
         </div>
 
         <div className="space-y-4 rounded-xl border bg-muted/30 p-5">
@@ -231,7 +235,7 @@ Margin:               ${formatPercent(margin)}`;
                 <div className="flex items-start gap-2 rounded-lg border border-destructive/40 bg-destructive/10 p-3 text-xs text-destructive">
                   <AlertCircle className="mt-0.5 h-3.5 w-3.5 flex-none" />
                   <p>
-                    Costs exceed revenue — you are losing {formatCurrency(Math.abs(profit))} per
+                    Costs exceed revenue — you are losing {fmt(Math.abs(profit))} per
                     order. Raise price or cut costs to break even.
                   </p>
                 </div>
@@ -240,7 +244,7 @@ Margin:               ${formatPercent(margin)}`;
               <div className="grid grid-cols-2 gap-3">
                 <StatCard
                   label="Profit / order"
-                  value={formatCurrency(profit)}
+                  value={fmt(profit)}
                   tone={isLoss ? "rose" : "emerald"}
                   icon={
                     isLoss ? (
@@ -249,7 +253,7 @@ Margin:               ${formatPercent(margin)}`;
                       <TrendingUp className="h-3.5 w-3.5 text-emerald-500" />
                     )
                   }
-                  hint={`After ${formatCurrency(totalCosts)} in costs`}
+                  hint={`After ${fmt(totalCosts)} in costs`}
                 />
                 <StatCard
                   label="Margin"
@@ -260,50 +264,50 @@ Margin:               ${formatPercent(margin)}`;
               </div>
 
               <div className="space-y-2 rounded-lg border bg-background p-4">
-                <Row label="Selling price" value={formatCurrency(price)} />
+                <Row label="Selling price" value={fmt(price)} />
                 <Row
                   label="COGS"
-                  value={formatCurrency(cogsNum)}
+                  value={fmt(cogsNum)}
                   muted
                   icon={<Receipt className="h-3.5 w-3.5 text-muted-foreground/70" />}
                 />
                 <Row
                   label="Shipping cost"
-                  value={formatCurrency(shipNum)}
+                  value={fmt(shipNum)}
                   muted
                   icon={<Truck className="h-3.5 w-3.5 text-muted-foreground/70" />}
                 />
                 <Row
                   label="Ad cost"
-                  value={formatCurrency(adNum)}
+                  value={fmt(adNum)}
                   muted
                   icon={<Megaphone className="h-3.5 w-3.5 text-muted-foreground/70" />}
                 />
                 <div className="border-t pt-2">
                   <Row
                     label={`CC processing (${plan.ccRatePct}% + $${plan.ccFixed.toFixed(2)})`}
-                    value={formatCurrency(ccFee)}
+                    value={fmt(ccFee)}
                     icon={<Wallet className="h-3.5 w-3.5 text-muted-foreground/70" />}
                   />
                   {usesExternal && (
                     <Row
                       label={`External gateway surcharge (${plan.externalSurchargePct}%)`}
-                      value={formatCurrency(surcharge)}
+                      value={fmt(surcharge)}
                     />
                   )}
                   <Row
                     label={`Plan allocation ($${plan.monthlyFee}/mo ÷ ${orders} orders)`}
-                    value={formatCurrency(planAllocated)}
+                    value={fmt(planAllocated)}
                   />
                 </div>
                 <div className="border-t pt-2">
-                  <Row label="Total fees" value={formatCurrency(totalFees)} />
-                  <Row label="Total costs" value={formatCurrency(totalCosts)} />
+                  <Row label="Total fees" value={fmt(totalFees)} />
+                  <Row label="Total costs" value={fmt(totalCosts)} />
                 </div>
                 <div className="border-t pt-2">
                   <Row
                     label="Profit / order"
-                    value={formatCurrency(profit)}
+                    value={fmt(profit)}
                     highlight
                     large
                   />
@@ -387,6 +391,14 @@ Margin:               ${formatPercent(margin)}`;
           Sales tax, returns, chargebacks, refunds and currency-conversion fees
           are not modelled. Plan subscription is allocated evenly across the
           orders-per-month figure you enter.
+        </li>
+        <li>
+          Rate-table values (plan monthly fees, fixed per-transaction fees
+          like $0.30) are published by Shopify in USD but are displayed here in
+          your selected currency for convenience. The fixed fee is treated as
+          being denominated in your chosen currency (e.g. selecting EUR makes the
+          $0.30 fixed fee act as €0.30) — this is a display simplification,
+          not a currency conversion.
         </li>
       </ul>
     ),

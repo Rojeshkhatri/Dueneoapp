@@ -5,13 +5,6 @@ import { ToolLayout, type ToolContent } from "@/components/dueneo/tool-layout";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Button } from "@/components/ui/button";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
 import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { CopyButton } from "@/components/dueneo/copy-button";
@@ -25,17 +18,7 @@ import {
   monthlyPayment,
   FINANCE_DISCLAIMER,
 } from "./_finance-helpers";
-
-const CURRENCIES = [
-  { code: "USD", symbol: "$" },
-  { code: "EUR", symbol: "€" },
-  { code: "GBP", symbol: "£" },
-  { code: "CAD", symbol: "$" },
-  { code: "AUD", symbol: "$" },
-  { code: "INR", symbol: "₹" },
-  { code: "JPY", symbol: "¥" },
-  { code: "CNY", symbol: "¥" },
-];
+import { useCurrency, CurrencySelector } from "@/components/dueneo/currency-selector";
 
 interface Offer {
   id: string;
@@ -80,11 +63,10 @@ function calcOffer(
 
 export function MortgageComparison({ tool }: { tool: ToolDefinition }) {
   const [principal, setPrincipal] = React.useState("350000");
-  const [currencyCode, setCurrencyCode] = React.useState("USD");
+  const { code: currency, setCode: setCurrency } = useCurrency();
   const [offers, setOffers] = React.useState<Offer[]>(DEFAULT_OFFERS);
 
   const principalNum = Math.max(0, parseNumber(principal));
-  const currency = currencyCode;
 
   const results = React.useMemo(
     () => offers.map((o) => ({ offer: o, ...calcOffer(o, principalNum, currency) })),
@@ -106,7 +88,6 @@ export function MortgageComparison({ tool }: { tool: ToolDefinition }) {
 
   const reset = () => {
     setPrincipal("350000");
-    setCurrencyCode("USD");
     setOffers(DEFAULT_OFFERS.map((o) => ({ ...o })));
     toast.info("Reset to defaults.");
   };
@@ -141,19 +122,11 @@ ${results
               />
             </div>
             <div className="space-y-2">
-              <Label htmlFor="mc-cur">Currency</Label>
-              <Select value={currencyCode} onValueChange={setCurrencyCode}>
-                <SelectTrigger id="mc-cur" className="w-full">
-                  <SelectValue />
-                </SelectTrigger>
-                <SelectContent>
-                  {CURRENCIES.map((c) => (
-                    <SelectItem key={c.code} value={c.code}>
-                      {c.code} ({c.symbol})
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
+              <CurrencySelector
+                value={currency}
+                onChange={setCurrency}
+                id="mc-cur"
+              />
             </div>
           </div>
           <div className="mt-3 flex justify-end">

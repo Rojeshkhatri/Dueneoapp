@@ -11,6 +11,7 @@ import { toast } from "sonner";
 import { Plus, Trash2, RotateCcw, Trophy, Home } from "lucide-react";
 import type { ToolDefinition } from "@/data/tools";
 import { uid, parseNumber, formatCurrency, formatNumber, formatPercent, RE_DISCLAIMER } from "./_re-helpers";
+import { useCurrency, CurrencySelector } from "@/components/dueneo/currency-selector";
 
 interface Property {
   id: string;
@@ -28,7 +29,7 @@ export function PropertyComparisonDashboard({ tool }: { tool: ToolDefinition }) 
     { id: uid(), address: "45 Pine Ave", price: "395000", sqft: "1550", beds: "3", baths: "2", monthlyRent: "2200" },
     { id: uid(), address: "8 Maple Rd", price: "510000", sqft: "2100", beds: "4", baths: "3", monthlyRent: "2900" },
   ]);
-  const [currency, setCurrency] = React.useState<string>("USD");
+  const { code: currency, setCode: setCurrency } = useCurrency();
 
   const computed = React.useMemo(() => {
     return properties.map((p) => {
@@ -60,18 +61,8 @@ export function PropertyComparisonDashboard({ tool }: { tool: ToolDefinition }) 
       "Compare up to four properties side by side — price, sqft, beds/baths, price per sqft, and rental yield if it's an investment. The dashboard highlights the best value (lowest price/sqft) and the best rental yield automatically, with a colour-coded pros-and-cons table.",
     tool: (
       <div className="space-y-5">
-        <div className="flex flex-wrap items-center gap-2">
-          <Label htmlFor="pc-cur" className="text-xs">Currency</Label>
-          <select
-            id="pc-cur"
-            value={currency}
-            onChange={(e) => setCurrency(e.target.value)}
-            className="h-8 rounded-md border border-input bg-transparent px-2 text-xs"
-          >
-            {["USD", "GBP", "EUR", "CAD", "AUD", "INR"].map((c) => (
-              <option key={c} value={c}>{c}</option>
-            ))}
-          </select>
+        <div className="flex flex-wrap items-end gap-2">
+          <CurrencySelector value={currency} onChange={setCurrency} id="pc-currency" />
           <Button size="sm" variant="outline" onClick={add} disabled={properties.length >= 4}>
             <Plus className="mr-1.5 h-3.5 w-3.5" /> Add property
           </Button>

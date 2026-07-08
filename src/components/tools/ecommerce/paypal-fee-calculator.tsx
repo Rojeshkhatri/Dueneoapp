@@ -38,6 +38,7 @@ import {
   Row,
   StatCard,
 } from "./_ecommerce-helpers";
+import { useCurrency, CurrencySelector, money } from "@/components/dueneo/currency-selector";
 
 const TX_ICONS: Record<string, React.ReactNode> = {
   "goods-services-domestic": <CreditCard className="h-3.5 w-3.5 text-primary" />,
@@ -58,6 +59,8 @@ export function PaypalFeeCalculator({ tool }: { tool: ToolDefinition }) {
   const [revTypeKey, setRevTypeKey] = React.useState<string>(
     PAYPAL_TRANSACTION_TYPES[0].key,
   );
+  const { code: currency, setCode: setCurrency } = useCurrency();
+  const fmt = (v: number) => money(v, currency);
 
   const fwdType = React.useMemo<PaypalTransactionType>(
     () => PAYPAL_TRANSACTION_TYPES.find((t) => t.key === fwdTypeKey) ?? PAYPAL_TRANSACTION_TYPES[0],
@@ -88,21 +91,21 @@ export function PaypalFeeCalculator({ tool }: { tool: ToolDefinition }) {
   };
 
   const fwdSummary = `PayPal fee (forward)
-Charge amount:        ${formatCurrency(fwdAmt)}
+Charge amount:        ${fmt(fwdAmt)}
 Transaction type:     ${fwdType.label}
 Rate:                 ${fwdType.ratePct}%${fwdType.fixed > 0 ? ` + $${fwdType.fixed.toFixed(2)}` : ""}
 
-Processing fee:       ${formatCurrency(fwdFee)} (${formatPercent(fwdFeePct)} of charge)
-Net received:         ${formatCurrency(fwdNet)}`;
+Processing fee:       ${fmt(fwdFee)} (${formatPercent(fwdFeePct)} of charge)
+Net received:         ${fmt(fwdNet)}`;
 
   const revSummary = `PayPal fee (reverse)
-Target net received:  ${formatCurrency(revAmt)}
+Target net received:  ${fmt(revAmt)}
 Transaction type:     ${revType.label}
 Rate:                 ${revType.ratePct}%${revType.fixed > 0 ? ` + $${revType.fixed.toFixed(2)}` : ""}
 
-Charge amount:        ${formatCurrency(revResult.gross)}
-Processing fee:       ${formatCurrency(revResult.fee)}
-Net received:         ${formatCurrency(revResult.net)}`;
+Charge amount:        ${fmt(revResult.gross)}
+Processing fee:       ${fmt(revResult.fee)}
+Net received:         ${fmt(revResult.net)}`;
 
   const renderTypeSelector = (
     id: string,
@@ -165,6 +168,7 @@ Net received:         ${formatCurrency(revResult.net)}`;
               <Button variant="ghost" size="sm" onClick={reset}>
                 <RotateCcw className="mr-1.5 h-3.5 w-3.5" /> Reset
               </Button>
+              <CurrencySelector value={currency} onChange={setCurrency} id="pp-currency" className="pt-2" />
             </div>
 
             <div className="space-y-4 rounded-xl border bg-muted/30 p-5">
@@ -184,14 +188,14 @@ Net received:         ${formatCurrency(revResult.net)}`;
                   <div className="grid grid-cols-2 gap-3">
                     <StatCard
                       label="Net received"
-                      value={formatCurrency(fwdNet)}
+                      value={fmt(fwdNet)}
                       tone="emerald"
                       icon={<TrendingUp className="h-3.5 w-3.5 text-emerald-500" />}
-                      hint={`After ${formatCurrency(fwdFee)} fee`}
+                      hint={`After ${fmt(fwdFee)} fee`}
                     />
                     <StatCard
                       label="Processing fee"
-                      value={formatCurrency(fwdFee)}
+                      value={fmt(fwdFee)}
                       tone="primary"
                       icon={<CreditCard className="h-3.5 w-3.5 text-primary" />}
                       hint={fwdFee > 0 ? `${formatPercent(fwdFeePct)} of charge` : "No fee"}
@@ -199,7 +203,7 @@ Net received:         ${formatCurrency(revResult.net)}`;
                   </div>
 
                   <div className="space-y-2 rounded-lg border bg-background p-4">
-                    <Row label="Charge amount" value={formatCurrency(fwdAmt)} />
+                    <Row label="Charge amount" value={fmt(fwdAmt)} />
                     <div className="border-t pt-2">
                       <Row
                         label={
@@ -207,14 +211,14 @@ Net received:         ${formatCurrency(revResult.net)}`;
                             ? "No fee (free transfer)"
                             : `${fwdType.ratePct}%${fwdType.fixed > 0 ? ` + $${fwdType.fixed.toFixed(2)}` : ""}`
                         }
-                        value={formatCurrency(fwdFee)}
+                        value={fmt(fwdFee)}
                         icon={TX_ICONS[fwdType.key]}
                       />
                     </div>
                     <div className="border-t pt-2">
                       <Row
                         label="Net received"
-                        value={formatCurrency(fwdNet)}
+                        value={fmt(fwdNet)}
                         large
                         highlight
                       />
@@ -269,14 +273,14 @@ Net received:         ${formatCurrency(revResult.net)}`;
                   <div className="grid grid-cols-2 gap-3">
                     <StatCard
                       label="Charge this amount"
-                      value={formatCurrency(revResult.gross)}
+                      value={fmt(revResult.gross)}
                       tone="emerald"
                       icon={<Banknote className="h-3.5 w-3.5 text-emerald-500" />}
-                      hint={`To net ${formatCurrency(revResult.net)}`}
+                      hint={`To net ${fmt(revResult.net)}`}
                     />
                     <StatCard
                       label="Processing fee"
-                      value={formatCurrency(revResult.fee)}
+                      value={fmt(revResult.fee)}
                       tone="primary"
                       icon={<CreditCard className="h-3.5 w-3.5 text-primary" />}
                       hint={
@@ -288,7 +292,7 @@ Net received:         ${formatCurrency(revResult.net)}`;
                   </div>
 
                   <div className="space-y-2 rounded-lg border bg-background p-4">
-                    <Row label="Target net received" value={formatCurrency(revResult.net)} />
+                    <Row label="Target net received" value={fmt(revResult.net)} />
                     <div className="border-t pt-2">
                       <Row
                         label={
@@ -296,14 +300,14 @@ Net received:         ${formatCurrency(revResult.net)}`;
                             ? "No fee (free transfer)"
                             : `Processing fee (${revType.ratePct}%${revType.fixed > 0 ? ` + $${revType.fixed.toFixed(2)}` : ""})`
                         }
-                        value={formatCurrency(revResult.fee)}
+                        value={fmt(revResult.fee)}
                         icon={TX_ICONS[revType.key]}
                       />
                     </div>
                     <div className="border-t pt-2">
                       <Row
                         label="Charge the sender"
-                        value={formatCurrency(revResult.gross)}
+                        value={fmt(revResult.gross)}
                         large
                         highlight
                       />
@@ -389,6 +393,12 @@ Net received:         ${formatCurrency(revResult.net)}`;
         <li>
           PayPal's fee schedule for charity and micropayments accounts differs —
           switch to micropayments mode if your average ticket is under $10.
+        </li>
+        <li>
+          PayPal&rsquo;s fee schedule is published in USD. This calculator
+          displays amounts in your selected currency and treats the fixed USD
+          fee component (e.g. $0.49) as if denominated in your chosen currency
+          &mdash; a display simplification, not a currency conversion.
         </li>
       </ul>
     ),

@@ -11,6 +11,7 @@ import { toast } from "sonner";
 import { RotateCcw, TrendingUp, Wallet, Home, Hammer, Receipt } from "lucide-react";
 import type { ToolDefinition } from "@/data/tools";
 import { parseNumber, formatCurrency, formatPercent, RE_DISCLAIMER } from "./_re-helpers";
+import { useCurrency, CurrencySelector } from "@/components/dueneo/currency-selector";
 
 export function PropertyRoiCalculator({ tool }: { tool: ToolDefinition }) {
   const [purchasePrice, setPurchasePrice] = React.useState<string>("300000");
@@ -21,7 +22,7 @@ export function PropertyRoiCalculator({ tool }: { tool: ToolDefinition }) {
   const [holdingYears, setHoldingYears] = React.useState<string>("5");
   const [salePrice, setSalePrice] = React.useState<string>("380000");
   const [sellingCosts, setSellingCosts] = React.useState<string>("28000");
-  const currency = "USD";
+  const { code: currency, setCode: setCurrency } = useCurrency();
 
   const nums = {
     purchase: Math.max(0, parseNumber(purchasePrice)),
@@ -99,6 +100,7 @@ Annualised ROI: ${formatPercent(annualizedRoi)}`;
                   <RotateCcw className="mr-1.5 h-3.5 w-3.5" /> Reset
                 </Button>
               </div>
+              <CurrencySelector value={currency} onChange={setCurrency} id="pr-currency" className="sm:col-span-1" />
             </CardContent>
           </Card>
 

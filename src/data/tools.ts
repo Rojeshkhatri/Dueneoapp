@@ -3423,6 +3423,25 @@ export const tools: ToolDefinition[] = [
     related: ["rental-yield-calculator", "cap-rate-calculator", "property-roi-calculator", "airbnb-income-estimator"],
     component: "cash-flow-analyzer", privacyLevel: "standard", adProfile: "standard", implemented: true,
   },
+
+  // ───────────────────────── Payslip Generator (235) ─────────────────────────
+  {
+    id: 235,
+    name: "Payslip Generator",
+    slug: "payslip-generator",
+    category: "business",
+    summary: "Create professional payslips and download as PDF.",
+    seoTitle: "Free Payslip Generator — Create & Download PDF | Dueneo",
+    metaDescription: "Create professional payslips for your employees. Add earnings, deductions and taxes. Download as PDF. Choose any currency. No signup, browser-based.",
+    keywords: ["payslip generator", "pay stub maker", "create payslip", "payslip pdf", "salary slip"],
+    difficulty: "Medium",
+    browserOnly: true,
+    related: ["invoice-generator", "receipt-generator", "payslip-analyzer", "cost-to-company-calculator"],
+    component: "payslip-generator",
+    privacyLevel: "standard",
+    adProfile: "standard",
+    implemented: true,
+  },
 ];
 
 export function getTool(slug: string): ToolDefinition | undefined {

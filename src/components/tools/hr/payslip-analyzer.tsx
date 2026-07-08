@@ -29,6 +29,7 @@ import {
 } from "lucide-react";
 import type { ToolDefinition } from "@/data/tools";
 import { toast } from "sonner";
+import { useCurrency, CurrencySelector, money } from "@/components/dueneo/currency-selector";
 import { formatCurrency, formatPercent, parseNumber } from "./_hr-helpers";
 
 interface Deduction {
@@ -74,6 +75,9 @@ interface PayslipResult {
 export function PayslipAnalyzer({ tool }: { tool: ToolDefinition }) {
   const [gross, setGross] = React.useState("95000");
   const [deductions, setDeductions] = React.useState<Deduction[]>(DEFAULT_DEDUCTIONS);
+  const { code: currency, setCode: setCurrency } = useCurrency();
+  const fmt = (v: number, opts?: { minimumFractionDigits?: number; maximumFractionDigits?: number }) =>
+    money(v, currency, opts);
 
   const addDeduction = () => {
     setDeductions((p) => [...p, { id: uid(), label: "New deduction", amount: 0 }]);
@@ -202,7 +206,8 @@ export function PayslipAnalyzer({ tool }: { tool: ToolDefinition }) {
             </div>
           </div>
 
-          <div className="flex flex-wrap gap-2">
+          <div className="flex flex-wrap items-end gap-2">
+            <CurrencySelector value={currency} onChange={setCurrency} id="ps-currency" />
             <Button variant="ghost" size="sm" onClick={reset}>
               <RotateCcw className="mr-1.5 h-3.5 w-3.5" /> Reset
             </Button>
@@ -225,10 +230,10 @@ export function PayslipAnalyzer({ tool }: { tool: ToolDefinition }) {
                   Net annual pay
                 </div>
                 <div className="mt-1 font-mono text-3xl font-bold tabular-nums sm:text-4xl">
-                  {formatCurrency(result.net)}
+                  {fmt(result.net)}
                 </div>
                 <div className="mt-1 text-xs text-muted-foreground">
-                  ≈ {formatCurrency(result.net / 12)} / month · {formatCurrency(result.net / 26)} / fortnight
+                  ≈ {fmt(result.net / 12)} / month · {fmt(result.net / 26)} / fortnight
                 </div>
               </div>
 
@@ -238,7 +243,7 @@ export function PayslipAnalyzer({ tool }: { tool: ToolDefinition }) {
                     Gross
                   </div>
                   <div className="mt-0.5 font-mono text-sm font-bold tabular-nums">
-                    {formatCurrency(result.gross)}
+                    {fmt(result.gross)}
                   </div>
                 </div>
                 <div className="rounded-lg border bg-background p-3">
@@ -246,7 +251,7 @@ export function PayslipAnalyzer({ tool }: { tool: ToolDefinition }) {
                     Deductions
                   </div>
                   <div className="mt-0.5 font-mono text-sm font-bold tabular-nums text-rose-600 dark:text-rose-400">
-                    -{formatCurrency(result.totalDeductions)}
+                    -{fmt(result.totalDeductions)}
                   </div>
                 </div>
                 <div className="rounded-lg border bg-background p-3">
@@ -290,7 +295,7 @@ export function PayslipAnalyzer({ tool }: { tool: ToolDefinition }) {
                       {formatPercent(result.gross > 0 ? (result.net / result.gross) * 100 : 0, 1)}
                     </span>
                     <span className="w-24 text-right font-mono font-semibold tabular-nums">
-                      {formatCurrency(result.net)}
+                      {fmt(result.net)}
                     </span>
                   </li>
                   {deductions.map((d, i) => {
@@ -307,7 +312,7 @@ export function PayslipAnalyzer({ tool }: { tool: ToolDefinition }) {
                           {formatPercent(pct, 1)}
                         </span>
                         <span className="w-24 text-right font-mono font-semibold tabular-nums text-rose-600 dark:text-rose-400">
-                          -{formatCurrency(amt)}
+                          -{fmt(amt)}
                         </span>
                       </li>
                     );
@@ -353,7 +358,7 @@ export function PayslipAnalyzer({ tool }: { tool: ToolDefinition }) {
                     borderRadius: 8,
                     fontSize: 12,
                   }}
-                  formatter={(v: number, name: string) => [formatCurrency(v), name]}
+                  formatter={(v: number, name: string) => [fmt(v), name]}
                 />
                 <Legend
                   verticalAlign="bottom"
@@ -366,10 +371,10 @@ export function PayslipAnalyzer({ tool }: { tool: ToolDefinition }) {
           </div>
           <div className="mt-3 flex flex-wrap gap-2 text-xs">
             <Badge variant="secondary" className="gap-1.5">
-              <span className="h-2 w-2 rounded-full bg-emerald-500" /> Net pay: {formatCurrency(result.net)}
+              <span className="h-2 w-2 rounded-full bg-emerald-500" /> Net pay: {fmt(result.net)}
             </Badge>
             <Badge variant="secondary" className="gap-1.5">
-              <TrendingDown className="h-2.5 w-2.5" /> Total deductions: {formatCurrency(result.totalDeductions)}
+              <TrendingDown className="h-2.5 w-2.5" /> Total deductions: {fmt(result.totalDeductions)}
             </Badge>
             <Badge variant="secondary" className="gap-1.5">
               Marginal net: {formatPercent(result.gross > 0 ? (result.net / result.gross) * 100 : 0, 1)} of gross
@@ -432,8 +437,9 @@ export function PayslipAnalyzer({ tool }: { tool: ToolDefinition }) {
           highest one.
         </li>
         <li>
-          Currency is auto-detected from your browser locale. All deductions must be in the same
-          currency as the gross salary — currency conversion is not performed.
+          Pick the currency from the selector at the top-left of the input card — your
+          choice is shared across every Dueneo money tool. All deductions must be in
+          the same currency as the gross salary — currency conversion is not performed.
         </li>
         <li>
           Year-end adjustments (bonus tax withholding, capital gains, refund/owing at filing) are
@@ -457,7 +463,7 @@ export function PayslipAnalyzer({ tool }: { tool: ToolDefinition }) {
       },
       {
         q: "Does this handle currency conversion?",
-        a: "No. All deductions must be in the same currency as gross. Currency formatting uses your browser locale — change your browser language to display a different currency symbol.",
+        a: "No. All deductions must be in the same currency as gross. Use the currency selector at the top-left of the input card to pick the display currency — your choice is shared across every Dueneo money tool.",
       },
       {
         q: "Are my salary details stored?",

@@ -32,6 +32,7 @@ import {
   ECOMMERCE_DISCLAIMER,
   StatCard,
 } from "./_ecommerce-helpers";
+import { useCurrency, CurrencySelector, money } from "@/components/dueneo/currency-selector";
 
 interface ProductRow {
   id: string;
@@ -78,6 +79,8 @@ function computeRow(row: ProductRow): ComputedRow {
 
 export function ProductMarginCalculator({ tool }: { tool: ToolDefinition }) {
   const [rows, setRows] = React.useState<ProductRow[]>(SAMPLE_ROWS);
+  const { code: currency, setCode: setCurrency } = useCurrency();
+  const fmt = (v: number) => money(v, currency);
 
   const computed = rows.map(computeRow);
   const validRows = computed.filter((r) => r.valid);
@@ -109,14 +112,14 @@ export function ProductMarginCalculator({ tool }: { tool: ToolDefinition }) {
 ${validRows
   .map(
     (r) =>
-      `  ${r.row.name || "Untitled"}: cost ${formatCurrency(r.costNum)}, price ${formatCurrency(r.priceNum)}, profit ${formatCurrency(r.profit)}, margin ${formatPercent(r.margin)}, markup ${formatPercent(r.markup)}`,
+      `  ${r.row.name || "Untitled"}: cost ${fmt(r.costNum)}, price ${fmt(r.priceNum)}, profit ${fmt(r.profit)}, margin ${formatPercent(r.margin)}, markup ${formatPercent(r.markup)}`,
   )
   .join("\n")}
 
 Totals:
-  Total cost:      ${formatCurrency(totalCost)}
-  Total revenue:   ${formatCurrency(totalRevenue)}
-  Total profit:    ${formatCurrency(totalProfit)}
+  Total cost:      ${fmt(totalCost)}
+  Total revenue:   ${fmt(totalRevenue)}
+  Total profit:    ${fmt(totalProfit)}
   Blended margin:  ${formatPercent(blendedMargin)}
   Blended markup:  ${formatPercent(blendedMarkup)}`;
 
@@ -125,19 +128,19 @@ Totals:
       <div className="grid grid-cols-2 gap-3 lg:grid-cols-4">
         <StatCard
           label="Total revenue"
-          value={formatCurrency(totalRevenue)}
+          value={fmt(totalRevenue)}
           tone="primary"
           icon={<Package className="h-3.5 w-3.5 text-primary" />}
           hint={`${validRows.length} product(s)`}
         />
         <StatCard
           label="Total cost"
-          value={formatCurrency(totalCost)}
+          value={fmt(totalCost)}
           icon={<TrendingDown className="h-3.5 w-3.5 text-muted-foreground" />}
         />
         <StatCard
           label="Total profit"
-          value={formatCurrency(totalProfit)}
+          value={fmt(totalProfit)}
           tone={totalProfit < 0 ? "rose" : "emerald"}
           icon={<TrendingUp className="h-3.5 w-3.5 text-emerald-500" />}
         />
@@ -161,6 +164,7 @@ Totals:
             </Button>
           </div>
         </div>
+        <CurrencySelector value={currency} onChange={setCurrency} id="pm-currency" />
 
         {/* Desktop / tablet table view ------------------------------------ */}
         <div className="hidden md:block">
@@ -220,7 +224,7 @@ Totals:
                               : "text-muted-foreground"
                         }
                       >
-                        {r.valid ? formatCurrency(r.profit) : "—"}
+                        {r.valid ? fmt(r.profit) : "—"}
                       </span>
                     </TableCell>
                     <TableCell className="text-right font-mono tabular-nums">
@@ -230,7 +234,7 @@ Totals:
                       {r.valid && r.costNum > 0 ? formatPercent(r.markup) : "—"}
                     </TableCell>
                     <TableCell className="text-right font-mono tabular-nums text-muted-foreground">
-                      {r.valid ? formatCurrency(r.breakEven) : "—"}
+                      {r.valid ? fmt(r.breakEven) : "—"}
                     </TableCell>
                     <TableCell>
                       <Button
@@ -318,7 +322,7 @@ Totals:
                         : "text-emerald-600 dark:text-emerald-400")
                     }
                   >
-                    {formatCurrency(r.profit)}
+                    {fmt(r.profit)}
                   </span>
                   <span className="text-muted-foreground">Margin</span>
                   <span className="text-right font-mono tabular-nums">{formatPercent(r.margin)}</span>
@@ -328,7 +332,7 @@ Totals:
                   </span>
                   <span className="text-muted-foreground">Break-even</span>
                   <span className="text-right font-mono tabular-nums text-muted-foreground">
-                    {formatCurrency(r.breakEven)}
+                    {fmt(r.breakEven)}
                   </span>
                 </div>
               )}
@@ -347,7 +351,7 @@ Totals:
           <AlertCircle className="mt-0.5 h-3.5 w-3.5 flex-none" />
           <p>
             Total costs exceed total revenue across your products — you're losing{" "}
-            {formatCurrency(Math.abs(totalProfit))} on this batch.
+            {fmt(Math.abs(totalProfit))} on this batch.
           </p>
         </div>
       )}
@@ -419,7 +423,9 @@ Totals:
           you sell very different quantities per SKU.
         </li>
         <li>
-          All currency is USD; substitute your local currency mentally if needed.
+          All amounts are displayed in your selected currency. Use the
+          currency selector above the products table to change it &mdash; your
+          choice is shared across every Dueneo money tool.
         </li>
       </ul>
     ),

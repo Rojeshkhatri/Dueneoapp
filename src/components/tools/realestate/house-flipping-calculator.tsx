@@ -11,6 +11,7 @@ import { toast } from "sonner";
 import { RotateCcw, Wallet, Home, Hammer, CalendarClock, Receipt, TrendingUp } from "lucide-react";
 import type { ToolDefinition } from "@/data/tools";
 import { parseNumber, formatCurrency, formatPercent, RE_DISCLAIMER } from "./_re-helpers";
+import { useCurrency, CurrencySelector } from "@/components/dueneo/currency-selector";
 
 export function HouseFlippingCalculator({ tool }: { tool: ToolDefinition }) {
   const [purchasePrice, setPurchasePrice] = React.useState<string>("280000");
@@ -20,7 +21,7 @@ export function HouseFlippingCalculator({ tool }: { tool: ToolDefinition }) {
   const [sellingPrice, setSellingPrice] = React.useState<string>("410000");
   const [agentCommission, setAgentCommission] = React.useState<string>("6");
   const [closingCosts, setClosingCosts] = React.useState<string>("3");
-  const currency = "USD";
+  const { code: currency, setCode: setCurrency } = useCurrency();
 
   const nums = {
     purchase: Math.max(0, parseNumber(purchasePrice)),
@@ -89,6 +90,7 @@ Annualised ROI: ${formatPercent(annualisedRoi)}`;
                   <RotateCcw className="mr-1.5 h-3.5 w-3.5" /> Reset
                 </Button>
               </div>
+              <CurrencySelector value={currency} onChange={setCurrency} id="hf-currency" className="sm:col-span-2" />
             </CardContent>
           </Card>
 

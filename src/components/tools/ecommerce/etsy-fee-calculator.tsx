@@ -26,6 +26,7 @@ import {
   Row,
   StatCard,
 } from "./_ecommerce-helpers";
+import { useCurrency, CurrencySelector, money } from "@/components/dueneo/currency-selector";
 
 // Etsy 2025 US fee schedule (embedded as constants per the brief).
 const ETSY_LISTING_FEE = 0.2; // $0.20 per listing (charged at renewal every 4 months)
@@ -40,6 +41,8 @@ export function EtsyFeeCalculator({ tool }: { tool: ToolDefinition }) {
   const [quantity, setQuantity] = React.useState<string>("1");
   const [shippingCharged, setShippingCharged] = React.useState<string>("5.50");
   const [offsiteAds, setOffsiteAds] = React.useState<boolean>(false);
+  const { code: currency, setCode: setCurrency } = useCurrency();
+  const fmt = (v: number) => money(v, currency);
 
   const pricePerItem = Math.max(0, parseNumber(listingPrice));
   const qty = Math.max(1, Math.floor(parseNumber(quantity)));
@@ -71,20 +74,20 @@ export function EtsyFeeCalculator({ tool }: { tool: ToolDefinition }) {
   };
 
   const summary = `Etsy fee breakdown
-Listing price:        ${formatCurrency(pricePerItem)} each
+Listing price:        ${fmt(pricePerItem)} each
 Quantity sold:        ${qty}
-Items subtotal:       ${formatCurrency(itemsTotal)}
-Shipping charged:     ${formatCurrency(shipping)}
-Order total:          ${formatCurrency(orderTotal)}
+Items subtotal:       ${fmt(itemsTotal)}
+Shipping charged:     ${fmt(shipping)}
+Order total:          ${fmt(orderTotal)}
 Offsite ads:          ${offsiteAds ? "Enrolled (15%)" : "Not enrolled"}
 
-Listing fee:          ${formatCurrency(listingFee)} ($${ETSY_LISTING_FEE.toFixed(2)} × ${qty})
-Transaction fee:      ${formatCurrency(transactionFee)} (${ETSY_TRANSACTION_FEE_PCT}% of order)
-Payment processing:   ${formatCurrency(paymentFee)} (${ETSY_PAYMENT_PCT}% + $${ETSY_PAYMENT_FIXED.toFixed(2)})
-Offsite ads fee:      ${formatCurrency(offsiteAdsFee)}${offsiteAds ? ` (${ETSY_OFFSITE_ADS_PCT}% of order)` : ""}
+Listing fee:          ${fmt(listingFee)} ($${ETSY_LISTING_FEE.toFixed(2)} × ${qty})
+Transaction fee:      ${fmt(transactionFee)} (${ETSY_TRANSACTION_FEE_PCT}% of order)
+Payment processing:   ${fmt(paymentFee)} (${ETSY_PAYMENT_PCT}% + $${ETSY_PAYMENT_FIXED.toFixed(2)})
+Offsite ads fee:      ${fmt(offsiteAdsFee)}${offsiteAds ? ` (${ETSY_OFFSITE_ADS_PCT}% of order)` : ""}
 
-Total fees:           ${formatCurrency(totalFees)} (${formatPercent(feePctOfOrder)} of order)
-Net profit:           ${formatCurrency(netProfit)} (${formatPercent(profitPctOfItems)} of items)`;
+Total fees:           ${fmt(totalFees)} (${formatPercent(feePctOfOrder)} of order)
+Net profit:           ${fmt(netProfit)} (${formatPercent(profitPctOfItems)} of items)`;
 
   const toolBody = (
     <div className="space-y-5">
@@ -151,6 +154,7 @@ Net profit:           ${formatCurrency(netProfit)} (${formatPercent(profitPctOfI
           <Button variant="ghost" size="sm" onClick={reset}>
             <RotateCcw className="mr-1.5 h-3.5 w-3.5" /> Reset
           </Button>
+          <CurrencySelector value={currency} onChange={setCurrency} id="et-currency" className="pt-2" />
         </div>
 
         <div className="space-y-4 rounded-xl border bg-muted/30 p-5">
@@ -172,7 +176,7 @@ Net profit:           ${formatCurrency(netProfit)} (${formatPercent(profitPctOfI
                   <AlertCircle className="mt-0.5 h-3.5 w-3.5 flex-none" />
                   <p>
                     Fees + shipping exceed the order total — net result is a
-                    loss of {formatCurrency(Math.abs(netProfit))}.
+                    loss of {fmt(Math.abs(netProfit))}.
                   </p>
                 </div>
               )}
@@ -180,14 +184,14 @@ Net profit:           ${formatCurrency(netProfit)} (${formatPercent(profitPctOfI
               <div className="grid grid-cols-2 gap-3">
                 <StatCard
                   label="Net profit"
-                  value={formatCurrency(netProfit)}
+                  value={fmt(netProfit)}
                   tone={netProfit < 0 ? "rose" : "emerald"}
                   icon={<TrendingUp className="h-3.5 w-3.5 text-emerald-500" />}
                   hint={`On ${qty} item(s) sold`}
                 />
                 <StatCard
                   label="Total fees"
-                  value={formatCurrency(totalFees)}
+                  value={fmt(totalFees)}
                   tone="primary"
                   icon={<ShoppingBag className="h-3.5 w-3.5 text-primary" />}
                   hint={`${formatPercent(feePctOfOrder)} of order`}
@@ -195,42 +199,42 @@ Net profit:           ${formatCurrency(netProfit)} (${formatPercent(profitPctOfI
               </div>
 
               <div className="space-y-2 rounded-lg border bg-background p-4">
-                <Row label="Items subtotal" value={formatCurrency(itemsTotal)} muted />
-                <Row label="Shipping charged" value={formatCurrency(shipping)} muted />
-                <Row label="Order total" value={formatCurrency(orderTotal)} />
+                <Row label="Items subtotal" value={fmt(itemsTotal)} muted />
+                <Row label="Shipping charged" value={fmt(shipping)} muted />
+                <Row label="Order total" value={fmt(orderTotal)} />
                 <div className="border-t pt-2">
                   <Row
                     label="Listing fee"
-                    value={formatCurrency(listingFee)}
+                    value={fmt(listingFee)}
                     hint={`$${ETSY_LISTING_FEE.toFixed(2)} × ${qty}`}
                     icon={<Tag className="h-3.5 w-3.5 text-muted-foreground/70" />}
                   />
                   <Row
                     label="Transaction fee"
-                    value={formatCurrency(transactionFee)}
+                    value={fmt(transactionFee)}
                     hint={`${ETSY_TRANSACTION_FEE_PCT}% of order`}
                     icon={<ShoppingBag className="h-3.5 w-3.5 text-muted-foreground/70" />}
                   />
                   <Row
                     label="Payment processing"
-                    value={formatCurrency(paymentFee)}
+                    value={fmt(paymentFee)}
                     hint={`${ETSY_PAYMENT_PCT}% + $${ETSY_PAYMENT_FIXED.toFixed(2)}`}
                     icon={<CreditCard className="h-3.5 w-3.5 text-muted-foreground/70" />}
                   />
                   {offsiteAds && (
                     <Row
                       label="Offsite ads fee"
-                      value={formatCurrency(offsiteAdsFee)}
+                      value={fmt(offsiteAdsFee)}
                       hint={`${ETSY_OFFSITE_ADS_PCT}% of order`}
                       icon={<Megaphone className="h-3.5 w-3.5 text-muted-foreground/70" />}
                     />
                   )}
                 </div>
                 <div className="border-t pt-2">
-                  <Row label="Total fees" value={formatCurrency(totalFees)} highlight />
+                  <Row label="Total fees" value={fmt(totalFees)} highlight />
                   <Row
                     label="Net profit"
-                    value={formatCurrency(netProfit)}
+                    value={fmt(netProfit)}
                     large
                     highlight={netProfit >= 0}
                   />
@@ -313,6 +317,13 @@ Net profit:           ${formatCurrency(netProfit)} (${formatPercent(profitPctOfI
           includes 5 listing credits), and pattern fees are not included.
           Refund/cancellation behaviour (listing fee non-refundable, transaction
           fee refunded on cancellation) is not modelled.
+        </li>
+        <li>
+          Etsy&rsquo;s fee schedule is published in USD; this calculator displays
+          amounts in your selected currency and treats the fixed USD fee
+          components (e.g. $0.20 listing fee, $0.25 payment fee) as if
+          denominated in your chosen currency &mdash; a display simplification,
+          not a currency conversion.
         </li>
       </ul>
     ),

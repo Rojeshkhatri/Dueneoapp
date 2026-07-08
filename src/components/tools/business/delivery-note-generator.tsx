@@ -20,6 +20,7 @@ import {
   defaultDocumentNumber,
   makeLineItemId,
 } from "./_business-helpers";
+import { useCurrency, CurrencySelector } from "@/components/dueneo/currency-selector";
 
 interface DeliveryItem {
   id: string;
@@ -52,6 +53,11 @@ export function DeliveryNoteGenerator({ tool }: { tool: ToolDefinition }) {
   const [notes, setNotes] = React.useState(
     "2 wireless mice are on backorder and will be shipped separately within 5 business days. Please inspect the goods on arrival and report any damage within 48 hours."
   );
+
+  // Shared currency selector — no money is shown on a delivery note (prices
+  // are intentionally excluded), but the choice persists across all Dueneo
+  // money tools so it can be set here too.
+  const { code: currency, setCode: setCurrency } = useCurrency();
 
   const updateItem = (id: string, patch: Partial<DeliveryItem>) =>
     setItems((prev) => prev.map((it) => (it.id === id ? { ...it, ...patch } : it)));
@@ -133,6 +139,7 @@ export function DeliveryNoteGenerator({ tool }: { tool: ToolDefinition }) {
             placeholder="e.g. PO-2024-7782"
           />
         </Field>
+        <CurrencySelector value={currency} onChange={setCurrency} id="dn-currency" />
       </FormSection>
 
       <FormSection title="Items delivered">

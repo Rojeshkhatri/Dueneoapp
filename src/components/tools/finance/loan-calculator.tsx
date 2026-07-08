@@ -24,12 +24,13 @@ import {
   amortisationSchedule,
   FINANCE_DISCLAIMER,
 } from "./_finance-helpers";
+import { useCurrency, CurrencySelector } from "@/components/dueneo/currency-selector";
 
 export function LoanCalculator({ tool }: { tool: ToolDefinition }) {
   const [principal, setPrincipal] = React.useState<string>("250000");
   const [rate, setRate] = React.useState<string>("7.5");
   const [years, setYears] = React.useState<string>("15");
-  const currency = "USD";
+  const { code: currency, setCode: setCurrency } = useCurrency();
 
   const principalNum = Math.max(0, parseNumber(principal));
   const rateNum = parseNumber(rate);
@@ -97,6 +98,7 @@ Total interest: ${formatCurrency(totalInterest, { currency })}`;
                 />
               </div>
             </div>
+            <CurrencySelector value={currency} onChange={setCurrency} id="ln-currency" />
             <Button variant="ghost" size="sm" onClick={reset}>
               <RotateCcw className="mr-1.5 h-3.5 w-3.5" /> Reset
             </Button>

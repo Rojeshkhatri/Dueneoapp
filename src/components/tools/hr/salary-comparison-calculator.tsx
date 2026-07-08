@@ -38,6 +38,7 @@ import {
 } from "lucide-react";
 import type { ToolDefinition } from "@/data/tools";
 import { toast } from "sonner";
+import { useCurrency, CurrencySelector } from "@/components/dueneo/currency-selector";
 import {
   CITY_COL_TABLE,
   citiesByCountry,
@@ -62,6 +63,7 @@ export function SalaryComparisonCalculator({ tool }: { tool: ToolDefinition }) {
   const [salary, setSalary] = React.useState("85000");
   const [currentKey, setCurrentKey] = React.useState("New York, USA");
   const [targetKey, setTargetKey] = React.useState("London, UK");
+  const { code: currency, setCode: setCurrency } = useCurrency();
 
   const groups = React.useMemo(() => citiesByCountry(), []);
 
@@ -178,7 +180,8 @@ export function SalaryComparisonCalculator({ tool }: { tool: ToolDefinition }) {
             </div>
           </div>
 
-          <div className="flex flex-wrap gap-2">
+          <div className="flex flex-wrap items-end gap-2">
+            <CurrencySelector value={currency} onChange={setCurrency} id="sal-currency" />
             <Button variant="outline" size="sm" onClick={handleSwap}>
               <ArrowRightLeft className="mr-1.5 h-3.5 w-3.5" /> Swap cities
             </Button>
@@ -207,7 +210,7 @@ export function SalaryComparisonCalculator({ tool }: { tool: ToolDefinition }) {
                     {result.currentCity.label.split(",")[0]}
                   </div>
                   <div className="mt-1 font-mono text-lg font-bold tabular-nums">
-                    {formatCurrency(result.currentSalary, { currency: result.currentCity.currency })}
+                    {formatCurrency(result.currentSalary, { currency })}
                   </div>
                   <div className="mt-1 text-[11px] text-muted-foreground">
                     COL index: {formatNumber(result.currentCity.index, { maximumFractionDigits: 1 })}
@@ -219,7 +222,7 @@ export function SalaryComparisonCalculator({ tool }: { tool: ToolDefinition }) {
                     {result.targetCity.label.split(",")[0]}
                   </div>
                   <div className="mt-1 font-mono text-lg font-bold tabular-nums">
-                    {formatCurrency(result.equivalentSalary, { currency: result.targetCity.currency })}
+                    {formatCurrency(result.equivalentSalary, { currency })}
                   </div>
                   <div className="mt-1 text-[11px] text-muted-foreground">
                     COL index: {formatNumber(result.targetCity.index, { maximumFractionDigits: 1 })}
@@ -233,13 +236,13 @@ export function SalaryComparisonCalculator({ tool }: { tool: ToolDefinition }) {
                     <Coins className="h-3.5 w-3.5 text-primary" /> Equivalent salary
                   </span>
                   <span className="font-mono font-semibold tabular-nums">
-                    {formatCurrency(result.equivalentSalary, { currency: result.targetCity.currency })}
+                    {formatCurrency(result.equivalentSalary, { currency })}
                   </span>
                 </div>
                 <div className="mt-1.5 flex items-center justify-between gap-2">
                   <span className="text-muted-foreground">Recommended ask (+5% buffer)</span>
                   <span className="font-mono font-semibold tabular-nums text-primary">
-                    {formatCurrency(result.recommendedSalary, { currency: result.targetCity.currency })}
+                    {formatCurrency(result.recommendedSalary, { currency })}
                   </span>
                 </div>
               </div>
@@ -295,7 +298,7 @@ export function SalaryComparisonCalculator({ tool }: { tool: ToolDefinition }) {
                 />
                 <YAxis
                   tickFormatter={(v: number) =>
-                    formatCurrency(v, { maximumFractionDigits: 0, minimumFractionDigits: 0 })
+                    formatCurrency(v, { currency, maximumFractionDigits: 0, minimumFractionDigits: 0 })
                   }
                   width={80}
                   tick={{ fontSize: 11, fill: "var(--muted-foreground)" }}
@@ -311,7 +314,7 @@ export function SalaryComparisonCalculator({ tool }: { tool: ToolDefinition }) {
                     fontSize: 12,
                   }}
                   formatter={(v: number) => [
-                    formatCurrency(v, { maximumFractionDigits: 0, minimumFractionDigits: 0 }),
+                    formatCurrency(v, { currency, maximumFractionDigits: 0, minimumFractionDigits: 0 }),
                     "Salary",
                   ]}
                   labelFormatter={(label: string, payload) => {
@@ -330,7 +333,7 @@ export function SalaryComparisonCalculator({ tool }: { tool: ToolDefinition }) {
                     dataKey="value"
                     position="top"
                     formatter={(v: number) =>
-                      formatCurrency(v, { maximumFractionDigits: 0, minimumFractionDigits: 0 })
+                      formatCurrency(v, { currency, maximumFractionDigits: 0, minimumFractionDigits: 0 })
                     }
                     style={{ fontSize: 11, fill: "var(--foreground)", fontWeight: 600 }}
                   />

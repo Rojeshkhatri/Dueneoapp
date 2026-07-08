@@ -16,13 +16,6 @@ import { ToolLayout, type ToolContent } from "@/components/dueneo/tool-layout";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Button } from "@/components/ui/button";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
 import { CopyButton } from "@/components/dueneo/copy-button";
 import { toast } from "sonner";
 import {
@@ -39,17 +32,7 @@ import {
   formatNumber,
   FINANCE_DISCLAIMER,
 } from "./_finance-helpers";
-
-const CURRENCIES = [
-  { code: "USD", symbol: "$" },
-  { code: "EUR", symbol: "€" },
-  { code: "GBP", symbol: "£" },
-  { code: "CAD", symbol: "$" },
-  { code: "AUD", symbol: "$" },
-  { code: "INR", symbol: "₹" },
-  { code: "JPY", symbol: "¥" },
-  { code: "CNY", symbol: "¥" },
-];
+import { useCurrency, CurrencySelector } from "@/components/dueneo/currency-selector";
 
 const MAX_MONTHS = 1200; // 100-year sanity cap
 
@@ -134,8 +117,7 @@ export function LoanPayoffSimulator({ tool }: { tool: ToolDefinition }) {
   const [extraMonthly, setExtraMonthly] = React.useState("150");
   const [lumpSum, setLumpSum] = React.useState("2000");
   const [lumpMonth, setLumpMonth] = React.useState("1");
-  const [currencyCode, setCurrencyCode] = React.useState("USD");
-  const currency = currencyCode;
+  const { code: currency, setCode: setCurrency } = useCurrency();
 
   const bal = Math.max(0, parseNumber(balance));
   const annualRate = parseNumber(rate);
@@ -166,7 +148,6 @@ export function LoanPayoffSimulator({ tool }: { tool: ToolDefinition }) {
     setExtraMonthly("150");
     setLumpSum("2000");
     setLumpMonth("1");
-    setCurrencyCode("USD");
     toast.info("Reset to defaults.");
   };
 
@@ -278,19 +259,11 @@ Interest saved: ${formatCurrency(interestSaved, { currency })}`;
                   />
                 </div>
                 <div className="space-y-2">
-                  <Label htmlFor="lp-cur">Currency</Label>
-                  <Select value={currencyCode} onValueChange={setCurrencyCode}>
-                    <SelectTrigger id="lp-cur" className="w-full">
-                      <SelectValue />
-                    </SelectTrigger>
-                    <SelectContent>
-                      {CURRENCIES.map((c) => (
-                        <SelectItem key={c.code} value={c.code}>
-                          {c.code} ({c.symbol})
-                        </SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
+                  <CurrencySelector
+                    value={currency}
+                    onChange={setCurrency}
+                    id="lp-cur"
+                  />
                 </div>
                 <div className="space-y-2">
                   <Label htmlFor="lp-lump">One-time lump sum</Label>

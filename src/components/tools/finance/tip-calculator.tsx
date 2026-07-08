@@ -11,25 +11,16 @@ import { CopyButton } from "@/components/dueneo/copy-button";
 import { Users, RotateCcw, Receipt, PiggyBank } from "lucide-react";
 import type { ToolDefinition } from "@/data/tools";
 import { parseNumber, formatCurrency, FINANCE_DISCLAIMER } from "../finance/_finance-helpers";
+import { useCurrency, CurrencySelector } from "@/components/dueneo/currency-selector";
 
 const QUICK_TIPS = [10, 15, 18, 20, 25];
-const CURRENCIES = [
-  { code: "USD", symbol: "$" },
-  { code: "EUR", symbol: "€" },
-  { code: "GBP", symbol: "£" },
-  { code: "CAD", symbol: "$" },
-  { code: "AUD", symbol: "$" },
-  { code: "JPY", symbol: "¥" },
-  { code: "INR", symbol: "₹" },
-  { code: "CNY", symbol: "¥" },
-];
 
 export function TipCalculator({ tool }: { tool: ToolDefinition }) {
   const [bill, setBill] = React.useState<string>("86.50");
   const [tipPct, setTipPct] = React.useState<number>(18);
   const [people, setPeople] = React.useState<string>("2");
   const [roundUp, setRoundUp] = React.useState<boolean>(false);
-  const [currency, setCurrency] = React.useState<string>("USD");
+  const { code: currency, setCode: setCurrency } = useCurrency();
 
   const billNum = Math.max(0, parseNumber(bill));
   const peopleNum = Math.max(1, Math.floor(parseNumber(people)));
@@ -50,7 +41,6 @@ export function TipCalculator({ tool }: { tool: ToolDefinition }) {
     setTipPct(18);
     setPeople("2");
     setRoundUp(false);
-    setCurrency("USD");
   };
 
   const summary = `Bill ${fmt(billNum)} · ${tipPctClamped}% tip · ${peopleNum} ${
@@ -76,19 +66,11 @@ Per person: ${fmt(perPerson)}`;
               />
             </div>
             <div className="space-y-2 sm:col-span-1">
-              <Label htmlFor="tip-currency">Currency</Label>
-              <select
-                id="tip-currency"
+              <CurrencySelector
                 value={currency}
-                onChange={(e) => setCurrency(e.target.value)}
-                className="flex h-9 w-full rounded-md border border-input bg-transparent px-3 py-1 text-sm shadow-sm transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring"
-              >
-                {CURRENCIES.map((c) => (
-                  <option key={c.code} value={c.code}>
-                    {c.code} ({c.symbol})
-                  </option>
-                ))}
-              </select>
+                onChange={setCurrency}
+                id="tip-currency"
+              />
             </div>
           </div>
 

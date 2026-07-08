@@ -21,24 +21,16 @@ import {
   type StampDutyRegion,
   RE_DISCLAIMER,
 } from "./_re-helpers";
-
-const REGION_CURRENCY: Record<StampDutyRegion, string> = {
-  uk: "GBP",
-  nsw: "AUD",
-  vic: "AUD",
-  india: "INR",
-  ireland: "EUR",
-  us: "USD",
-};
+import { useCurrency, CurrencySelector } from "@/components/dueneo/currency-selector";
 
 export function StampDutyCalculator({ tool }: { tool: ToolDefinition }) {
   const [region, setRegion] = React.useState<StampDutyRegion>("uk");
   const [price, setPrice] = React.useState<string>("425000");
   const [firstTimeBuyer, setFirstTimeBuyer] = React.useState<boolean>(false);
+  const { code: currency, setCode: setCurrency } = useCurrency();
 
   const priceNum = Math.max(0, parseNumber(price));
-  const currency = REGION_CURRENCY[region];
-  const { total, breakdown, effectiveRate } = computeStampDuty(region, priceNum, firstTimeBuyer);
+  const { total, breakdown, effectiveRate } = computeStampDuty(region, priceNum, firstTimeBuyer, currency);
 
   const table = STAMP_DUTY_TABLE[region];
   const ftbAvailable = !!table.firstTimeBuyer && table.firstTimeBuyer.reliefUpTo > 0;
@@ -104,6 +96,7 @@ Effective rate: ${formatPercent(effectiveRate)}`;
               <Button size="sm" variant="ghost" onClick={reset}>
                 <RotateCcw className="mr-1.5 h-3.5 w-3.5" /> Reset
               </Button>
+              <CurrencySelector value={currency} onChange={setCurrency} id="sd-currency" className="pt-2" />
             </CardContent>
           </Card>
 
@@ -197,7 +190,7 @@ Effective rate: ${formatPercent(effectiveRate)}`;
       },
       {
         title: "Enter the property price",
-        description: "Type the purchase price in the region's local currency. Duty is computed using marginal brackets like income tax.",
+        description: "Type the purchase price in your selected currency. Duty is computed using marginal brackets like income tax.",
       },
       {
         title: "Apply first-time-buyer relief",
@@ -219,6 +212,13 @@ Effective rate: ${formatPercent(effectiveRate)}`;
         <li>Bracket thresholds and first-time-buyer bands are simplified to the most common 2024 rates and change frequently. Always confirm with the relevant revenue authority.</li>
         <li>Surcharges for additional properties (second homes, buy-to-let, foreign buyers) and corporate purchases are not included.</li>
         <li>India and US use a single blended rate — actual state-by-state duty can vary widely.</li>
+        <li>
+          Bracket thresholds are published in each region&rsquo;s local currency but are
+          displayed here in your selected currency for convenience. The numbers are
+          treated as if they were denominated in your chosen currency &mdash; this is a
+          display simplification, not a currency conversion. For an accurate local-
+          currency estimate, select the region&rsquo;s native currency above.
+        </li>
       </ul>
     ),
     faq: [

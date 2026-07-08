@@ -30,14 +30,7 @@ import {
   formatPercent,
   FINANCE_DISCLAIMER,
 } from "./_finance-helpers";
-
-const CURRENCIES = [
-  { code: "USD", symbol: "$" },
-  { code: "EUR", symbol: "€" },
-  { code: "GBP", symbol: "£" },
-  { code: "CAD", symbol: "$" },
-  { code: "AUD", symbol: "$" },
-];
+import { useCurrency, CurrencySelector } from "@/components/dueneo/currency-selector";
 
 type FilingStatus = "single" | "married";
 
@@ -134,7 +127,7 @@ export function FreelancerTaxEstimator({ tool }: { tool: ToolDefinition }) {
   const [expenses, setExpenses] = React.useState("8000");
   const [status, setStatus] = React.useState<FilingStatus>("single");
   const [taxYear, setTaxYear] = React.useState("2024");
-  const currency = "USD";
+  const { code: currency, setCode: setCurrency } = useCurrency();
 
   const incomeNum = Math.max(0, parseNumber(income));
   const expenseNum = Math.max(0, parseNumber(expenses));
@@ -251,6 +244,7 @@ Quarterly estimate (×4): ${formatCurrency(quarterly, { currency })}`;
                 are not modelled.
               </span>
             </div>
+            <CurrencySelector value={currency} onChange={setCurrency} id="ft-currency" />
             <Button variant="ghost" size="sm" onClick={reset}>
               <RotateCcw className="mr-1.5 h-3.5 w-3.5" /> Reset
             </Button>

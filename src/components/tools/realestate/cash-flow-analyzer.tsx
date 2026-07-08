@@ -21,6 +21,7 @@ import { toast } from "sonner";
 import { RotateCcw, TrendingUp, TrendingDown, Receipt, Wrench, Home, Building } from "lucide-react";
 import type { ToolDefinition } from "@/data/tools";
 import { parseNumber, formatCurrency, formatPercent, RE_DISCLAIMER } from "./_re-helpers";
+import { useCurrency, CurrencySelector } from "@/components/dueneo/currency-selector";
 
 export function CashFlowAnalyzer({ tool }: { tool: ToolDefinition }) {
   const [rentalIncome, setRentalIncome] = React.useState<string>("2200");
@@ -32,7 +33,7 @@ export function CashFlowAnalyzer({ tool }: { tool: ToolDefinition }) {
   const [maintenancePct, setMaintenancePct] = React.useState<string>("1");
   const [mgmtPct, setMgmtPct] = React.useState<string>("8");
   const [other, setOther] = React.useState<string>("50");
-  const currency = "USD";
+  const { code: currency, setCode: setCurrency } = useCurrency();
 
   const nums = {
     rent: Math.max(0, parseNumber(rentalIncome)),
@@ -136,6 +137,7 @@ Status: ${positive ? "POSITIVE" : "NEGATIVE"}`;
               <Button size="sm" variant="ghost" onClick={reset}>
                 <RotateCcw className="mr-1.5 h-3.5 w-3.5" /> Reset
               </Button>
+              <CurrencySelector value={currency} onChange={setCurrency} id="cf-currency" className="pt-2" />
             </CardContent>
           </Card>
 

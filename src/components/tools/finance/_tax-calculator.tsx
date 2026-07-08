@@ -7,6 +7,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { CopyButton } from "@/components/dueneo/copy-button";
+import { useCurrency, CurrencySelector } from "@/components/dueneo/currency-selector";
 import { toast } from "sonner";
 import { RotateCcw, Calculator, Info } from "lucide-react";
 import type { ToolDefinition } from "@/data/tools";
@@ -66,7 +67,10 @@ export function TaxCalculator({
     faq: ToolContent["faq"];
   };
 }) {
-  const { taxName, defaultRate, presets, currency = "USD" } = config;
+  const { taxName, defaultRate, presets } = config;
+  // Shared, persisted currency. The per-tool `config.currency` is no longer
+  // used for display — the user's global selection (default USD) wins.
+  const { code: currency, setCode: setCurrency } = useCurrency();
   const [amount, setAmount] = React.useState<string>("");
   const [rate, setRate] = React.useState<string>(String(defaultRate));
   const [mode, setMode] = React.useState<Mode>("exclusive");
@@ -166,6 +170,8 @@ Gross amount: ${formatCurrency(result.gross, { currency })}`;
                 </Label>
               </RadioGroup>
             </div>
+
+            <CurrencySelector value={currency} onChange={setCurrency} id="tax-currency" />
 
             <div className="flex gap-2">
               <Button variant="ghost" size="sm" onClick={reset}>

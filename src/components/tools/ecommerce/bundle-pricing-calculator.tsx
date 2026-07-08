@@ -27,6 +27,7 @@ import {
   Row,
   StatCard,
 } from "./_ecommerce-helpers";
+import { useCurrency, CurrencySelector, money } from "@/components/dueneo/currency-selector";
 
 interface BundleItem {
   id: string;
@@ -52,6 +53,8 @@ export function BundlePricingCalculator({ tool }: { tool: ToolDefinition }) {
   const [discountPct, setDiscountPct] = React.useState<number>(15);
   const [customMode, setCustomMode] = React.useState<boolean>(false);
   const [customBundlePrice, setCustomBundlePrice] = React.useState<string>("60.00");
+  const { code: currency, setCode: setCurrency } = useCurrency();
+  const fmt = (v: number) => money(v, currency);
 
   const parsed = items.map((i) => ({
     ...i,
@@ -103,17 +106,17 @@ ${parsed.length} item(s) in bundle:
 ${parsed
   .map(
     (i) =>
-      `  ${i.name || "Untitled"}: price ${formatCurrency(i.priceNum)}, cost ${formatCurrency(i.costNum)}`,
+      `  ${i.name || "Untitled"}: price ${fmt(i.priceNum)}, cost ${fmt(i.costNum)}`,
   )
   .join("\n")}
 
-Total individual price:  ${formatCurrency(totalIndividualPrice)}
-Total individual cost:   ${formatCurrency(totalIndividualCost)}
+Total individual price:  ${fmt(totalIndividualPrice)}
+Total individual cost:   ${fmt(totalIndividualCost)}
 Bundle mode:             ${customMode ? "Custom price" : `Auto (−${discountPct.toFixed(0)}%)`}
-Bundle price:            ${formatCurrency(bundlePrice)}
-Savings vs individual:   ${formatCurrency(savings)} (${formatPercent(effectiveDiscountPct)})
-Bundle cost:             ${formatCurrency(bundleCost)}
-Bundle profit:           ${formatCurrency(bundleProfit)}
+Bundle price:            ${fmt(bundlePrice)}
+Savings vs individual:   ${fmt(savings)} (${formatPercent(effectiveDiscountPct)})
+Bundle cost:             ${fmt(bundleCost)}
+Bundle profit:           ${fmt(bundleProfit)}
 Bundle margin:           ${formatPercent(bundleMargin)}`;
 
   const toolBody = (
@@ -121,21 +124,21 @@ Bundle margin:           ${formatPercent(bundleMargin)}`;
       <div className="grid grid-cols-2 gap-3 lg:grid-cols-4">
         <StatCard
           label="Individual total"
-          value={formatCurrency(totalIndividualPrice)}
+          value={fmt(totalIndividualPrice)}
           tone="default"
           icon={<Package className="h-3.5 w-3.5 text-primary" />}
           hint={`${items.length} item(s)`}
         />
         <StatCard
           label="Bundle price"
-          value={formatCurrency(bundlePrice)}
+          value={fmt(bundlePrice)}
           tone="primary"
           icon={<Tags className="h-3.5 w-3.5 text-primary" />}
           hint={customMode ? "Custom" : `Auto −${discountPct.toFixed(0)}%`}
         />
         <StatCard
           label="Buyer savings"
-          value={formatCurrency(savings)}
+          value={fmt(savings)}
           tone="emerald"
           icon={<TrendingUp className="h-3.5 w-3.5 text-emerald-500" />}
           hint={`${formatPercent(effectiveDiscountPct)} off`}
@@ -145,7 +148,7 @@ Bundle margin:           ${formatPercent(bundleMargin)}`;
           value={formatPercent(bundleMargin)}
           tone={bundleMargin < 0 ? "rose" : "emerald"}
           icon={<Percent className="h-3.5 w-3.5 text-primary" />}
-          hint={`Profit ${formatCurrency(bundleProfit)}`}
+          hint={`Profit ${fmt(bundleProfit)}`}
         />
       </div>
 
@@ -158,6 +161,7 @@ Bundle margin:           ${formatPercent(bundleMargin)}`;
               <RotateCcw className="mr-1.5 h-3.5 w-3.5" /> Reset
             </Button>
           </div>
+          <CurrencySelector value={currency} onChange={setCurrency} id="bp-currency" />
 
           <div className="space-y-2">
             {parsed.map((i) => (
@@ -311,31 +315,31 @@ Bundle margin:           ${formatPercent(bundleMargin)}`;
           <div className="space-y-2 rounded-lg border bg-background p-4">
             <Row
               label="Total individual price"
-              value={formatCurrency(totalIndividualPrice)}
+              value={fmt(totalIndividualPrice)}
               hint={`${items.length} item(s)`}
             />
             <Row
               label="Total individual cost"
-              value={formatCurrency(totalIndividualCost)}
+              value={fmt(totalIndividualCost)}
               muted
             />
             <div className="border-t pt-2">
               <Row
                 label={customMode ? "Custom bundle price" : `Bundle price (−${discountPct.toFixed(0)}%)`}
-                value={formatCurrency(bundlePrice)}
+                value={fmt(bundlePrice)}
                 highlight
               />
               <Row
                 label="Buyer savings"
-                value={formatCurrency(savings)}
+                value={fmt(savings)}
                 hint={`${formatPercent(effectiveDiscountPct)} off`}
               />
             </div>
             <div className="border-t pt-2">
-              <Row label="Bundle cost" value={formatCurrency(bundleCost)} muted />
+              <Row label="Bundle cost" value={fmt(bundleCost)} muted />
               <Row
                 label="Bundle profit"
-                value={formatCurrency(bundleProfit)}
+                value={fmt(bundleProfit)}
                 highlight={bundleProfit >= 0}
               />
               <Row

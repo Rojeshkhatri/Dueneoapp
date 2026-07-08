@@ -11,6 +11,7 @@ import { toast } from "sonner";
 import { RotateCcw, Home, Wallet, Scale } from "lucide-react";
 import type { ToolDefinition } from "@/data/tools";
 import { parseNumber, formatCurrency, formatPercent, monthlyPayment, RE_DISCLAIMER } from "./_re-helpers";
+import { useCurrency, CurrencySelector } from "@/components/dueneo/currency-selector";
 
 export function MortgageAffordabilityCalculator({ tool }: { tool: ToolDefinition }) {
   const [income, setIncome] = React.useState<string>("95000");
@@ -21,7 +22,7 @@ export function MortgageAffordabilityCalculator({ tool }: { tool: ToolDefinition
   const [taxes, setTaxes] = React.useState<string>("3600");
   const [insurance, setInsurance] = React.useState<string>("1400");
   const [hoa, setHoa] = React.useState<string>("0");
-  const currency = "USD";
+  const { code: currency, setCode: setCurrency } = useCurrency();
 
   const incomeNum = Math.max(0, parseNumber(income));
   const downNum = Math.max(0, parseNumber(downPayment));
@@ -140,6 +141,7 @@ Total monthly debt: ${formatCurrency(totalMonthlyDebt, { currency })} (${formatP
               <Button size="sm" variant="ghost" onClick={reset}>
                 <RotateCcw className="mr-1.5 h-3.5 w-3.5" /> Reset
               </Button>
+              <CurrencySelector value={currency} onChange={setCurrency} id="ma-currency" className="pt-2" />
             </CardContent>
           </Card>
 

@@ -41,6 +41,7 @@ import {
   Row,
   StatCard,
 } from "./_ecommerce-helpers";
+import { useCurrency, CurrencySelector, money } from "@/components/dueneo/currency-selector";
 
 const SEASONS = [
   { key: "jan-sep", label: "Jan–Sep (off-peak)" },
@@ -56,6 +57,8 @@ export function AmazonFbaFeeCalculator({ tool }: { tool: ToolDefinition }) {
   const [widthIn, setWidthIn] = React.useState<string>("8");
   const [heightIn, setHeightIn] = React.useState<string>("3");
   const [season, setSeason] = React.useState<SeasonKey>("jan-sep");
+  const { code: currency, setCode: setCurrency } = useCurrency();
+  const fmt = (v: number) => money(v, currency);
 
   const category = React.useMemo<AmazonCategory>(
     () => AMAZON_CATEGORIES.find((c) => c.key === categoryKey) ?? AMAZON_CATEGORIES[0],
@@ -101,19 +104,19 @@ export function AmazonFbaFeeCalculator({ tool }: { tool: ToolDefinition }) {
   };
 
   const summary = `Amazon FBA fee breakdown
-Product price:        ${formatCurrency(priceNum)}
+Product price:        ${fmt(priceNum)}
 Category:             ${category.label}
 Size tier:            ${tier === "standard" ? "Standard-Size" : "Large Bulky"}
 Dimensions:           ${length}" × ${width}" × ${height}" (${formatNumber(cf, { maximumFractionDigits: 3 })} cu ft)
 Weight:               ${formatNumber(weight, { maximumFractionDigits: 2 })} lb
 Season:               ${season === "jan-sep" ? "Jan–Sep" : "Oct–Dec"}
 
-Referral fee:         ${formatCurrency(referralFee)} (${category.referralPct}%${category.minReferral > 0 ? `, min $${category.minReferral}` : ""})
-Fulfilment fee:       ${formatCurrency(fulfilmentFee)} (by ${tier} tier + weight)
-Monthly storage:      ${formatCurrency(monthlyStorage)} ($${storageRatePerCf.toFixed(2)}/cu ft × ${formatNumber(cf, { maximumFractionDigits: 3 })} cu ft)
+Referral fee:         ${fmt(referralFee)} (${category.referralPct}%${category.minReferral > 0 ? `, min $${category.minReferral}` : ""})
+Fulfilment fee:       ${fmt(fulfilmentFee)} (by ${tier} tier + weight)
+Monthly storage:      ${fmt(monthlyStorage)} ($${storageRatePerCf.toFixed(2)}/cu ft × ${formatNumber(cf, { maximumFractionDigits: 3 })} cu ft)
 
-Total FBA fees:       ${formatCurrency(totalFbaFees)} (${formatPercent(feePctOfPrice)} of price)
-Net proceeds:         ${formatCurrency(netProceeds)}`;
+Total FBA fees:       ${fmt(totalFbaFees)} (${formatPercent(feePctOfPrice)} of price)
+Net proceeds:         ${fmt(netProceeds)}`;
 
   const toolBody = (
     <div className="space-y-5">
@@ -217,6 +220,7 @@ Net proceeds:         ${formatCurrency(netProceeds)}`;
           <Button variant="ghost" size="sm" onClick={reset}>
             <RotateCcw className="mr-1.5 h-3.5 w-3.5" /> Reset
           </Button>
+          <CurrencySelector value={currency} onChange={setCurrency} id="am-currency" className="pt-2" />
         </div>
 
         <div className="space-y-4 rounded-xl border bg-muted/30 p-5">
@@ -236,14 +240,14 @@ Net proceeds:         ${formatCurrency(netProceeds)}`;
               <div className="grid grid-cols-2 gap-3">
                 <StatCard
                   label="Net proceeds"
-                  value={formatCurrency(netProceeds)}
+                  value={fmt(netProceeds)}
                   tone={netProceeds < 0 ? "rose" : "emerald"}
                   icon={<TrendingUp className="h-3.5 w-3.5 text-emerald-500" />}
-                  hint={`After ${formatCurrency(totalFbaFees)} in fees`}
+                  hint={`After ${fmt(totalFbaFees)} in fees`}
                 />
                 <StatCard
                   label="Total FBA fees"
-                  value={formatCurrency(totalFbaFees)}
+                  value={fmt(totalFbaFees)}
                   tone="primary"
                   icon={<Boxes className="h-3.5 w-3.5 text-primary" />}
                   hint={`${formatPercent(feePctOfPrice)} of price`}
@@ -259,36 +263,36 @@ Net proceeds:         ${formatCurrency(netProceeds)}`;
                 />
                 <StatCard
                   label="Referral fee"
-                  value={formatCurrency(referralFee)}
+                  value={fmt(referralFee)}
                   icon={<Tag className="h-3.5 w-3.5 text-primary" />}
                   hint={`${category.referralPct}% of price`}
                 />
               </div>
 
               <div className="space-y-2 rounded-lg border bg-background p-4">
-                <Row label="Product price" value={formatCurrency(priceNum)} />
+                <Row label="Product price" value={fmt(priceNum)} />
                 <div className="border-t pt-2">
                   <Row
                     label="Referral fee"
-                    value={formatCurrency(referralFee)}
+                    value={fmt(referralFee)}
                     hint={`${category.referralPct}%${category.minReferral > 0 ? `, min $${category.minReferral.toFixed(2)}` : ""}`}
                   />
                   <Row
                     label="Fulfilment fee"
-                    value={formatCurrency(fulfilmentFee)}
+                    value={fmt(fulfilmentFee)}
                     hint={`${tier === "standard" ? "Standard" : "Large"} · ${formatNumber(weight, { maximumFractionDigits: 2 })} lb`}
                   />
                   <Row
                     label="Monthly storage"
-                    value={formatCurrency(monthlyStorage)}
+                    value={fmt(monthlyStorage)}
                     hint={`$${storageRatePerCf.toFixed(2)}/cf × ${formatNumber(cf, { maximumFractionDigits: 3 })} cf`}
                   />
                 </div>
                 <div className="border-t pt-2">
-                  <Row label="Total FBA fees" value={formatCurrency(totalFbaFees)} highlight />
+                  <Row label="Total FBA fees" value={fmt(totalFbaFees)} highlight />
                   <Row
                     label="Net proceeds"
-                    value={formatCurrency(netProceeds)}
+                    value={fmt(netProceeds)}
                     large
                     highlight={netProceeds >= 0}
                   />
@@ -378,6 +382,13 @@ Net proceeds:         ${formatCurrency(netProceeds)}`;
           FBA fulfilment fee brackets are US 2024 rates and approximate. Rates
           for hazardous materials, apparel, shoes and small-and-light programs
           may differ.
+        </li>
+        <li>
+          Amazon&rsquo;s published fee schedule is denominated in USD. The
+          calculator displays all amounts in your selected currency and treats
+          the fixed USD fee components (e.g. $0.30 minimum referral) as if
+          denominated in your chosen currency &mdash; this is a display
+          simplification, not a currency conversion.
         </li>
       </ul>
     ),

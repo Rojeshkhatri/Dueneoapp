@@ -11,6 +11,7 @@ import { toast } from "sonner";
 import { RotateCcw, Home, Receipt, Wrench, Users } from "lucide-react";
 import type { ToolDefinition } from "@/data/tools";
 import { parseNumber, formatCurrency, formatPercent, monthlyPayment, RE_DISCLAIMER } from "./_re-helpers";
+import { useCurrency, CurrencySelector } from "@/components/dueneo/currency-selector";
 
 export function RentalYieldCalculator({ tool }: { tool: ToolDefinition }) {
   const [propertyValue, setPropertyValue] = React.useState<string>("450000");
@@ -23,7 +24,7 @@ export function RentalYieldCalculator({ tool }: { tool: ToolDefinition }) {
   const [downPayment, setDownPayment] = React.useState<string>("90000");
   const [rate, setRate] = React.useState<string>("6.8");
   const [years, setYears] = React.useState<string>("30");
-  const currency = "USD";
+  const { code: currency, setCode: setCurrency } = useCurrency();
 
   const value = Math.max(0, parseNumber(propertyValue));
   const rentMo = Math.max(0, parseNumber(monthlyRent));
@@ -140,6 +141,7 @@ Cash-on-cash return: ${formatPercent(cashOnCash)}` : ""}`;
               <Button size="sm" variant="ghost" onClick={reset}>
                 <RotateCcw className="mr-1.5 h-3.5 w-3.5" /> Reset
               </Button>
+              <CurrencySelector value={currency} onChange={setCurrency} id="ry-currency" className="pt-2" />
             </CardContent>
           </Card>
 

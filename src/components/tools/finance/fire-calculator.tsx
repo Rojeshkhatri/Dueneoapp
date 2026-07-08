@@ -16,13 +16,6 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Progress } from "@/components/ui/progress";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
 import { CopyButton } from "@/components/dueneo/copy-button";
 import { toast } from "sonner";
 import { RotateCcw, Flame, TrendingUp, Calendar, Target } from "lucide-react";
@@ -33,17 +26,7 @@ import {
   formatNumber,
   FINANCE_DISCLAIMER,
 } from "./_finance-helpers";
-
-const CURRENCIES = [
-  { code: "USD", symbol: "$" },
-  { code: "EUR", symbol: "€" },
-  { code: "GBP", symbol: "£" },
-  { code: "CAD", symbol: "$" },
-  { code: "AUD", symbol: "$" },
-  { code: "INR", symbol: "₹" },
-  { code: "JPY", symbol: "¥" },
-  { code: "CNY", symbol: "¥" },
-];
+import { useCurrency, CurrencySelector } from "@/components/dueneo/currency-selector";
 
 const MAX_YEARS = 80;
 
@@ -89,8 +72,7 @@ export function FireCalculator({ tool }: { tool: ToolDefinition }) {
   const [annualSavings, setAnnualSavings] = React.useState("25000");
   const [annualReturn, setAnnualReturn] = React.useState("7");
   const [annualExpenses, setAnnualExpenses] = React.useState("40000");
-  const [currencyCode, setCurrencyCode] = React.useState("USD");
-  const currency = currencyCode;
+  const { code: currency, setCode: setCurrency } = useCurrency();
 
   const age = Math.max(0, Math.floor(parseNumber(currentAge)));
   const savings = Math.max(0, parseNumber(currentSavings));
@@ -122,7 +104,6 @@ export function FireCalculator({ tool }: { tool: ToolDefinition }) {
     setAnnualSavings("25000");
     setAnnualReturn("7");
     setAnnualExpenses("40000");
-    setCurrencyCode("USD");
     toast.info("Reset to defaults.");
   };
 
@@ -172,18 +153,12 @@ Progress: ${progressPct.toFixed(1)}%`;
               </div>
               <div className="space-y-2">
                 <Label htmlFor="fc-cur">Currency</Label>
-                <Select value={currencyCode} onValueChange={setCurrencyCode}>
-                  <SelectTrigger id="fc-cur" className="w-full">
-                    <SelectValue />
-                  </SelectTrigger>
-                  <SelectContent>
-                    {CURRENCIES.map((c) => (
-                      <SelectItem key={c.code} value={c.code}>
-                        {c.code} ({c.symbol})
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
+                <CurrencySelector
+                  value={currency}
+                  onChange={setCurrency}
+                  id="fc-cur"
+                  className="[&_label]:hidden"
+                />
               </div>
             </div>
 

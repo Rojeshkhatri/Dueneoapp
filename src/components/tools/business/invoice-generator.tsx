@@ -25,16 +25,7 @@ import {
   subtotal,
   type LineItem,
 } from "./_business-helpers";
-
-const CURRENCY_OPTIONS = [
-  { code: "USD", symbol: "$" },
-  { code: "EUR", symbol: "€" },
-  { code: "GBP", symbol: "£" },
-  { code: "INR", symbol: "₹" },
-  { code: "AUD", symbol: "A$" },
-  { code: "CAD", symbol: "C$" },
-  { code: "JPY", symbol: "¥" },
-];
+import { useCurrency, CurrencySelector } from "@/components/dueneo/currency-selector";
 
 export function InvoiceGenerator({ tool }: { tool: ToolDefinition }) {
   const [fromName, setFromName] = React.useState("Your Company LLC");
@@ -61,8 +52,7 @@ export function InvoiceGenerator({ tool }: { tool: ToolDefinition }) {
   const [notes, setNotes] = React.useState(
     "Payment due within 30 days. Please reference invoice number on your payment. Thank you for your business!"
   );
-  const [currencyCode, setCurrencyCode] = React.useState("USD");
-  const currency = CURRENCY_OPTIONS.find((c) => c.code === currencyCode) ?? CURRENCY_OPTIONS[0];
+  const { code: currency, setCode: setCurrency } = useCurrency();
 
   const sub = subtotal(items);
   const tax = sub * (parseNumber(taxRate) / 100);
@@ -96,7 +86,6 @@ export function InvoiceGenerator({ tool }: { tool: ToolDefinition }) {
     setNotes(
       "Payment due within 30 days. Please reference invoice number on your payment. Thank you for your business!"
     );
-    setCurrencyCode("USD");
   };
 
   const form = (
@@ -143,18 +132,12 @@ export function InvoiceGenerator({ tool }: { tool: ToolDefinition }) {
             <Input id="inv-no" value={invoiceNo} onChange={(e) => setInvoiceNo(e.target.value)} />
           </Field>
           <Field label="Currency" htmlFor="inv-currency">
-            <select
+            <CurrencySelector
+              value={currency}
+              onChange={setCurrency}
               id="inv-currency"
-              value={currencyCode}
-              onChange={(e) => setCurrencyCode(e.target.value)}
-              className="h-9 w-full rounded-md border border-input bg-transparent px-3 text-sm shadow-xs outline-none focus-visible:ring-[3px] focus-visible:ring-ring/50"
-            >
-              {CURRENCY_OPTIONS.map((c) => (
-                <option key={c.code} value={c.code}>
-                  {c.code} ({c.symbol})
-                </option>
-              ))}
-            </select>
+              className="[&_label]:hidden"
+            />
           </Field>
         </div>
         <div className="grid grid-cols-2 gap-3">
@@ -298,10 +281,10 @@ export function InvoiceGenerator({ tool }: { tool: ToolDefinition }) {
                 </td>
                 <td className="px-3 py-2 text-right tabular-nums text-slate-700">{item.quantity}</td>
                 <td className="px-3 py-2 text-right tabular-nums text-slate-700">
-                  {formatCurrency(parseNumber(item.unitPrice), { currency: currency.code })}
+                  {formatCurrency(parseNumber(item.unitPrice), { currency })}
                 </td>
                 <td className="px-3 py-2 text-right font-medium tabular-nums text-slate-900">
-                  {formatCurrency(lineTotal(item), { currency: currency.code })}
+                  {formatCurrency(lineTotal(item), { currency })}
                 </td>
               </tr>
             ))}
@@ -321,19 +304,19 @@ export function InvoiceGenerator({ tool }: { tool: ToolDefinition }) {
           <div className="flex justify-between">
             <span className="text-slate-500">Subtotal</span>
             <span className="font-medium tabular-nums text-slate-900">
-              {formatCurrency(sub, { currency: currency.code })}
+              {formatCurrency(sub, { currency })}
             </span>
           </div>
           <div className="flex justify-between">
             <span className="text-slate-500">Tax ({parseNumber(taxRate)}%)</span>
             <span className="font-medium tabular-nums text-slate-900">
-              {formatCurrency(tax, { currency: currency.code })}
+              {formatCurrency(tax, { currency })}
             </span>
           </div>
           <div className="mt-1.5 flex justify-between border-t border-slate-200 pt-2 text-base">
             <span className="font-bold text-slate-900">Total due</span>
             <span className="font-bold tabular-nums text-slate-900">
-              {formatCurrency(total, { currency: currency.code })}
+              {formatCurrency(total, { currency })}
             </span>
           </div>
         </div>

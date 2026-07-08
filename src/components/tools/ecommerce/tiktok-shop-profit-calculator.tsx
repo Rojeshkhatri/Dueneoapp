@@ -26,6 +26,7 @@ import {
   Row,
   StatCard,
 } from "./_ecommerce-helpers";
+import { useCurrency, CurrencySelector, money } from "@/components/dueneo/currency-selector";
 
 // TikTok Shop 2025 fee schedule (US, embedded as constants).
 const TIKTOK_COMMISSION_DEFAULT_PCT = 8; // default 8%; user can adjust 5–8%
@@ -39,6 +40,8 @@ export function TikTokShopProfitCalculator({ tool }: { tool: ToolDefinition }) {
   const [cogs, setCogs] = React.useState<string>("12.00");
   const [shipping, setShipping] = React.useState<string>("4.95");
   const [commissionPct, setCommissionPct] = React.useState<number>(TIKTOK_COMMISSION_DEFAULT_PCT);
+  const { code: currency, setCode: setCurrency } = useCurrency();
+  const fmt = (v: number) => money(v, currency);
 
   const price = Math.max(0, parseNumber(sellingPrice));
   const cogsNum = Math.max(0, parseNumber(cogs));
@@ -64,15 +67,15 @@ export function TikTokShopProfitCalculator({ tool }: { tool: ToolDefinition }) {
   };
 
   const summary = `TikTok Shop profit summary
-Selling price:        ${formatCurrency(price)}
-COGS:                 ${formatCurrency(cogsNum)}
-Shipping:             ${formatCurrency(shipNum)}
-Commission:           ${formatPercent(commissionPct)} → ${formatCurrency(commission)}
-Payment processing:   ${formatCurrency(paymentFee)} (${TIKTOK_PAYMENT_PCT}% + $${TIKTOK_PAYMENT_FIXED.toFixed(2)})
+Selling price:        ${fmt(price)}
+COGS:                 ${fmt(cogsNum)}
+Shipping:             ${fmt(shipNum)}
+Commission:           ${formatPercent(commissionPct)} → ${fmt(commission)}
+Payment processing:   ${fmt(paymentFee)} (${TIKTOK_PAYMENT_PCT}% + $${TIKTOK_PAYMENT_FIXED.toFixed(2)})
 
-Total fees:           ${formatCurrency(totalFees)}
-Total costs:          ${formatCurrency(totalCosts)}
-Profit per sale:      ${formatCurrency(profit)}
+Total fees:           ${fmt(totalFees)}
+Total costs:          ${fmt(totalCosts)}
+Profit per sale:      ${fmt(profit)}
 Margin:               ${formatPercent(margin)}`;
 
   const toolBody = (
@@ -153,6 +156,7 @@ Margin:               ${formatPercent(margin)}`;
           <Button variant="ghost" size="sm" onClick={reset}>
             <RotateCcw className="mr-1.5 h-3.5 w-3.5" /> Reset
           </Button>
+          <CurrencySelector value={currency} onChange={setCurrency} id="tt-currency" className="pt-2" />
         </div>
 
         <div className="space-y-4 rounded-xl border bg-muted/30 p-5">
@@ -173,7 +177,7 @@ Margin:               ${formatPercent(margin)}`;
                 <div className="flex items-start gap-2 rounded-lg border border-destructive/40 bg-destructive/10 p-3 text-xs text-destructive">
                   <AlertCircle className="mt-0.5 h-3.5 w-3.5 flex-none" />
                   <p>
-                    Costs exceed revenue — you're losing {formatCurrency(Math.abs(profit))} per
+                    Costs exceed revenue — you're losing {fmt(Math.abs(profit))} per
                     sale. Raise price, cut COGS, or reduce commission.
                   </p>
                 </div>
@@ -182,7 +186,7 @@ Margin:               ${formatPercent(margin)}`;
               <div className="grid grid-cols-2 gap-3">
                 <StatCard
                   label="Profit / sale"
-                  value={formatCurrency(profit)}
+                  value={fmt(profit)}
                   tone={isLoss ? "rose" : "emerald"}
                   icon={
                     isLoss ? (
@@ -191,7 +195,7 @@ Margin:               ${formatPercent(margin)}`;
                       <TrendingUp className="h-3.5 w-3.5 text-emerald-500" />
                     )
                   }
-                  hint={`After ${formatCurrency(totalCosts)} in costs`}
+                  hint={`After ${fmt(totalCosts)} in costs`}
                 />
                 <StatCard
                   label="Margin"
@@ -202,38 +206,38 @@ Margin:               ${formatPercent(margin)}`;
               </div>
 
               <div className="space-y-2 rounded-lg border bg-background p-4">
-                <Row label="Selling price" value={formatCurrency(price)} />
+                <Row label="Selling price" value={fmt(price)} />
                 <Row
                   label="COGS"
-                  value={formatCurrency(cogsNum)}
+                  value={fmt(cogsNum)}
                   muted
                 />
                 <Row
                   label="Shipping cost"
-                  value={formatCurrency(shipNum)}
+                  value={fmt(shipNum)}
                   muted
                   icon={<Truck className="h-3.5 w-3.5 text-muted-foreground/70" />}
                 />
                 <div className="border-t pt-2">
                   <Row
                     label={`TikTok commission (${commissionPct.toFixed(1)}%)`}
-                    value={formatCurrency(commission)}
+                    value={fmt(commission)}
                     icon={<Music2 className="h-3.5 w-3.5 text-muted-foreground/70" />}
                   />
                   <Row
                     label={`Payment processing (${TIKTOK_PAYMENT_PCT}% + $${TIKTOK_PAYMENT_FIXED.toFixed(2)})`}
-                    value={formatCurrency(paymentFee)}
+                    value={fmt(paymentFee)}
                     icon={<CreditCard className="h-3.5 w-3.5 text-muted-foreground/70" />}
                   />
                 </div>
                 <div className="border-t pt-2">
-                  <Row label="Total fees" value={formatCurrency(totalFees)} />
-                  <Row label="Total costs" value={formatCurrency(totalCosts)} />
+                  <Row label="Total fees" value={fmt(totalFees)} />
+                  <Row label="Total costs" value={fmt(totalCosts)} />
                 </div>
                 <div className="border-t pt-2">
                   <Row
                     label="Profit / sale"
-                    value={formatCurrency(profit)}
+                    value={fmt(profit)}
                     large
                     highlight
                   />
@@ -310,6 +314,13 @@ Margin:               ${formatPercent(margin)}`;
           Affiliate commissions, creator funds, return shipping, restocking
           fees, and TikTok Shop ads spend are not modelled. Sales tax is
           collected and remitted by TikTok and excluded from this calc.
+        </li>
+        <li>
+          TikTok&rsquo;s published fee schedule is in USD. This calculator
+          displays all amounts in your selected currency and treats the fixed
+          USD fee component (e.g. $0.30 payment fee) as if denominated in your
+          chosen currency &mdash; a display simplification, not a currency
+          conversion.
         </li>
       </ul>
     ),

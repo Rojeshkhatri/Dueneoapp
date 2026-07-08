@@ -16,6 +16,7 @@ import {
   formatPercent,
   FINANCE_DISCLAIMER,
 } from "./_finance-helpers";
+import { useCurrency, CurrencySelector } from "@/components/dueneo/currency-selector";
 
 type SolveMode = "price" | "markup";
 
@@ -24,7 +25,7 @@ export function MarkupCalculator({ tool }: { tool: ToolDefinition }) {
   const [cost, setCost] = React.useState<string>("");
   const [price, setPrice] = React.useState<string>("");
   const [markup, setMarkup] = React.useState<string>("50");
-  const currency = "USD";
+  const { code: currency, setCode: setCurrency } = useCurrency();
 
   const costNum = Math.max(0, parseNumber(cost));
   const priceNum = Math.max(0, parseNumber(price));
@@ -160,6 +161,8 @@ Gross margin: ${formatPercent(grossMargin)}`;
                 />
               </div>
             )}
+
+            <CurrencySelector value={currency} onChange={setCurrency} id="mk-currency" />
 
             <Button variant="ghost" size="sm" onClick={reset}>
               <RotateCcw className="mr-1.5 h-3.5 w-3.5" /> Reset

@@ -24,6 +24,7 @@ import {
   amortisationSchedule,
   FINANCE_DISCLAIMER,
 } from "./_finance-helpers";
+import { useCurrency, CurrencySelector } from "@/components/dueneo/currency-selector";
 
 export function MortgageCalculator({ tool }: { tool: ToolDefinition }) {
   const [homePrice, setHomePrice] = React.useState<string>("400000");
@@ -32,7 +33,7 @@ export function MortgageCalculator({ tool }: { tool: ToolDefinition }) {
   const [years, setYears] = React.useState<string>("30");
   const [propertyTax, setPropertyTax] = React.useState<string>("3600");
   const [insurance, setInsurance] = React.useState<string>("1200");
-  const currency = "USD";
+  const { code: currency, setCode: setCurrency } = useCurrency();
 
   const homeNum = Math.max(0, parseNumber(homePrice));
   const downNum = Math.max(0, Math.min(homeNum, parseNumber(downPayment)));
@@ -152,6 +153,7 @@ Lifetime cost: ${formatCurrency(lifetimeCost, { currency })}`;
                 />
               </div>
             </div>
+            <CurrencySelector value={currency} onChange={setCurrency} id="mc-currency" />
             <Button variant="ghost" size="sm" onClick={reset}>
               <RotateCcw className="mr-1.5 h-3.5 w-3.5" /> Reset
             </Button>

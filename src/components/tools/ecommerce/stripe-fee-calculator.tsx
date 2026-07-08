@@ -39,6 +39,7 @@ import {
   Row,
   StatCard,
 } from "./_ecommerce-helpers";
+import { useCurrency, CurrencySelector, money } from "@/components/dueneo/currency-selector";
 
 const PAYMENT_ICONS: Record<string, React.ReactNode> = {
   "domestic-card": <CreditCard className="h-3.5 w-3.5 text-primary" />,
@@ -55,6 +56,8 @@ export function StripeFeeCalculator({ tool }: { tool: ToolDefinition }) {
   // Reverse mode: I want to receive $Y, see how much to charge.
   const [revTarget, setRevTarget] = React.useState<string>("100.00");
   const [revTypeKey, setRevTypeKey] = React.useState<string>(STRIPE_PAYMENT_TYPES[0].key);
+  const { code: currency, setCode: setCurrency } = useCurrency();
+  const fmt = (v: number) => money(v, currency);
 
   const fwdType = React.useMemo<StripePaymentType>(
     () => STRIPE_PAYMENT_TYPES.find((t) => t.key === fwdTypeKey) ?? STRIPE_PAYMENT_TYPES[0],
@@ -85,21 +88,21 @@ export function StripeFeeCalculator({ tool }: { tool: ToolDefinition }) {
   };
 
   const fwdSummary = `Stripe fee (forward)
-Charge amount:        ${formatCurrency(fwdAmt)}
+Charge amount:        ${fmt(fwdAmt)}
 Payment type:         ${fwdType.label}
 Rate:                 ${fwdType.ratePct}% + $${fwdType.fixed.toFixed(2)}${fwdType.cap ? ` (cap $${fwdType.cap})` : ""}
 
-Processing fee:       ${formatCurrency(fwdFee)} (${formatPercent(fwdFeePct)} of charge)
-Net received:         ${formatCurrency(fwdNet)}`;
+Processing fee:       ${fmt(fwdFee)} (${formatPercent(fwdFeePct)} of charge)
+Net received:         ${fmt(fwdNet)}`;
 
   const revSummary = `Stripe fee (reverse)
-Target net received:  ${formatCurrency(revAmt)}
+Target net received:  ${fmt(revAmt)}
 Payment type:         ${revType.label}
 Rate:                 ${revType.ratePct}% + $${revType.fixed.toFixed(2)}${revType.cap ? ` (cap $${revType.cap})` : ""}
 
-Charge amount:        ${formatCurrency(revResult.gross)}
-Processing fee:       ${formatCurrency(revResult.fee)}
-Net received:         ${formatCurrency(revResult.net)}${revResult.capped ? " (cap hit)" : ""}`;
+Charge amount:        ${fmt(revResult.gross)}
+Processing fee:       ${fmt(revResult.fee)}
+Net received:         ${fmt(revResult.net)}${revResult.capped ? " (cap hit)" : ""}`;
 
   // For shared rendering of payment type selector.
   const renderTypeSelector = (
@@ -161,6 +164,7 @@ Net received:         ${formatCurrency(revResult.net)}${revResult.capped ? " (ca
               <Button variant="ghost" size="sm" onClick={reset}>
                 <RotateCcw className="mr-1.5 h-3.5 w-3.5" /> Reset
               </Button>
+              <CurrencySelector value={currency} onChange={setCurrency} id="st-currency" className="pt-2" />
             </div>
 
             <div className="space-y-4 rounded-xl border bg-muted/30 p-5">
@@ -180,14 +184,14 @@ Net received:         ${formatCurrency(revResult.net)}${revResult.capped ? " (ca
                   <div className="grid grid-cols-2 gap-3">
                     <StatCard
                       label="Net received"
-                      value={formatCurrency(fwdNet)}
+                      value={fmt(fwdNet)}
                       tone="emerald"
                       icon={<TrendingUp className="h-3.5 w-3.5 text-emerald-500" />}
-                      hint={`After ${formatCurrency(fwdFee)} fee`}
+                      hint={`After ${fmt(fwdFee)} fee`}
                     />
                     <StatCard
                       label="Processing fee"
-                      value={formatCurrency(fwdFee)}
+                      value={fmt(fwdFee)}
                       tone="primary"
                       icon={<CreditCard className="h-3.5 w-3.5 text-primary" />}
                       hint={`${formatPercent(fwdFeePct)} of charge`}
@@ -195,18 +199,18 @@ Net received:         ${formatCurrency(revResult.net)}${revResult.capped ? " (ca
                   </div>
 
                   <div className="space-y-2 rounded-lg border bg-background p-4">
-                    <Row label="Charge amount" value={formatCurrency(fwdAmt)} />
+                    <Row label="Charge amount" value={fmt(fwdAmt)} />
                     <div className="border-t pt-2">
                       <Row
                         label={`${fwdType.ratePct}%${fwdType.fixed > 0 ? ` + $${fwdType.fixed.toFixed(2)}` : ""}${fwdType.cap ? ` (cap $${fwdType.cap})` : ""}`}
-                        value={formatCurrency(fwdFee)}
+                        value={fmt(fwdFee)}
                         icon={PAYMENT_ICONS[fwdType.key]}
                       />
                     </div>
                     <div className="border-t pt-2">
                       <Row
                         label="Net received"
-                        value={formatCurrency(fwdNet)}
+                        value={fmt(fwdNet)}
                         large
                         highlight
                       />
@@ -261,14 +265,14 @@ Net received:         ${formatCurrency(revResult.net)}${revResult.capped ? " (ca
                   <div className="grid grid-cols-2 gap-3">
                     <StatCard
                       label="Charge this amount"
-                      value={formatCurrency(revResult.gross)}
+                      value={fmt(revResult.gross)}
                       tone="emerald"
                       icon={<Banknote className="h-3.5 w-3.5 text-emerald-500" />}
-                      hint={`To net ${formatCurrency(revResult.net)}`}
+                      hint={`To net ${fmt(revResult.net)}`}
                     />
                     <StatCard
                       label="Processing fee"
-                      value={formatCurrency(revResult.fee)}
+                      value={fmt(revResult.fee)}
                       tone="primary"
                       icon={<CreditCard className="h-3.5 w-3.5 text-primary" />}
                       hint={revResult.capped ? "Cap hit" : `${revType.ratePct}% + $${revType.fixed.toFixed(2)}`}
@@ -276,18 +280,18 @@ Net received:         ${formatCurrency(revResult.net)}${revResult.capped ? " (ca
                   </div>
 
                   <div className="space-y-2 rounded-lg border bg-background p-4">
-                    <Row label="Target net received" value={formatCurrency(revResult.net)} />
+                    <Row label="Target net received" value={fmt(revResult.net)} />
                     <div className="border-t pt-2">
                       <Row
                         label={`Processing fee (${revType.ratePct}%${revType.fixed > 0 ? ` + $${revType.fixed.toFixed(2)}` : ""}${revType.cap ? ` cap $${revType.cap}` : ""})`}
-                        value={formatCurrency(revResult.fee)}
+                        value={fmt(revResult.fee)}
                         icon={PAYMENT_ICONS[revType.key]}
                       />
                     </div>
                     <div className="border-t pt-2">
                       <Row
                         label="Charge the customer"
-                        value={formatCurrency(revResult.gross)}
+                        value={fmt(revResult.gross)}
                         large
                         highlight
                       />
@@ -372,6 +376,13 @@ Net received:         ${formatCurrency(revResult.net)}${revResult.capped ? " (ca
         <li>
           Currency-conversion fees (1% for cross-currency charges), failed
           payment fees and chargeback fees ($15/dispute) are excluded.
+        </li>
+        <li>
+          Stripe&rsquo;s fee schedule is published in USD. This calculator
+          displays amounts in your selected currency and treats the fixed USD
+          fee component (e.g. $0.30, $0.05, $5 ACH cap) as if denominated in
+          your chosen currency &mdash; a display simplification, not a currency
+          conversion.
         </li>
       </ul>
     ),

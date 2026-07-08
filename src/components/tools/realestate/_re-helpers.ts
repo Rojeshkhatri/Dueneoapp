@@ -230,12 +230,15 @@ export interface StampBreakdownRow {
 /**
  * Compute stamp duty for a price using marginal brackets, with optional
  * first-time-buyer relief. Returns the total plus a bracket-by-bracket
- * breakdown for display.
+ * breakdown for display. The optional `currency` arg controls only the
+ * currency symbol shown in the breakdown labels — calculation is currency-
+ * agnostic (brackets are treated as denominated in whatever currency you pass).
  */
 export function computeStampDuty(
   region: StampDutyRegion,
   price: number,
-  firstTimeBuyer: boolean
+  firstTimeBuyer: boolean,
+  currency = "GBP"
 ): { total: number; breakdown: StampBreakdownRow[]; effectiveRate: number } {
   const table = STAMP_DUTY_TABLE[region];
   const breakdown: StampBreakdownRow[] = [];
@@ -248,9 +251,9 @@ export function computeStampDuty(
     const { reliefUpTo, reducedUpTo, reducedRate } = table.firstTimeBuyer;
     // 0% band
     if (price > reliefUpTo) {
-      breakdown.push({ label: `0% on first ${formatCurrency(reliefUpTo, { currency: "GBP" })}`, amount: 0 });
+      breakdown.push({ label: `0% on first ${formatCurrency(reliefUpTo, { currency })}`, amount: 0 });
     } else {
-      breakdown.push({ label: `0% on first ${formatCurrency(price, { currency: "GBP" })}`, amount: 0 });
+      breakdown.push({ label: `0% on first ${formatCurrency(price, { currency })}`, amount: 0 });
       total = 0;
       return { total, breakdown, effectiveRate: price > 0 ? (total / price) * 100 : 0 };
     }
@@ -259,13 +262,13 @@ export function computeStampDuty(
     if (price > reducedUpTo) {
       const slice = reducedUpTo - prev;
       const amount = (slice * reducedRate) / 100;
-      breakdown.push({ label: `${reducedRate}% on ${formatCurrency(slice, { currency: "GBP" })}`, amount });
+      breakdown.push({ label: `${reducedRate}% on ${formatCurrency(slice, { currency })}`, amount });
       total += amount;
       prev = reducedUpTo;
     } else {
       const slice = price - prev;
       const amount = (slice * reducedRate) / 100;
-      breakdown.push({ label: `${reducedRate}% on ${formatCurrency(slice, { currency: "GBP" })}`, amount });
+      breakdown.push({ label: `${reducedRate}% on ${formatCurrency(slice, { currency })}`, amount });
       total += amount;
       return { total, breakdown, effectiveRate: price > 0 ? (total / price) * 100 : 0 };
     }
@@ -282,7 +285,7 @@ export function computeStampDuty(
     const amount = (slice * b.rate) / 100;
     if (amount > 0 || b.rate > 0) {
       breakdown.push({
-        label: `${b.rate}% on ${formatCurrency(slice, { currency: "GBP" })}`,
+        label: `${b.rate}% on ${formatCurrency(slice, { currency })}`,
         amount,
       });
     }

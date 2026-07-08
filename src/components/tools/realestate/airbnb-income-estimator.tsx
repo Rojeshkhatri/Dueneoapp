@@ -11,6 +11,7 @@ import { toast } from "sonner";
 import { RotateCcw, TrendingDown, TrendingUp, Bed } from "lucide-react";
 import type { ToolDefinition } from "@/data/tools";
 import { parseNumber, formatCurrency, formatPercent, RE_DISCLAIMER } from "./_re-helpers";
+import { useCurrency, CurrencySelector } from "@/components/dueneo/currency-selector";
 
 export function AirbnbIncomeEstimator({ tool }: { tool: ToolDefinition }) {
   const [nightly, setNightly] = React.useState<string>("180");
@@ -18,7 +19,7 @@ export function AirbnbIncomeEstimator({ tool }: { tool: ToolDefinition }) {
   const [cleaning, setCleaning] = React.useState<string>("60");
   const [platformFee, setPlatformFee] = React.useState<string>("3");
   const [monthlyExpenses, setMonthlyExpenses] = React.useState<string>("350");
-  const currency = "USD";
+  const { code: currency, setCode: setCurrency } = useCurrency();
 
   const nightlyNum = Math.max(0, parseNumber(nightly));
   const occNum = Math.max(0, Math.min(100, parseNumber(occupancy)));
@@ -90,6 +91,7 @@ Sensitivity (occupancy −10%):
               <Button size="sm" variant="ghost" onClick={reset} className="sm:col-span-2">
                 <RotateCcw className="mr-1.5 h-3.5 w-3.5" /> Reset
               </Button>
+              <CurrencySelector value={currency} onChange={setCurrency} id="ab-currency" className="sm:col-span-2" />
             </CardContent>
           </Card>
 
