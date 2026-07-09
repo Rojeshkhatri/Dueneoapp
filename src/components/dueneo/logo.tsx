@@ -14,9 +14,9 @@ export function Logo({ className }: { className?: string }) {
         <img
           src="/logo.png"
           alt="Dueneo logo"
-          width={16}
-          height={16}
-          className="h-4 w-4"
+          width={32}
+          height={32}
+          className="h-8 w-8"
         />
       </span>
       <span className="text-lg tracking-tight">Dueneo</span>
