@@ -4,6 +4,8 @@ import "./globals.css";
 import { Toaster } from "@/components/ui/toaster";
 import { ThemeProvider } from "@/components/theme-provider";
 import { AdSenseScript } from "@/components/dueneo/adsense-script";
+import { ConsentMode } from "@/components/dueneo/consent-mode";
+import { ConsentBanner } from "@/components/dueneo/consent-banner";
 import { ADSENSE } from "@/lib/dueneo/adsense";
 
 const inter = Inter({
@@ -77,6 +79,7 @@ export default function RootLayout({
   return (
     <html lang="en" suppressHydrationWarning>
       <head>
+        {ADSENSE.publisherId && <ConsentMode />}
         {ADSENSE.publisherId && (
           <meta name="google-adsense-account" content={ADSENSE.publisherId} />
         )}
@@ -93,6 +96,7 @@ export default function RootLayout({
           {children}
           <Toaster />
           <AdSenseScript />
+          <ConsentBanner />
         </ThemeProvider>
       </body>
     </html>
