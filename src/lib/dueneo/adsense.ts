@@ -11,7 +11,7 @@
 
 export const ADSENSE = {
   /** Your AdSense publisher ID. Leave empty to show placeholders. */
-  publisherId: "ca-pub-4547306825054344",
+  publisherId: "ca-pub-4725076822352086",
 
   /** Ad slot IDs from your AdSense dashboard. Map to placements. */
   slots: {
