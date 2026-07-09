@@ -4,7 +4,7 @@ import * as React from "react";
 import { cn } from "@/lib/utils";
 import { ADSENSE } from "@/lib/dueneo/adsense";
 
-type Placement = "after-tool" | "after-content" | "after-game" | "homepage" | "category";
+type Placement = "after-tool" | "after-content" | "after-game" | "homepage" | "category" | "sidebar";
 
 /**
  * Ad slot that renders a real Google AdSense unit when configured,
@@ -22,7 +22,9 @@ export function AdSlot({
   label?: string;
 }) {
   const heightClass =
-    placement === "after-tool" || placement === "after-game"
+    placement === "sidebar"
+      ? "min-h-[250px]"
+      : placement === "after-tool" || placement === "after-game"
       ? "min-h-[90px]"
       : placement === "homepage" || placement === "category"
       ? "min-h-[120px]"

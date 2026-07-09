@@ -159,7 +159,7 @@ export function ToolLayout({
               ))}
             </div>
           </div>
-          <AdSlot id="ad-sidebar" placement="after-tool" className="min-h-[250px]" />
+          <AdSlot id="ad-sidebar" placement="sidebar" />
         </aside>
       </div>
 

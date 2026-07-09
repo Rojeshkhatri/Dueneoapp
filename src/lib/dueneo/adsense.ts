@@ -25,5 +25,7 @@ export const ADSENSE = {
     homepage: "5442944654",
     /** Category page banner */
     category: "1503699640",
+    /** Sidebar vertical ad on tool pages */
+    sidebar: "2389441294",
   },
 } as const;
