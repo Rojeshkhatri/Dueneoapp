@@ -8,7 +8,7 @@ export function Logo({ className }: { className?: string }) {
       aria-label="Dueneo home"
     >
       <img
-        src="/logo.png"
+        src="/logo.svg"
         alt="Dueneo"
         width={36}
         height={36}
