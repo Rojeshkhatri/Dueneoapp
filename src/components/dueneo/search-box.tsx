@@ -184,7 +184,7 @@ export function SearchBox({
       </div>
 
       {open && query && (
-        <div className="absolute left-0 right-0 top-[calc(100%+6px)] z-50 max-h-[60vh] overflow-y-auto rounded-xl border bg-popover p-2 shadow-lg scrollbar-thin">
+        <div className="absolute left-0 right-0 top-[calc(100%+6px)] z-50 max-h-[80vh] overflow-y-auto rounded-xl border bg-popover p-2 shadow-lg">
           {results.length === 0 ? (
             <div className="px-3 py-6 text-center text-sm text-muted-foreground">
               No tools or games match <span className="font-medium">“{query}”</span>.
