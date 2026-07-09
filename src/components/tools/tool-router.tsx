@@ -59,6 +59,9 @@ const TOOL_COMPONENTS: Record<string, LazyToolComp> = {
   "pdf-compress": lazyNamed(() => import("./pdf/pdf-compress"), "PdfCompress"),
   "pdf-to-jpg": lazyNamed(() => import("./pdf/pdf-to-jpg"), "PdfToJpg"),
   "password-protect-pdf": lazyNamed(() => import("./pdf/password-protect-pdf"), "PasswordProtectPdf"),
+  "add-text-to-pdf": lazyNamed(() => import("./pdf/add-text-to-pdf"), "AddTextToPdf"),
+  "add-image-to-pdf": lazyNamed(() => import("./pdf/add-image-to-pdf"), "AddImageToPdf"),
+  "redact-pdf": lazyNamed(() => import("./pdf/redact-pdf"), "RedactPdf"),
 
   // ─── Developer tools ──────────────────────────────────────────────────────
   "json-formatter": lazyNamed(() => import("./developer/json-formatter"), "JsonFormatter"),
