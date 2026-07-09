@@ -8,12 +8,16 @@ const inter = Inter({
   variable: "--font-geist-sans",
   subsets: ["latin"],
   display: "swap",
+  weight: ["400", "500", "600", "700"],
+  adjustFontFallback: false,
 });
 
 const jetbrainsMono = JetBrains_Mono({
   variable: "--font-geist-mono",
   subsets: ["latin"],
   display: "swap",
+  weight: ["400", "700"],
+  adjustFontFallback: false,
 });
 
 export const metadata: Metadata = {
