@@ -44,6 +44,7 @@ export const metadata: Metadata = {
     "dueneo",
   ],
   authors: [{ name: "Dueneo" }],
+  icons: { icon: "/favicon.png" },
   metadataBase: new URL("https://dueneo.com"),
   alternates: {
     canonical: "/",

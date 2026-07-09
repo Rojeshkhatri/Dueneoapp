@@ -4,22 +4,17 @@ export function Logo({ className }: { className?: string }) {
   return (
     <RouterLink
       to="/"
-      className={`group inline-flex items-center gap-2 font-semibold ${className ?? ""}`}
+      className={`group inline-flex items-center gap-2.5 font-semibold ${className ?? ""}`}
       aria-label="Dueneo home"
     >
-      <span
-        aria-hidden
-        className="inline-flex h-8 w-8 items-center justify-center rounded-lg bg-primary text-primary-foreground shadow-sm transition-transform group-hover:scale-105"
-      >
-        <img
-          src="/logo.png"
-          alt="Dueneo logo"
-          width={32}
-          height={32}
-          className="h-8 w-8"
-        />
-      </span>
-      <span className="text-lg tracking-tight">Dueneo</span>
+      <img
+        src="/logo.png"
+        alt="Dueneo"
+        width={36}
+        height={36}
+        className="h-9 w-9 rounded-lg"
+      />
+      <span className="text-xl tracking-tight">Dueneo</span>
     </RouterLink>
   );
 }
