@@ -55,7 +55,17 @@ export function RouterProvider({ children }: { children: React.ReactNode }) {
   }, []);
 
   // Ensure the hash is initialised on first load.
+  // If the user arrives at a tool/category/game URL (from search engines),
+  // redirect to the SPA hash route.
   React.useEffect(() => {
+    const pathname = window.location.pathname;
+    if (pathname && pathname !== "/" && pathname !== "/index.html") {
+      // Convert /image-compressor/ to #/image-compressor
+      let hashPath = pathname;
+      if (hashPath.endsWith("/")) hashPath = hashPath.slice(0, -1);
+      window.location.replace("/#" + hashPath);
+      return;
+    }
     if (!window.location.hash) {
       window.history.replaceState(null, "", "#/");
     }
