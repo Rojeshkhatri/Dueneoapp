@@ -180,9 +180,13 @@ export function WordSearch({ game }: { game: GameDefinition }) {
     return new Set(selection.cells.map(([r, c]) => cellKey(r, c)));
   }, [selection]);
 
-  function tryMatch() {
-    if (!selection) return;
-    const { string: forward, cells } = selection;
+  function tryMatch(from?: [number, number] | null, to?: [number, number] | null) {
+    const s = from ?? startCell;
+    const e = to ?? endCell;
+    if (!s || !e) return;
+    const cells = lineCells(s, e);
+    if (!cells) return;
+    const forward = cells.map(([r, c]) => data.grid[r][c]).join("");
     const reverse = forward.split("").reverse().join("");
     for (const placed of data.placed) {
       if (foundWords.has(placed.word)) continue;
@@ -212,12 +216,14 @@ export function WordSearch({ game }: { game: GameDefinition }) {
   }
 
   function handleCellUp() {
-    if (!startCell || !endCell) {
+    const s = startCell;
+    const e = endCell;
+    if (!s || !e) {
       setStartCell(null);
       setEndCell(null);
       return;
     }
-    tryMatch();
+    tryMatch(s, e);
     setStartCell(null);
     setEndCell(null);
   }
@@ -230,26 +236,27 @@ export function WordSearch({ game }: { game: GameDefinition }) {
       setStartCell([r, c]);
       return;
     }
-    setEndCell([r, c]);
-    // Compute on next tick so state is updated.
-    setTimeout(() => {
-      tryMatch();
-      setStartCell(null);
-      setEndCell(null);
-    }, 0);
+    const s = startCell;
+    const e: [number, number] = [r, c];
+    setEndCell(e);
+    // Use the captured values directly — no stale closure.
+    tryMatch(s, e);
+    setStartCell(null);
+    setEndCell(null);
   }
 
   React.useEffect(() => {
     function onMouseUp() {
-      if (startCell) {
-        tryMatch();
+      if (startCell && endCell) {
+        tryMatch(startCell, endCell);
         setStartCell(null);
         setEndCell(null);
       }
     }
-    function onTouchEnd() {
-      if (startCell) {
-        tryMatch();
+    function onTouchEnd(e: TouchEvent) {
+      // Only handle if we have an active selection (drag started on grid).
+      if (startCell && endCell) {
+        tryMatch(startCell, endCell);
         setStartCell(null);
         setEndCell(null);
       }

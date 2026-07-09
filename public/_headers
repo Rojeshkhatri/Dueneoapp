@@ -1,3 +1,8 @@
+# Robots.txt — serve our own, not Cloudflare managed
+/robots.txt
+  Content-Type: text/plain; charset=utf-8
+  Cache-Control: public, max-age=3600
+
 # Cache static assets aggressively (hashed filenames)
 /_next/static/*
   Cache-Control: public, max-age=31536000, immutable
