@@ -64,8 +64,8 @@ export const metadata: Metadata = {
     index: true,
     follow: true,
   },
-  verification: ADSENSE.publisherId
-    ? { google: ADSENSE.publisherId }
+  other: ADSENSE.publisherId
+    ? { "google-adsense-account": ADSENSE.publisherId }
     : undefined,
 };
 
