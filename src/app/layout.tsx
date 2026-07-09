@@ -3,6 +3,8 @@ import { Inter, JetBrains_Mono } from "next/font/google";
 import "./globals.css";
 import { Toaster } from "@/components/ui/toaster";
 import { ThemeProvider } from "@/components/theme-provider";
+import { AdSenseScript } from "@/components/dueneo/adsense-script";
+import { ADSENSE } from "@/lib/dueneo/adsense";
 
 const inter = Inter({
   variable: "--font-geist-sans",
@@ -62,6 +64,9 @@ export const metadata: Metadata = {
     index: true,
     follow: true,
   },
+  verification: ADSENSE.publisherId
+    ? { google: ADSENSE.publisherId }
+    : undefined,
 };
 
 export default function RootLayout({
@@ -82,6 +87,7 @@ export default function RootLayout({
         >
           {children}
           <Toaster />
+          <AdSenseScript />
         </ThemeProvider>
       </body>
     </html>
