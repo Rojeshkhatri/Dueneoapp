@@ -13,7 +13,7 @@ import type { Category } from "@/data/categories";
 import { tools, getToolsByCategory } from "@/data/tools";
 import { games } from "@/data/games";
 import { categories } from "@/data/categories";
-import { categoryStructuredData } from "@/lib/dueneo/seo";
+import { categoryStructuredData, faqStructuredData } from "@/lib/dueneo/seo";
 import { ArrowRight, Filter } from "lucide-react";
 import { ComingSoonCard } from "./related-items";
 
@@ -25,15 +25,35 @@ export function CategoryPage({ category }: { category: Category }) {
   }, [category]);
 
   React.useEffect(() => {
+    const scripts: HTMLScriptElement[] = [];
+
+    // BreadcrumbList schema
     const data = categoryStructuredData(category);
-    const script = document.createElement("script");
-    script.type = "application/ld+json";
-    script.text = JSON.stringify(data);
-    document.head.appendChild(script);
+    const s1 = document.createElement("script");
+    s1.type = "application/ld+json";
+    s1.text = JSON.stringify(data);
+    document.head.appendChild(s1);
+    scripts.push(s1);
+
+    // FAQPage schema
+    const faqData = faqStructuredData(
+      faqItems,
+      `https://dueneo.com/${category.route}/`
+    );
+    if (faqData) {
+      const s2 = document.createElement("script");
+      s2.type = "application/ld+json";
+      s2.text = JSON.stringify(faqData);
+      document.head.appendChild(s2);
+      scripts.push(s2);
+    }
+
     return () => {
-      document.head.removeChild(script);
+      scripts.forEach((s) => {
+        if (s.parentNode) s.parentNode.removeChild(s);
+      });
     };
-  }, [category]);
+  }, [category, faqItems]);
 
   const [query, setQuery] = React.useState("");
 

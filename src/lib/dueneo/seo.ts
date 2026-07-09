@@ -125,6 +125,55 @@ export function categoryStructuredData(category: Category): Record<string, unkno
   };
 }
 
+/** Generate FAQPage JSON-LD from an array of Q&A items. */
+export function faqStructuredData(
+  items: { q: string; a: string }[],
+  pageUrl: string
+): Record<string, unknown> | null {
+  if (!items || items.length === 0) return null;
+  return {
+    "@context": "https://schema.org",
+    "@type": "FAQPage",
+    mainEntity: items.map((item) => ({
+      "@type": "Question",
+      name: item.q,
+      acceptedAnswer: {
+        "@type": "Answer",
+        text: item.a,
+      },
+    })),
+    url: pageUrl,
+  };
+}
+
+/** WebSite schema for the homepage — enables sitelinks searchbox. */
+export function websiteStructuredData(): Record<string, unknown> {
+  return {
+    "@context": "https://schema.org",
+    "@type": "WebSite",
+    name: "Dueneo",
+    url: "https://dueneo.com",
+    description:
+      "Free, fast and private browser-based tools for images, PDFs, developers, text, business, finance, design, and SEO — plus lightweight classic games.",
+    potentialAction: {
+      "@type": "SearchAction",
+      target: "https://dueneo.com/?q={search_term_string}",
+      "query-input": "required name=search_term_string",
+    },
+  };
+}
+
+/** Organization schema for the homepage. */
+export function organizationStructuredData(): Record<string, unknown> {
+  return {
+    "@context": "https://schema.org",
+    "@type": "Organization",
+    name: "Dueneo",
+    url: "https://dueneo.com",
+    logo: "https://dueneo.com/logo.svg",
+  };
+}
+
 function applicationCategory(category: string): string {
   switch (category) {
     case "image":

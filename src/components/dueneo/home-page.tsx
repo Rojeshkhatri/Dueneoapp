@@ -9,6 +9,7 @@ import { games } from "@/data/games";
 import { ToolCard } from "@/components/dueneo/tool-card";
 import { GameCard } from "@/components/dueneo/game-card";
 import { AdSlot } from "@/components/dueneo/ad-slot";
+import { websiteStructuredData, organizationStructuredData } from "@/lib/dueneo/seo";
 import {
   ShieldCheck,
   Zap,
@@ -54,6 +55,23 @@ export function HomePage() {
 
   const implementedTools = tools.filter((t) => t.implemented);
   const implementedGames = games.filter((g) => g.implemented);
+
+  // Inject WebSite + Organization schema on mount.
+  React.useEffect(() => {
+    const scripts: HTMLScriptElement[] = [];
+    for (const data of [websiteStructuredData(), organizationStructuredData()]) {
+      const s = document.createElement("script");
+      s.type = "application/ld+json";
+      s.text = JSON.stringify(data);
+      document.head.appendChild(s);
+      scripts.push(s);
+    }
+    return () => {
+      scripts.forEach((s) => {
+        if (s.parentNode) s.parentNode.removeChild(s);
+      });
+    };
+  }, []);
 
   return (
     <main className="flex-1">

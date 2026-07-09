@@ -9,7 +9,7 @@ import { HowTo, type Step } from "./how-to";
 import { RelatedTools } from "./related-items";
 import type { ToolDefinition } from "@/data/tools";
 import { getCategory } from "@/data/categories";
-import { toolStructuredData } from "@/lib/dueneo/seo";
+import { toolStructuredData, faqStructuredData } from "@/lib/dueneo/seo";
 
 export interface ToolContent {
   intro: React.ReactNode;
@@ -53,15 +53,37 @@ export function ToolLayout({
   // Inject JSON-LD structured data.
   React.useEffect(() => {
     if (!category) return;
+    const scripts: HTMLScriptElement[] = [];
+
+    // Tool + Breadcrumb schema
     const data = toolStructuredData(tool, category);
-    const script = document.createElement("script");
-    script.type = "application/ld+json";
-    script.text = JSON.stringify(data);
-    document.head.appendChild(script);
+    const s1 = document.createElement("script");
+    s1.type = "application/ld+json";
+    s1.text = JSON.stringify(data);
+    document.head.appendChild(s1);
+    scripts.push(s1);
+
+    // FAQPage schema
+    if (content.faq && content.faq.length > 0) {
+      const faqData = faqStructuredData(
+        content.faq,
+        `https://dueneo.com/${tool.slug}/`
+      );
+      if (faqData) {
+        const s2 = document.createElement("script");
+        s2.type = "application/ld+json";
+        s2.text = JSON.stringify(faqData);
+        document.head.appendChild(s2);
+        scripts.push(s2);
+      }
+    }
+
     return () => {
-      document.head.removeChild(script);
+      scripts.forEach((s) => {
+        if (s.parentNode) s.parentNode.removeChild(s);
+      });
     };
-  }, [tool, category]);
+  }, [tool, category, content.faq]);
 
   return (
     <article className="dueneo-container py-6 sm:py-10">

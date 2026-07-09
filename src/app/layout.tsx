@@ -56,12 +56,14 @@ export const metadata: Metadata = {
     url: "https://dueneo.com",
     siteName: "Dueneo",
     type: "website",
+    images: [{ url: "/logo.svg", width: 128, height: 128, alt: "Dueneo" }],
   },
   twitter: {
     card: "summary_large_image",
     title: "Dueneo — Free Browser Tools & Classic Games",
     description:
       "Fast, private browser-based tools plus lightweight classic games.",
+    images: ["/logo.svg"],
   },
   robots: {
     index: true,
