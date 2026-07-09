@@ -4,7 +4,7 @@
   "private": true,
   "scripts": {
     "dev": "next dev -p 3000 2>&1 | tee dev.log",
-    "build": "next build && cp public/404.html out/404.html",
+    "build": "next build && cp public/404.html out/404.html && sed -i '' 's|<head>|<head><meta name=\"google-adsense-account\" content=\"ca-pub-4725076822352086\">|' out/index.html",
     "start": "npx serve out -l 3000",
     "lint": "eslint ."
   },

@@ -76,6 +76,11 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en" suppressHydrationWarning>
+      <head>
+        {ADSENSE.publisherId && (
+          <meta name="google-adsense-account" content={ADSENSE.publisherId} />
+        )}
+      </head>
       <body
         className={`${inter.variable} ${jetbrainsMono.variable} antialiased bg-background text-foreground`}
       >
