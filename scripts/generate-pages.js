@@ -161,6 +161,7 @@ function toolPage(tool) {
   <meta name="twitter:description" content="${esc(tool.metaDescription)}">
   <meta name="twitter:image" content="${ogImage}">
   <meta name="google-adsense-account" content="ca-pub-4725076822352086">
+  <meta name="msvalidate.01" content="0B0AD6843DC4C53325D80F8A2AFCB0AC">
   <script type="application/ld+json">${jsonLd}</script>
   <script>window.location.replace("/#/${tool.slug}");</script>
 </head>

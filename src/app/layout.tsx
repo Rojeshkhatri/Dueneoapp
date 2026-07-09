@@ -86,6 +86,7 @@ export default function RootLayout({
         {ADSENSE.publisherId && (
           <meta name="google-adsense-account" content={ADSENSE.publisherId} />
         )}
+        <meta name="msvalidate.01" content="0B0AD6843DC4C53325D80F8A2AFCB0AC" />
       </head>
       <body
         className={`${inter.variable} ${jetbrainsMono.variable} antialiased bg-background text-foreground`}
