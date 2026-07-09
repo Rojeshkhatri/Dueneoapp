@@ -20,10 +20,10 @@ export const ADSENSE = {
     /** Banner after the how-to/FAQ content */
     "after-content": "1503699640",
     /** Banner after game content */
-    "after-game": "5442944654",
+    "after-game": "3808253186",
     /** Homepage banner */
-    homepage: "1503699640",
+    homepage: "5442944654",
     /** Category page banner */
-    category: "5442944654",
+    category: "1503699640",
   },
 } as const;
