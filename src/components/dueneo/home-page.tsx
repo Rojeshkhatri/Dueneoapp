@@ -76,7 +76,7 @@ export function HomePage() {
   return (
     <main className="flex-1">
       {/* HERO */}
-      <section className="relative overflow-hidden border-b bg-gradient-to-b from-muted/40 to-background">
+      <section className="relative border-b bg-gradient-to-b from-muted/40 to-background">
         <div className="dueneo-container py-14 sm:py-20">
           <div className="mx-auto max-w-3xl text-center">
             <span className="inline-flex items-center gap-1.5 rounded-full border bg-background px-3 py-1 text-xs font-medium text-muted-foreground">

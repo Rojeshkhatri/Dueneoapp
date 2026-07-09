@@ -18,43 +18,6 @@ import { ArrowRight, Filter } from "lucide-react";
 import { ComingSoonCard } from "./related-items";
 
 export function CategoryPage({ category }: { category: Category }) {
-  React.useEffect(() => {
-    document.title = `Free ${category.name} — Browser-Based Utilities | Dueneo`;
-    const desc = document.querySelector('meta[name="description"]');
-    if (desc) desc.setAttribute("content", category.longDescription);
-  }, [category]);
-
-  React.useEffect(() => {
-    const scripts: HTMLScriptElement[] = [];
-
-    // BreadcrumbList schema
-    const data = categoryStructuredData(category);
-    const s1 = document.createElement("script");
-    s1.type = "application/ld+json";
-    s1.text = JSON.stringify(data);
-    document.head.appendChild(s1);
-    scripts.push(s1);
-
-    // FAQPage schema
-    const faqData = faqStructuredData(
-      faqItems,
-      `https://dueneo.com/${category.route}/`
-    );
-    if (faqData) {
-      const s2 = document.createElement("script");
-      s2.type = "application/ld+json";
-      s2.text = JSON.stringify(faqData);
-      document.head.appendChild(s2);
-      scripts.push(s2);
-    }
-
-    return () => {
-      scripts.forEach((s) => {
-        if (s.parentNode) s.parentNode.removeChild(s);
-      });
-    };
-  }, [category, faqItems]);
-
   const [query, setQuery] = React.useState("");
 
   const isGames = category.slug === "games";
@@ -92,6 +55,43 @@ export function CategoryPage({ category }: { category: Category }) {
       a: "No. Everything runs directly in your browser. Just open the page and start using the tool or playing the game.",
     },
   ];
+
+  React.useEffect(() => {
+    document.title = `Free ${category.name} — Browser-Based Utilities | Dueneo`;
+    const desc = document.querySelector('meta[name="description"]');
+    if (desc) desc.setAttribute("content", category.longDescription);
+  }, [category]);
+
+  React.useEffect(() => {
+    const scripts: HTMLScriptElement[] = [];
+
+    // BreadcrumbList schema
+    const data = categoryStructuredData(category);
+    const s1 = document.createElement("script");
+    s1.type = "application/ld+json";
+    s1.text = JSON.stringify(data);
+    document.head.appendChild(s1);
+    scripts.push(s1);
+
+    // FAQPage schema
+    const faqData = faqStructuredData(
+      faqItems,
+      `https://dueneo.com/${category.route}/`
+    );
+    if (faqData) {
+      const s2 = document.createElement("script");
+      s2.type = "application/ld+json";
+      s2.text = JSON.stringify(faqData);
+      document.head.appendChild(s2);
+      scripts.push(s2);
+    }
+
+    return () => {
+      scripts.forEach((s) => {
+        if (s.parentNode) s.parentNode.removeChild(s);
+      });
+    };
+  }, [category, faqItems]);
 
   return (
     <main className="dueneo-container flex-1 py-6 sm:py-10">
