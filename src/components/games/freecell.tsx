@@ -411,7 +411,7 @@ export function FreeCell({ game }: { game: GameDefinition }) {
 
         {/* Top row: free cells + foundations */}
         <div className="mt-4 overflow-x-auto">
-          <div className="grid min-w-[680px] grid-cols-9 gap-2 sm:gap-3">
+          <div className="grid min-w-[350px] sm:min-w-[520px] grid-cols-9 gap-2 sm:gap-3">
             {/* 4 free cells */}
             {state.freeCells.map((cell, i) => (
               <div key={`fc-${i}`} className="relative">
@@ -420,7 +420,7 @@ export function FreeCell({ game }: { game: GameDefinition }) {
                     type="button"
                     onClick={() => handleFreeCellClick(i)}
                     aria-label={`Free cell ${i + 1}, empty`}
-                    className={`flex h-14 w-10 items-center justify-center rounded-md border-2 border-dashed text-[10px] text-muted-foreground/60 transition-colors hover:bg-muted/40 sm:h-16 sm:w-12 ${
+                    className={`flex h-11 w-8 sm:h-14 sm:w-10 md:h-16 md:w-12 items-center justify-center rounded-md border-2 border-dashed text-[8px] sm:text-[10px] text-muted-foreground/60 transition-colors hover:bg-muted/40 ${
                       sel ? "border-amber-400/60 bg-amber-50/40 dark:bg-amber-950/20" : "border-muted-foreground/25 bg-muted/20"
                     }`}
                   >
@@ -447,7 +447,7 @@ export function FreeCell({ game }: { game: GameDefinition }) {
                     type="button"
                     onClick={() => handleFoundationClick(i)}
                     aria-label={`Foundation ${i + 1}, empty`}
-                    className={`flex h-14 w-10 items-center justify-center rounded-md border-2 border-dashed text-base text-muted-foreground/60 transition-colors hover:bg-muted/40 sm:h-16 sm:w-12 ${
+                    className={`flex h-11 w-8 sm:h-14 sm:w-10 md:h-16 md:w-12 items-center justify-center rounded-md border-2 border-dashed text-xs sm:text-base text-muted-foreground/60 transition-colors hover:bg-muted/40 ${
                       sel ? "border-amber-400/60 bg-amber-50/40 dark:bg-amber-950/20" : "border-muted-foreground/25 bg-muted/20"
                     }`}
                   >
@@ -472,7 +472,7 @@ export function FreeCell({ game }: { game: GameDefinition }) {
 
         {/* Tableau */}
         <div className="mt-5 overflow-x-auto">
-          <div className="grid min-w-[680px] grid-cols-8 gap-2 sm:gap-3">
+          <div className="grid min-w-[350px] sm:min-w-[520px] grid-cols-8 gap-2 sm:gap-3">
             {state.tableau.map((col, i) => (
               <div key={i} className="min-h-[120px]">
                 <Pile

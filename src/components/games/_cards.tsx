@@ -96,9 +96,9 @@ export function canStackFoundation(card: Card, foundationTop: Card | null): bool
 export type CardSize = "sm" | "md" | "lg";
 
 const CARD_DIMS: Record<CardSize, { w: string; h: string; textCorner: string; textCenter: string }> = {
-  sm: { w: "w-10", h: "h-14", textCorner: "text-[10px]", textCenter: "text-base" },
-  md: { w: "w-12 sm:w-14", h: "h-16 sm:h-20", textCorner: "text-xs", textCenter: "text-lg sm:text-xl" },
-  lg: { w: "w-16 sm:w-20", h: "h-22 sm:h-28", textCorner: "text-sm", textCenter: "text-2xl sm:text-3xl" },
+  sm: { w: "w-8 sm:w-10", h: "h-11 sm:h-14", textCorner: "text-[8px] sm:text-[10px]", textCenter: "text-sm sm:text-base" },
+  md: { w: "w-10 sm:w-12 md:w-14", h: "h-14 sm:h-16 md:h-20", textCorner: "text-[10px] sm:text-xs", textCenter: "text-base sm:text-lg md:text-xl" },
+  lg: { w: "w-12 sm:w-16 md:w-20", h: "h-16 sm:h-20 md:h-28", textCorner: "text-xs sm:text-sm", textCenter: "text-lg sm:text-2xl md:text-3xl" },
 };
 
 export interface CardViewProps {

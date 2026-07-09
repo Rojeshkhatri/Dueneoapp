@@ -458,7 +458,7 @@ export function Solitaire({ game }: { game: GameDefinition }) {
 
         {/* Play area */}
         <div className="mt-4 overflow-x-auto">
-          <div className="min-w-[640px]">
+          <div className="min-w-[320px] sm:min-w-[500px]">
             {/* Top row: stock | waste | gap | 4 foundations */}
             <div className="grid grid-cols-7 gap-2 sm:gap-3">
               {/* Stock */}

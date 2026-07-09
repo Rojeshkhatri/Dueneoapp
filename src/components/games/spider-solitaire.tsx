@@ -319,7 +319,7 @@ export function SpiderSolitaire({ game }: { game: GameDefinition }) {
                 return (
                   <div
                     key={i}
-                    className="flex h-14 w-10 items-center justify-center rounded-md border-2 border-dashed border-muted-foreground/25 bg-muted/20 text-[10px] text-muted-foreground/50"
+                    className="flex h-11 w-8 sm:h-14 sm:w-10 items-center justify-center rounded-md border-2 border-dashed border-muted-foreground/25 bg-muted/20 text-[10px] text-muted-foreground/50"
                   >
                     K→A
                   </div>
@@ -343,19 +343,19 @@ export function SpiderSolitaire({ game }: { game: GameDefinition }) {
               {state.stock.length > 0 ? (
                 <>
                   {state.stock.length > 10 && (
-                    <span className="absolute left-1 top-1 h-14 w-10 rounded-md border border-slate-300/50 bg-indigo-600/80" />
+                    <span className="absolute left-1 top-1 h-11 w-8 sm:h-14 sm:w-10 rounded-md border border-slate-300/50 bg-indigo-600/80" />
                   )}
                   <button
                     type="button"
                     onClick={handleStockClick}
                     aria-label={`Deal 10 cards from stock — ${state.stock.length} remaining`}
-                    className="relative flex h-14 w-10 items-center justify-center rounded-md border border-indigo-300/60 bg-gradient-to-br from-indigo-500 to-indigo-700 text-indigo-50 shadow-sm hover:brightness-110"
+                    className="relative flex h-11 w-8 sm:h-14 sm:w-10 items-center justify-center rounded-md border border-indigo-300/60 bg-gradient-to-br from-indigo-500 to-indigo-700 text-indigo-50 shadow-sm hover:brightness-110"
                   >
                     <Layers className="h-4 w-4" />
                   </button>
                 </>
               ) : (
-                <div className="flex h-14 w-10 items-center justify-center rounded-md border-2 border-dashed border-muted-foreground/25 bg-muted/20 text-[10px] text-muted-foreground/50">
+                <div className="flex h-11 w-8 sm:h-14 sm:w-10 items-center justify-center rounded-md border-2 border-dashed border-muted-foreground/25 bg-muted/20 text-[10px] text-muted-foreground/50">
                   Empty
                 </div>
               )}
@@ -365,7 +365,7 @@ export function SpiderSolitaire({ game }: { game: GameDefinition }) {
 
         {/* Tableau */}
         <div className="mt-4 overflow-x-auto">
-          <div className="grid min-w-[700px] grid-cols-10 gap-1.5 sm:gap-2">
+          <div className="grid min-w-[380px] sm:min-w-[550px] grid-cols-10 gap-1 sm:gap-1.5 md:gap-2">
             {state.tableau.map((col, i) => (
               <div key={i} className="min-h-[120px]">
                 <Pile
