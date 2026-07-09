@@ -16,14 +16,14 @@ export const ADSENSE = {
   /** Ad slot IDs from your AdSense dashboard. Map to placements. */
   slots: {
     /** Banner after the tool/game content */
-    "after-tool": "",
+    "after-tool": "5442944654",
     /** Banner after the how-to/FAQ content */
-    "after-content": "",
+    "after-content": "1503699640",
     /** Banner after game content */
-    "after-game": "",
+    "after-game": "5442944654",
     /** Homepage banner */
-    homepage: "",
+    homepage: "1503699640",
     /** Category page banner */
-    category: "",
+    category: "5442944654",
   },
 } as const;
