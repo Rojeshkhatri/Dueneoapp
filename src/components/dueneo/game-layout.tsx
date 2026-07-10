@@ -9,6 +9,7 @@ import type { GameDefinition } from "@/data/games";
 import { gameStructuredData } from "@/lib/dueneo/seo";
 import { Gamepad2, Keyboard, Smartphone } from "lucide-react";
 import { usePageMetadata } from "@/lib/dueneo/client-metadata";
+import { useHydrated } from "@/hooks/use-hydrated";
 
 export interface GameContent {
   intro: React.ReactNode;
@@ -20,6 +21,7 @@ export interface GameContent {
 }
 
 export function GameLayout({ game, content }: { game: GameDefinition; content: GameContent }) {
+  const hydrated = useHydrated();
   const crumbs: Crumb[] = [
     { label: "Games", to: "/games" },
     { label: game.name },
@@ -74,7 +76,16 @@ export function GameLayout({ game, content }: { game: GameDefinition; content: G
       </header>
 
       <section aria-label={`${game.name} board`} className="mt-6">
-        {content.game}
+        {hydrated ? (
+          content.game
+        ) : (
+          <div
+            role="status"
+            className="flex min-h-64 items-center justify-center rounded-xl border bg-card text-sm text-muted-foreground"
+          >
+            Loading {game.name}…
+          </div>
+        )}
       </section>
 
       <div className="mt-10">

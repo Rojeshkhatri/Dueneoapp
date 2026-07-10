@@ -12,6 +12,7 @@ import { getCategory } from "@/data/categories";
 import { toolStructuredData, faqStructuredData } from "@/lib/dueneo/seo";
 import { usePageMetadata } from "@/lib/dueneo/client-metadata";
 import { recordRecentTool } from "@/lib/dueneo/tool-library";
+import { useHydrated } from "@/hooks/use-hydrated";
 
 export interface ToolContent {
   intro: React.ReactNode;
@@ -37,6 +38,7 @@ export function ToolLayout({
   content: ToolContent;
 }) {
   const category = getCategory(tool.category);
+  const hydrated = useHydrated();
   const crumbs: Crumb[] = category
     ? [
         { label: category.name, to: `/${category.route}` },
@@ -122,7 +124,16 @@ export function ToolLayout({
 
       <section aria-label={`${tool.name} tool`} className="mt-6">
         <PrivacyNote level={privacyLevelToType[tool.privacyLevel]} className="mb-3" />
-        {content.tool}
+        {hydrated ? (
+          content.tool
+        ) : (
+          <div
+            role="status"
+            className="flex min-h-36 items-center justify-center rounded-xl border bg-card text-sm text-muted-foreground"
+          >
+            Loading {tool.name}…
+          </div>
+        )}
       </section>
 
       <div className="mt-10">
