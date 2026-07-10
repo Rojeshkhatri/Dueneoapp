@@ -282,9 +282,9 @@ export function PdfSplit({ tool }: { tool: ToolDefinition }) {
                         const a = document.createElement("a");
                         a.href = outputUrl;
                         a.download = outputName;
+                        a.style.display = "none";
                         document.body.appendChild(a);
-                        a.click();
-                        document.body.removeChild(a);
+                        requestAnimationFrame(() => { a.click(); setTimeout(() => a.remove(), 100); });
                       } else {
                         toast.error("Nothing to download yet.");
                       }

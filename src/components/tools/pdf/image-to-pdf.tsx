@@ -338,9 +338,9 @@ export function ImageToPdf({ tool }: { tool: ToolDefinition }) {
                       const a = document.createElement("a");
                       a.href = outputUrl;
                       a.download = outputName;
+                      a.style.display = "none";
                       document.body.appendChild(a);
-                      a.click();
-                      document.body.removeChild(a);
+                      requestAnimationFrame(() => { a.click(); setTimeout(() => a.remove(), 100); });
                     }}
                   >
                     <Download className="mr-1.5 h-4 w-4" />

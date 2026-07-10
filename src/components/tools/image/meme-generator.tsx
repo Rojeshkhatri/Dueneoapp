@@ -199,10 +199,9 @@ export function MemeGenerator({ tool }: { tool: ToolDefinition }) {
         : template
         ? `${template.id}-meme.png`
         : "meme.png";
+      a.style.display = "none";
       document.body.appendChild(a);
-      a.click();
-      document.body.removeChild(a);
-      setTimeout(() => URL.revokeObjectURL(url), 1000);
+      requestAnimationFrame(() => { a.click(); setTimeout(() => { URL.revokeObjectURL(url); a.remove(); }, 100); });
       toast.success("Meme downloaded.");
     }, "image/png");
   };

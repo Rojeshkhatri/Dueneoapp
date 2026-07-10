@@ -228,9 +228,12 @@ export function PasswordProtectPdf({ tool }: { tool: ToolDefinition }) {
     const a = document.createElement("a");
     a.href = outputUrl;
     a.download = derivedPdfName(file?.name, "encrypted");
+    a.style.display = "none";
     document.body.appendChild(a);
-    a.click();
-    document.body.removeChild(a);
+    requestAnimationFrame(() => {
+      a.click();
+      setTimeout(() => a.remove(), 100);
+    });
     toast.success("Download started.");
   };
 

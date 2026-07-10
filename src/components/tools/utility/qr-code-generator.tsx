@@ -208,9 +208,9 @@ export function QrCodeGenerator({ tool }: { tool: ToolDefinition }) {
     const a = document.createElement("a");
     a.href = state.dataUrl;
     a.download = "dueneo-qr.png";
+    a.style.display = "none";
     document.body.appendChild(a);
-    a.click();
-    document.body.removeChild(a);
+    requestAnimationFrame(() => { a.click(); setTimeout(() => a.remove(), 100); });
     toast.success("Downloaded dueneo-qr.png");
   };
 

@@ -206,10 +206,9 @@ export function PhotoCollageMaker({ tool }: { tool: ToolDefinition }) {
       const a = document.createElement("a");
       a.href = url;
       a.download = "collage.png";
+      a.style.display = "none";
       document.body.appendChild(a);
-      a.click();
-      document.body.removeChild(a);
-      setTimeout(() => URL.revokeObjectURL(url), 1000);
+      requestAnimationFrame(() => { a.click(); setTimeout(() => { URL.revokeObjectURL(url); a.remove(); }, 100); });
       toast.success(`Collage downloaded (${formatBytes(blob.size)}).`);
     } catch (err) {
       toast.error(err instanceof Error ? err.message : "Collage rendering failed.");

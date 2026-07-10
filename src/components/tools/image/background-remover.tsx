@@ -262,10 +262,9 @@ export function BackgroundRemover({ tool }: { tool: ToolDefinition }) {
                     const a = document.createElement("a");
                     a.href = url;
                     a.download = downloadName;
+                    a.style.display = "none";
                     document.body.appendChild(a);
-                    a.click();
-                    document.body.removeChild(a);
-                    setTimeout(() => URL.revokeObjectURL(url), 1000);
+                    requestAnimationFrame(() => { a.click(); setTimeout(() => { URL.revokeObjectURL(url); a.remove(); }, 100); });
                   }}
                   className="w-full sm:w-auto"
                 >

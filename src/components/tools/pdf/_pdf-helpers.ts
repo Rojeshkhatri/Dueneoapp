@@ -25,13 +25,21 @@ export function formatBytes(bytes: number, decimals = 1): string {
 export function downloadBlob(blob: Blob | null, filename: string): boolean {
   if (!blob) return false;
   const url = URL.createObjectURL(blob);
+  // Use a temporary <a> with download attribute — works without popup blockers.
   const a = document.createElement("a");
   a.href = url;
   a.download = filename;
+  a.style.display = "none";
   document.body.appendChild(a);
-  a.click();
-  document.body.removeChild(a);
-  setTimeout(() => URL.revokeObjectURL(url), 1000);
+  // Use requestAnimationFrame to ensure the element is in the DOM before clicking.
+  requestAnimationFrame(() => {
+    a.click();
+    // Clean up after a short delay to allow the download to start.
+    setTimeout(() => {
+      URL.revokeObjectURL(url);
+      a.remove();
+    }, 100);
+  });
   return true;
 }
 
@@ -333,8 +341,11 @@ export function downloadObjectUrl(url: string, filename: string): boolean {
   const a = document.createElement("a");
   a.href = url;
   a.download = filename;
+  a.style.display = "none";
   document.body.appendChild(a);
-  a.click();
-  document.body.removeChild(a);
+  requestAnimationFrame(() => {
+    a.click();
+    setTimeout(() => a.remove(), 100);
+  });
   return true;
 }
