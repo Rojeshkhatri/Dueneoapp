@@ -71,43 +71,29 @@ export function ToolLayout({
     window.location.href = `mailto:bugs@dueneo.com?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
   };
 
-  // Inject JSON-LD structured data.
-  React.useEffect(() => {
-    if (!category) return;
-    const scripts: HTMLScriptElement[] = [];
-
-    // Tool + Breadcrumb schema
-    const data = toolStructuredData(tool, category);
-    const s1 = document.createElement("script");
-    s1.type = "application/ld+json";
-    s1.text = JSON.stringify(data);
-    document.head.appendChild(s1);
-    scripts.push(s1);
-
-    // FAQPage schema
-    if (content.faq && content.faq.length > 0) {
-      const faqData = faqStructuredData(
-        content.faq.filter((item): item is { q: string; a: string } => typeof item.a === "string"),
-        `https://dueneo.com/${tool.slug}/`
-      );
-      if (faqData) {
-        const s2 = document.createElement("script");
-        s2.type = "application/ld+json";
-        s2.text = JSON.stringify(faqData);
-        document.head.appendChild(s2);
-        scripts.push(s2);
-      }
-    }
-
-    return () => {
-      scripts.forEach((s) => {
-        if (s.parentNode) s.parentNode.removeChild(s);
-      });
-    };
-  }, [tool, category, content.faq]);
+  const toolJsonLd = category ? toolStructuredData(tool, category) : null;
+  const faqJsonLd =
+    content.faq && content.faq.length > 0
+      ? faqStructuredData(
+          content.faq.filter((item): item is { q: string; a: string } => typeof item.a === "string"),
+          `https://dueneo.com/${tool.slug}/`
+        )
+      : null;
 
   return (
     <article className="dueneo-container py-6 sm:py-10">
+      {toolJsonLd && (
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{ __html: JSON.stringify(toolJsonLd) }}
+        />
+      )}
+      {faqJsonLd && (
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{ __html: JSON.stringify(faqJsonLd) }}
+        />
+      )}
       <Breadcrumbs items={crumbs} />
 
       <header className="mt-4">

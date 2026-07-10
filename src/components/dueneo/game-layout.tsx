@@ -33,19 +33,14 @@ export function GameLayout({ game, content }: { game: GameDefinition; content: G
     pathname: `/games/${game.slug}`,
   });
 
-  React.useEffect(() => {
-    const data = gameStructuredData(game);
-    const script = document.createElement("script");
-    script.type = "application/ld+json";
-    script.text = JSON.stringify(data);
-    document.head.appendChild(script);
-    return () => {
-      document.head.removeChild(script);
-    };
-  }, [game]);
+  const gameJsonLd = gameStructuredData(game);
 
   return (
     <article className="dueneo-container py-6 sm:py-10">
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(gameJsonLd) }}
+      />
       <Breadcrumbs items={crumbs} />
 
       <header className="mt-4">

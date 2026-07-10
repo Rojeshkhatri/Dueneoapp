@@ -63,39 +63,24 @@ export function CategoryPage({ category }: { category: Category }) {
     pathname: `/${category.route}`,
   });
 
-  React.useEffect(() => {
-    const scripts: HTMLScriptElement[] = [];
-
-    // BreadcrumbList schema
-    const data = categoryStructuredData(category);
-    const s1 = document.createElement("script");
-    s1.type = "application/ld+json";
-    s1.text = JSON.stringify(data);
-    document.head.appendChild(s1);
-    scripts.push(s1);
-
-    // FAQPage schema
-    const faqData = faqStructuredData(
-      faqItems.filter((item): item is { q: string; a: string } => typeof item.a === "string"),
-      `https://dueneo.com/${category.route}/`
-    );
-    if (faqData) {
-      const s2 = document.createElement("script");
-      s2.type = "application/ld+json";
-      s2.text = JSON.stringify(faqData);
-      document.head.appendChild(s2);
-      scripts.push(s2);
-    }
-
-    return () => {
-      scripts.forEach((s) => {
-        if (s.parentNode) s.parentNode.removeChild(s);
-      });
-    };
-  }, [category, faqItems]);
+  const catJsonLd = categoryStructuredData(category);
+  const faqJsonLd = faqStructuredData(
+    faqItems.filter((item): item is { q: string; a: string } => typeof item.a === "string"),
+    `https://dueneo.com/${category.route}/`
+  );
 
   return (
     <main className="dueneo-container flex-1 py-6 sm:py-10">
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(catJsonLd) }}
+      />
+      {faqJsonLd && (
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{ __html: JSON.stringify(faqJsonLd) }}
+        />
+      )}
       <Breadcrumbs items={[{ label: category.name }]} />
 
       <header className="mt-4">

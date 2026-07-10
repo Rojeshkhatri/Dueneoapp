@@ -62,25 +62,19 @@ export function HomePage() {
   }));
   const toolCategoryCount = categories.filter((category) => category.slug !== "games").length;
 
-  // Inject WebSite + Organization schema on mount.
-  React.useEffect(() => {
-    const scripts: HTMLScriptElement[] = [];
-    for (const data of [websiteStructuredData(), organizationStructuredData()]) {
-      const s = document.createElement("script");
-      s.type = "application/ld+json";
-      s.text = JSON.stringify(data);
-      document.head.appendChild(s);
-      scripts.push(s);
-    }
-    return () => {
-      scripts.forEach((s) => {
-        if (s.parentNode) s.parentNode.removeChild(s);
-      });
-    };
-  }, []);
+  const websiteJsonLd = websiteStructuredData();
+  const orgJsonLd = organizationStructuredData();
 
   return (
     <main className="flex-1">
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(websiteJsonLd) }}
+      />
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(orgJsonLd) }}
+      />
       {/* HERO */}
       <section className="relative border-b bg-gradient-to-b from-muted/40 to-background">
         <div className="dueneo-container py-14 sm:py-20">
