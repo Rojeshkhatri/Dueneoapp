@@ -3547,7 +3547,7 @@ export const tools: ToolDefinition[] = [
     id: 241,
     name: "Business Calculator",
     slug: "business-calculator",
-    category: "finance",
+    category: "business",
     summary: "TVM, NPV, IRR, amortization schedules, and depreciation. Financial calculator for professionals and students.",
     seoTitle: "Free Business Calculator — TVM, NPV, IRR | Dueneo",
     metaDescription: "Free browser-based business calculator with TVM (PV, FV, PMT, N, I/Y), NPV, IRR, amortization schedules, and depreciation. Precision arithmetic. No signup.",

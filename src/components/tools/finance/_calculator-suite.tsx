@@ -6,14 +6,13 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Calculator, LineChart, Briefcase, BookOpen, ChevronDown, ChevronUp } from "lucide-react";
 import { cn } from "@/lib/utils";
 
-export type CalculatorTab = "scientific" | "graphing" | "business";
+export type CalculatorTab = "scientific" | "graphing";
 
 interface CalculatorSuiteProps {
   activeTab: CalculatorTab;
   onTabChange: (tab: CalculatorTab) => void;
   scientific: React.ReactNode;
   graphing: React.ReactNode;
-  business: React.ReactNode;
   guide: Record<CalculatorTab, { title: string; sections: GuideSection[] }>;
 }
 
@@ -27,7 +26,6 @@ export function CalculatorSuite({
   onTabChange,
   scientific,
   graphing,
-  business,
   guide,
 }: CalculatorSuiteProps) {
   const [showGuide, setShowGuide] = React.useState(false);
@@ -37,7 +35,7 @@ export function CalculatorSuite({
     <div className="flex flex-col gap-6">
       {/* Calculator switcher */}
       <Tabs value={activeTab} onValueChange={(v) => onTabChange(v as CalculatorTab)}>
-        <TabsList className="grid w-full grid-cols-3">
+        <TabsList className="grid w-full grid-cols-2">
           <TabsTrigger value="scientific" className="gap-1.5">
             <Calculator className="h-4 w-4" />
             <span className="hidden sm:inline">Scientific</span>
@@ -46,10 +44,6 @@ export function CalculatorSuite({
             <LineChart className="h-4 w-4" />
             <span className="hidden sm:inline">Graphing</span>
           </TabsTrigger>
-          <TabsTrigger value="business" className="gap-1.5">
-            <Briefcase className="h-4 w-4" />
-            <span className="hidden sm:inline">Business</span>
-          </TabsTrigger>
         </TabsList>
 
         <TabsContent value="scientific" className="mt-4">
@@ -57,9 +51,6 @@ export function CalculatorSuite({
         </TabsContent>
         <TabsContent value="graphing" className="mt-4">
           {graphing}
-        </TabsContent>
-        <TabsContent value="business" className="mt-4">
-          {business}
         </TabsContent>
       </Tabs>
 

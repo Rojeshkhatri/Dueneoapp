@@ -3,7 +3,6 @@
 import * as React from "react";
 import { CalculatorSuite, CalcDisplay, CalcButton, type CalculatorTab } from "./_calculator-suite";
 import { GraphingContent } from "./graphing-calculator";
-import { BusinessContent } from "./business-calculator";
 import { ToolLayout, type ToolContent } from "@/components/dueneo/tool-layout";
 import type { ToolDefinition } from "@/data/tools";
 import { toast } from "sonner";
@@ -330,59 +329,6 @@ export function ScientificCalculator({ tool }: { tool: ToolDefinition }) {
         },
       ],
     },
-    business: {
-      title: "Business Calculator",
-      sections: [
-        {
-          heading: "Time Value of Money (TVM)",
-          content: (
-            <div className="space-y-2">
-              <p>Fill in 4 of the 5 fields — the calculator solves for the unknown:</p>
-              <ul className="list-disc space-y-1 pl-4">
-                <li><strong>PV</strong> — Present Value (what you have now)</li>
-                <li><strong>FV</strong> — Future Value (what you'll have later)</li>
-                <li><strong>PMT</strong> — Payment per period</li>
-                <li><strong>N</strong> — Number of periods</li>
-                <li><strong>I/Y</strong> — Interest rate per year (%)</li>
-              </ul>
-              <p className="mt-2 font-semibold">Example: How much will $10,000 grow in 5 years at 7%?</p>
-              <p className="font-mono text-xs">PV = -10000, I/Y = 7, N = 5, PMT = 0 → Solve FV</p>
-            </div>
-          ),
-        },
-        {
-          heading: "Net Present Value (NPV)",
-          content: (
-            <div className="space-y-2">
-              <p>
-                NPV sums the present value of future cash flows. Enter the discount rate and
-                a comma-separated list of cash flows (first is usually negative = investment).
-              </p>
-              <p className="font-semibold">Example: Invest $10,000, receive $3,000/yr for 4 years at 8% discount:</p>
-              <p className="font-mono text-xs">Rate: 8, Cash flows: -10000, 3000, 3000, 3000, 3000</p>
-            </div>
-          ),
-        },
-        {
-          heading: "Internal Rate of Return (IRR)",
-          content: (
-            <p>
-              IRR is the discount rate that makes NPV = 0. Enter cash flows and the calculator
-              finds the rate. Positive IRR means the investment beats the discount rate.
-            </p>
-          ),
-        },
-        {
-          heading: "Amortization",
-          content: (
-            <p>
-              Enter loan amount, annual interest rate, and term (months). The calculator produces
-              a full month-by-month schedule showing principal, interest, and remaining balance.
-            </p>
-          ),
-        },
-      ],
-    },
   };
 
   const content: ToolContent = {
@@ -393,13 +339,12 @@ export function ScientificCalculator({ tool }: { tool: ToolDefinition }) {
         onTabChange={setTab}
         scientific={scientificContent}
         graphing={<GraphingContent />}
-        business={<BusinessContent />}
         guide={guideData}
       />
     ),
     howTo: [
       { title: "Type or click", description: "Enter expressions using the on-screen buttons or your keyboard. Press Enter or = to evaluate." },
-      { title: "Switch calculators", description: "Use the tabs at the top to switch between Scientific, Graphing, and Business calculators." },
+      { title: "Switch calculators", description: "Use the tabs at the top to switch between Scientific and Graphing calculators. For business calculations, use the dedicated Business Calculator tool." },
       { title: "Use the guide", description: "Expand the guide section below for formulas, function references, and worked examples." },
     ],
     faq: [
