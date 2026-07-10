@@ -1,0 +1,8 @@
+A minimal app icon for a browser tools website called "Dueneo". 
+Design: A dark charcoal rounded square (#2D2D2D) background with a clean white "Z" lightning bolt shape in the center. The Z shape is geometric and modern, slightly stylized with angular cuts. Simple, flat, no gradients, no shadows, no text. Icon style suitable for a favicon/app icon.
+Use case: logo-brand
+Asset type: website favicon and app icon
+Style/medium: flat vector-style icon, minimal
+Composition/framing: centered, square, with padding
+Color palette: dark charcoal background #2D2D2D, white #FFFFFF symbol
+Constraints: no text, no watermark, clean edges, modern tech aesthetic

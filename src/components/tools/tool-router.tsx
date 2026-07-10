@@ -292,6 +292,11 @@ const TOOL_COMPONENTS: Record<string, LazyToolComp> = {
   "passport-photo-maker": lazyNamed(() => import("./image/passport-photo-maker"), "PassportPhotoMaker"),
   "image-to-ascii": lazyNamed(() => import("./image/image-to-ascii"), "ImageToAscii"),
   "photo-collage-maker": lazyNamed(() => import("./image/photo-collage-maker"), "PhotoCollageMaker"),
+
+  // ─── Calculator Suite ─────────────────────────────────────────────────────
+  "scientific-calculator": lazyNamed(() => import("./finance/scientific-calculator"), "ScientificCalculator"),
+  "graphing-calculator": lazyNamed(() => import("./finance/graphing-calculator"), "GraphingCalculator"),
+  "business-calculator": lazyNamed(() => import("./finance/business-calculator"), "BusinessCalculator"),
 };
 
 export function ToolRouter({ tool }: { tool: ToolDefinition }) {
