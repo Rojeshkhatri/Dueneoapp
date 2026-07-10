@@ -1,7 +1,7 @@
 "use client";
 
 import * as React from "react";
-import * as XLSX from "xlsx";
+import type { Workbook, Worksheet } from "exceljs";
 import { ToolLayout, type ToolContent } from "@/components/dueneo/tool-layout";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
@@ -68,8 +68,28 @@ const MAX_PREVIEW_COLS = 50;
 
 interface LoadedWorkbook {
   file: File;
-  workbook: XLSX.WorkBook;
+  workbook: Workbook;
   sheetNames: string[];
+}
+
+function worksheetToCsv(worksheet: Worksheet, delimiter: string): string {
+  const rows: string[] = [];
+
+  worksheet.eachRow({ includeEmpty: false }, (row) => {
+    const cells: string[] = [];
+    for (let column = 1; column <= row.cellCount; column += 1) {
+      const value = row.getCell(column).text;
+      const escaped = value.replace(/"/g, '""');
+      cells.push(
+        escaped.includes(delimiter) || /["\r\n]/.test(escaped)
+          ? `"${escaped}"`
+          : escaped
+      );
+    }
+    rows.push(cells.join(delimiter));
+  });
+
+  return rows.join("\n");
 }
 
 export function ExcelToCsv({ tool }: { tool: ToolDefinition }) {
@@ -94,16 +114,19 @@ export function ExcelToCsv({ tool }: { tool: ToolDefinition }) {
     setError(null);
     try {
       const buf = await file.arrayBuffer();
-      const wb = XLSX.read(buf, { type: "array" });
-      if (!wb.SheetNames.length) {
+      const { Workbook: ExcelWorkbook } = await import("exceljs");
+      const wb = new ExcelWorkbook();
+      await wb.xlsx.load(new Uint8Array(buf) as never);
+      const sheetNames = wb.worksheets.map((sheet) => sheet.name);
+      if (!sheetNames.length) {
         throw new Error("The workbook contains no sheets.");
       }
-      setLoaded({ file, workbook: wb, sheetNames: wb.SheetNames });
-      setActiveSheet(wb.SheetNames[0]);
+      setLoaded({ file, workbook: wb, sheetNames });
+      setActiveSheet(sheetNames[0]);
       setOutput("");
       setPreview(null);
       toast.success(
-        `Loaded "${file.name}" — ${wb.SheetNames.length} sheet(s).`
+        `Loaded "${file.name}" — ${sheetNames.length} sheet(s).`
       );
     } catch (e) {
       const msg = e instanceof Error ? e.message : "Could not read that file.";
@@ -119,14 +142,9 @@ export function ExcelToCsv({ tool }: { tool: ToolDefinition }) {
     (sheetName: string) => {
       if (!loaded) return;
       try {
-        const ws = loaded.workbook.Sheets[sheetName];
+        const ws = loaded.workbook.getWorksheet(sheetName);
         if (!ws) throw new Error(`Sheet "${sheetName}" not found.`);
-        const csv = XLSX.utils.sheet_to_csv(ws, {
-          FS: DELIMITER_CHAR[delimiter],
-          RS: "\n",
-          forceQuotes: false,
-          blankrows: false,
-        });
+        const csv = worksheetToCsv(ws, DELIMITER_CHAR[delimiter]);
         setOutput(csv);
 
         // Build a preview from the first rows.
@@ -136,7 +154,7 @@ export function ExcelToCsv({ tool }: { tool: ToolDefinition }) {
         );
         setError(null);
         toast.success(
-          `Converted sheet "${sheetName}" — ${csv.length ? csv.split("\n").length - 1 : 0} row(s).`
+          `Converted sheet "${sheetName}" — ${csv.length ? csv.split("\n").length : 0} row(s).`
         );
       } catch (e) {
         const msg = e instanceof Error ? e.message : "Conversion failed.";
@@ -162,7 +180,7 @@ export function ExcelToCsv({ tool }: { tool: ToolDefinition }) {
       toast.error("Nothing to download yet — convert a sheet first.");
       return;
     }
-    const base = loaded?.file.name.replace(/\.(xlsx|xls|xlsm|csv)$/i, "") ?? "sheet";
+    const base = loaded?.file.name.replace(/\.(xlsx|xlsm|csv)$/i, "") ?? "sheet";
     const sheetSlug = activeSheet.replace(/[^\w.-]/g, "_").slice(0, 40) || "sheet";
     downloadText(`${base}-${sheetSlug}.csv`, output, "text/csv");
     toast.success(`Downloaded ${base}-${sheetSlug}.csv`);
@@ -178,15 +196,15 @@ export function ExcelToCsv({ tool }: { tool: ToolDefinition }) {
 
   const content: ToolContent = {
     intro:
-      "Convert Excel spreadsheets (.xlsx, .xls, .xlsm) into CSV directly in your browser. Drag a file in, pick the sheet you want (workbooks with multiple sheets are fully supported), choose a delimiter and download the CSV — or copy it to your clipboard. A live preview shows the parsed data. Your file never leaves your device.",
+      "Convert Excel spreadsheets (.xlsx and .xlsm) into CSV directly in your browser. Drag a file in, pick the sheet you want (workbooks with multiple sheets are fully supported), choose a delimiter and download the CSV — or copy it to your clipboard. A live preview shows the parsed data. Your file never leaves your device.",
     tool: (
       <div className="space-y-5">
         {!loaded ? (
           <Dropzone
-            accept=".xlsx,.xls,.xlsm,application/vnd.openxmlformats-officedocument.spreadsheetml.sheet,application/vnd.ms-excel"
+            accept=".xlsx,.xlsm,application/vnd.openxmlformats-officedocument.spreadsheetml.sheet,application/vnd.ms-excel.sheet.macroEnabled.12"
             onFiles={handleFiles}
             label="Drop an Excel file here or click to browse"
-            hint="Supports .xlsx, .xls and .xlsm. Max 25 MB. All processing is browser-only."
+            hint="Supports .xlsx and .xlsm. Max 25 MB. All processing is browser-only."
             maxSizeLabel="25 MB"
             className="py-12"
           />
@@ -382,7 +400,7 @@ export function ExcelToCsv({ tool }: { tool: ToolDefinition }) {
       {
         title: "Upload your spreadsheet",
         description:
-          "Drag an .xlsx, .xls or .xlsm file onto the dropzone, or click to browse. The file is parsed entirely in your browser — it is never uploaded.",
+          "Drag an .xlsx or .xlsm file onto the dropzone, or click to browse. The file is parsed entirely in your browser — it is never uploaded.",
       },
       {
         title: "Pick a sheet",
@@ -402,7 +420,7 @@ export function ExcelToCsv({ tool }: { tool: ToolDefinition }) {
     ],
     useCases: [
       "Export a single sheet from a multi-sheet workbook to a flat CSV for ingestion by another tool.",
-      "Convert an old .xls file to a modern CSV without installing desktop software.",
+      "Convert an .xlsx or .xlsm file to CSV without installing desktop software.",
       "Quickly inspect the contents of a spreadsheet without opening Excel.",
       "Produce tab- or pipe-delimited files for pipelines that do not handle quoted CSV well.",
     ],
@@ -435,7 +453,7 @@ export function ExcelToCsv({ tool }: { tool: ToolDefinition }) {
     faq: [
       {
         q: "Is my spreadsheet uploaded to a server?",
-        a: "No. The file is read with the browser's FileReader API and parsed with the SheetJS (xlsx) library entirely in your tab. Nothing is transmitted or stored.",
+        a: "No. The file is read and parsed with ExcelJS entirely in your browser tab. Nothing is transmitted or stored.",
       },
       {
         q: "How are multiple sheets handled?",
@@ -443,7 +461,7 @@ export function ExcelToCsv({ tool }: { tool: ToolDefinition }) {
       },
       {
         q: "Why are my formulas showing as static values?",
-        a: "CSV is a plain-text format with no formula support. SheetJS reads the last cached value Excel stored for each cell. If you never opened the file in Excel, some formula cells may be empty.",
+        a: "CSV is a plain-text format with no formula support. ExcelJS reads the last cached value stored for each cell. If a formula has no cached result, the cell may be empty.",
       },
       {
         q: "Which delimiter should I pick?",

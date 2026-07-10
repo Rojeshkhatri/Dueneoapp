@@ -141,7 +141,7 @@ export function AddPageNumbersToPdf({ tool }: { tool: ToolDefinition }) {
       });
 
       const out = await doc.save();
-      const blob = new Blob([out], { type: "application/pdf" });
+      const blob = new Blob([Uint8Array.from(out)], { type: "application/pdf" });
       if (outputUrl) URL.revokeObjectURL(outputUrl);
       setOutputUrl(URL.createObjectURL(blob));
       setOutputSize(blob.size);

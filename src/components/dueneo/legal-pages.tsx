@@ -4,6 +4,7 @@ import * as React from "react";
 import { Breadcrumbs } from "./breadcrumbs";
 import { Mail, Bug, Lightbulb } from "lucide-react";
 import { RouterLink } from "@/lib/dueneo/router";
+import { usePageMetadata } from "@/lib/dueneo/client-metadata";
 
 export interface LegalSection {
   heading: string;
@@ -16,16 +17,20 @@ export function LegalPage({
   lastUpdated,
   sections,
   crumbs,
+  pathname,
 }: {
   title: string;
   description?: string;
   lastUpdated?: string;
   sections: LegalSection[];
   crumbs?: { label: string; to?: string }[];
+  pathname?: string;
 }) {
-  React.useEffect(() => {
-    document.title = `${title} | Dueneo`;
-  }, [title]);
+  usePageMetadata({
+    title,
+    description: description ?? `${title} on Dueneo.`,
+    pathname: pathname ?? `/${title.toLowerCase().replace(/[^a-z0-9]+/g, "-")}`,
+  });
 
   return (
     <main className="dueneo-container flex-1 py-6 sm:py-10">
@@ -54,20 +59,22 @@ export function LegalPage({
 }
 
 export function AboutPage() {
-  React.useEffect(() => {
-    document.title = "About Dueneo — Free Browser Tools & Classic Games";
-  }, []);
+  usePageMetadata({
+    title: "About Dueneo — Private Browser Tools & Classic Games",
+    description: "Learn how Dueneo builds useful, private browser tools and lightweight games.",
+    pathname: "/about",
+  });
   return (
     <main className="dueneo-container flex-1 py-6 sm:py-10">
       <Breadcrumbs items={[{ label: "About" }]} />
       <article className="dueneo-content mt-6">
         <h1 className="text-3xl font-bold tracking-tight sm:text-4xl">About Dueneo</h1>
         <p className="mt-3 text-muted-foreground">
-          Dueneo is a focused, browser-first platform for practical tools and
-          lightweight classic games. We&apos;re not a SaaS, we&apos;re not a
-          gaming portal, and we&apos;re not an AI wrapper. We&apos;re a clean,
-          durable, SEO-first utility website.
+          Dueneo is an independently operated, browser-first collection of
+          practical tools and lightweight classic games. It is designed to be
+          useful immediately, without an account or software installation.
         </p>
+        <p className="mt-2 text-xs text-muted-foreground">Last reviewed: July 10, 2026</p>
 
         <section className="mt-8">
           <h2 className="text-xl font-semibold tracking-tight">Our promises</h2>
@@ -78,15 +85,26 @@ export function AboutPage() {
             </li>
             <li>
               <strong className="text-foreground">Private.</strong> Tool
-              processing happens locally in your browser wherever technically
-              possible. Your files and data stay on your device.
+              tools are designed to process inputs locally in your browser.
+              Files and form data are not uploaded for tool processing.
             </li>
             <li>
               <strong className="text-foreground">Fast.</strong> Pages are
-              static, lightweight, mobile-first, and built for search engines
-              and humans alike.
+              statically delivered, mobile-first, and designed to work without
+              unnecessary network round trips.
             </li>
           </ul>
+        </section>
+
+        <section className="mt-8">
+          <h2 className="text-xl font-semibold tracking-tight">How we test changes</h2>
+          <p className="mt-3 text-sm text-muted-foreground">
+            Before publishing, we validate every catalogue entry and route,
+            run TypeScript and production-build checks, and manually test key
+            journeys at desktop and mobile widths. If you find a result that
+            looks wrong, include the tool URL and your inputs in a bug report
+            when those inputs are safe to share.
+          </p>
         </section>
 
         <section className="mt-8">
@@ -116,17 +134,20 @@ export function AboutPage() {
 }
 
 export function ContactPage() {
-  React.useEffect(() => {
-    document.title = "Contact Dueneo — Free Browser Tools & Classic Games";
-  }, []);
+  usePageMetadata({
+    title: "Contact Dueneo",
+    description: "Report a bug, suggest a tool, or contact the team behind Dueneo.",
+    pathname: "/contact",
+  });
   return (
     <main className="dueneo-container flex-1 py-6 sm:py-10">
       <Breadcrumbs items={[{ label: "Contact" }]} />
       <article className="dueneo-content mt-6">
         <h1 className="text-3xl font-bold tracking-tight sm:text-4xl">Contact Dueneo</h1>
         <p className="mt-3 text-muted-foreground">
-          We don&apos;t have a support team of humans, but we read everything
-          sent our way. Pick the option that best matches your message.
+          Dueneo is maintained independently. Messages are reviewed, although
+          a personal reply cannot be guaranteed. Pick the option that best
+          matches your message.
         </p>
 
         <div className="mt-8 grid gap-4 sm:grid-cols-3">

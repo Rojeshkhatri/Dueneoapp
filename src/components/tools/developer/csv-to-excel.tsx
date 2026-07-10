@@ -1,7 +1,6 @@
 "use client";
 
 import * as React from "react";
-import * as XLSX from "xlsx";
 import { ToolLayout, type ToolContent } from "@/components/dueneo/tool-layout";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
@@ -34,6 +33,7 @@ import {
   byteLength,
   formatBytes,
   parseCsv,
+  downloadBlob,
 } from "./_dev-helpers";
 
 type Delimiter = "," | ";" | "\t" | "|";
@@ -139,15 +139,24 @@ export function CsvToExcel({ tool }: { tool: ToolDefinition }) {
         toast.error("No rows to write.");
         return;
       }
-      const ws = XLSX.utils.aoa_to_sheet(rows);
-      const name = (sheetName.trim() || "Sheet1").slice(0, 31);
-      const wb = XLSX.utils.book_new();
-      XLSX.utils.book_append_sheet(wb, ws, name);
+      const { Workbook } = await import("exceljs");
+      const wb = new Workbook();
+      const name = (sheetName.trim() || "Sheet1")
+        .replace(/[\\/?*[\]:]/g, "_")
+        .slice(0, 31);
+      const ws = wb.addWorksheet(name || "Sheet1");
+      rows.forEach((row) => ws.addRow(row));
+      const buffer = await wb.xlsx.writeBuffer();
       // Sanitize filename — strip any path separators.
-      const safeSheet = name.replace(/[\\/?*[\]:]/g, "_");
-      XLSX.writeFile(wb, `${safeSheet || "spreadsheet"}.xlsx`);
+      const safeSheet = name || "spreadsheet";
+      downloadBlob(
+        new Blob([buffer as unknown as BlobPart], {
+          type: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+        }),
+        `${safeSheet}.xlsx`
+      );
       toast.success(
-        `Saved ${rows.length} row(s) × ${ws["!ref"]?.split(":")[1] ?? "?"} as ${safeSheet}.xlsx.`
+        `Saved ${rows.length} row(s) × ${Math.max(...rows.map((row) => row.length))} column(s) as ${safeSheet}.xlsx.`
       );
     } catch (e) {
       const msg = e instanceof Error ? e.message : "Excel export failed.";
@@ -429,7 +438,7 @@ export function CsvToExcel({ tool }: { tool: ToolDefinition }) {
     faq: [
       {
         q: "Is my CSV data uploaded anywhere?",
-        a: "No. Parsing and the .xlsx export both happen in your browser using the SheetJS (xlsx) library. Nothing is transmitted or stored.",
+        a: "No. Parsing and the .xlsx export both happen in your browser using ExcelJS. Nothing is transmitted or stored.",
       },
       {
         q: "Why are my numbers stored as text?",

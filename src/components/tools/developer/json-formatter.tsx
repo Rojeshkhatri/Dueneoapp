@@ -29,6 +29,7 @@ export function JsonFormatter({ tool }: { tool: ToolDefinition }) {
   const [indent, setIndent] = React.useState<Indent>("2");
   const [error, setError] = React.useState<string | null>(null);
   const [errorLine, setErrorLine] = React.useState<number | null>(null);
+  const [errorColumn, setErrorColumn] = React.useState<number | null>(null);
   const [errorExcerpt, setErrorExcerpt] = React.useState<string | null>(null);
 
   const indentStr = React.useMemo(
@@ -41,6 +42,7 @@ export function JsonFormatter({ tool }: { tool: ToolDefinition }) {
       setError("Please paste some JSON first.");
       setOutput("");
       setErrorLine(null);
+      setErrorColumn(null);
       setErrorExcerpt(null);
       return;
     }
@@ -48,6 +50,7 @@ export function JsonFormatter({ tool }: { tool: ToolDefinition }) {
       setError(INPUT_TOO_LARGE_MSG);
       setOutput("");
       setErrorLine(null);
+      setErrorColumn(null);
       setErrorExcerpt(null);
       return;
     }
@@ -56,12 +59,14 @@ export function JsonFormatter({ tool }: { tool: ToolDefinition }) {
       setOutput(JSON.stringify(parsed, null, indentStr));
       setError(null);
       setErrorLine(null);
+      setErrorColumn(null);
       setErrorExcerpt(null);
       toast.success("JSON formatted.");
     } catch (e) {
       const info = describeJsonError(e, input);
       setError(info.message);
       setErrorLine(info.line ?? null);
+      setErrorColumn(info.column ?? null);
       setErrorExcerpt(info.excerpt ?? null);
       setOutput("");
       toast.error("Invalid JSON — see the error message.");
@@ -73,12 +78,16 @@ export function JsonFormatter({ tool }: { tool: ToolDefinition }) {
     setOutput("");
     setError(null);
     setErrorLine(null);
+    setErrorColumn(null);
     setErrorExcerpt(null);
   };
 
   const loadSample = () => {
     setInput(SAMPLE);
     setError(null);
+    setErrorLine(null);
+    setErrorColumn(null);
+    setErrorExcerpt(null);
     setOutput("");
   };
 
@@ -181,7 +190,7 @@ export function JsonFormatter({ tool }: { tool: ToolDefinition }) {
                 <p>{error}</p>
                 {errorLine !== null && (
                   <p className="text-xs">
-                    Around line {errorLine}
+                    Line {errorLine}{errorColumn !== null ? `, column ${errorColumn}` : ""}
                     {errorExcerpt ? `: ${errorExcerpt.trim().slice(0, 120)}` : ""}
                   </p>
                 )}

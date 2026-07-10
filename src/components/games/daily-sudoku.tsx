@@ -64,7 +64,7 @@ export function DailySudoku({ game }: { game: GameDefinition }) {
         <p>
           Difficulty is fixed at <strong>Medium</strong> for the daily. If you
           want easier or harder puzzles, head to the regular{" "}
-          <a href="#/games/sudoku" className="text-primary underline">Sudoku</a>{" "}
+          <a href="/games/sudoku/" className="text-primary underline">Sudoku</a>{" "}
           page.
         </p>
       </div>

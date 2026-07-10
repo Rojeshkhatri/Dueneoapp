@@ -57,7 +57,7 @@ export function ConsentBanner() {
               your experience. By clicking &quot;Accept&quot;, you consent to
               Google AdSense cookies for personalised ads.{" "}
               <a
-                href="#/cookie-policy"
+                href="/cookie-policy/"
                 className="text-primary underline underline-offset-2"
               >
                 Cookie Policy

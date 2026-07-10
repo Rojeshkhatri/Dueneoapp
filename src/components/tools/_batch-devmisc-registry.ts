@@ -9,8 +9,8 @@ import { PasswordProtectPdf } from "./pdf/password-protect-pdf";
  * Batch dev/misc registry — 4 tools (Task 5-dev-misc-tools).
  *
  * - yaml-formatter      (developer, js-yaml)
- * - csv-to-excel        (developer, xlsx / SheetJS)
- * - excel-to-csv        (developer, xlsx / SheetJS)
+ * - csv-to-excel        (developer, ExcelJS)
+ * - excel-to-csv        (developer, ExcelJS)
  * - password-protect-pdf (pdf, @cantoo/pdf-lib)
  *
  * Centralised in its own file so the main agent can import and merge

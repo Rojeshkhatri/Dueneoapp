@@ -7,6 +7,7 @@ import { AdSenseScript } from "@/components/dueneo/adsense-script";
 import { ConsentMode } from "@/components/dueneo/consent-mode";
 import { ConsentBanner } from "@/components/dueneo/consent-banner";
 import { ADSENSE } from "@/lib/dueneo/adsense";
+import { PwaRegister } from "@/components/dueneo/pwa-register";
 
 const inter = Inter({
   variable: "--font-geist-sans",
@@ -45,6 +46,7 @@ export const metadata: Metadata = {
   ],
   authors: [{ name: "Dueneo" }],
   icons: { icon: "/logo.svg" },
+  manifest: "/manifest.webmanifest",
   metadataBase: new URL("https://dueneo.com"),
   alternates: {
     canonical: "/",
@@ -98,6 +100,7 @@ export default function RootLayout({
           disableTransitionOnChange
         >
           {children}
+          <PwaRegister />
           <Toaster />
           <AdSenseScript />
           <ConsentBanner />

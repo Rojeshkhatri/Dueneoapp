@@ -124,7 +124,7 @@ export function Base64Decoder({ tool }: { tool: ToolDefinition }) {
         : input.trim()
     );
     const ext = result.mime ? guessExtension(result.mime) : "bin";
-    downloadBlob(new Blob([bytes], { type: result.mime ?? undefined }), `decoded.${ext}`);
+    downloadBlob(new Blob([Uint8Array.from(bytes)], { type: result.mime ?? undefined }), `decoded.${ext}`);
     toast.success("Downloaded decoded file.");
   };
 

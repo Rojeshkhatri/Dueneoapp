@@ -134,8 +134,8 @@ function expandCaptures(
     // Can't capture the same piece twice.
     if (capturedSoFar.some(([cr, cc]) => cr === midR && cc === midC)) continue;
     if (board[landR][landC] !== null && !(landR === path[0][0] && landC === path[0][1])) continue;
-    const newCaptured = [...capturedSoFar, [midR, midC]];
-    const newPath = [...path, [landR, landC]];
+    const newCaptured: [number, number][] = [...capturedSoFar, [midR, midC]];
+    const newPath: [number, number][] = [...path, [landR, landC]];
     // Temporarily simulate the capture so further jumps see the board correctly.
     const tmp = cloneBoard(board);
     tmp[r][c] = null;

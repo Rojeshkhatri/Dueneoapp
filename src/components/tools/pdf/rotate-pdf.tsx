@@ -121,7 +121,7 @@ export function RotatePdf({ tool }: { tool: ToolDefinition }) {
       }
 
       const out = await doc.save();
-      const blob = new Blob([out], { type: "application/pdf" });
+      const blob = new Blob([Uint8Array.from(out)], { type: "application/pdf" });
       setOutputUrl((prev) => replaceObjectUrl(prev, blob));
       setOutputSize(blob.size);
       setOutputName(derivedPdfName(file.name, "rotated"));

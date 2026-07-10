@@ -3,23 +3,13 @@
 import * as React from "react";
 
 /**
- * Dueneo hash router.
- *
- * We are constrained to a single Next.js route (`/`), so multi-page
- * navigation is implemented with the URL hash. Examples:
- *
- *   #/                              → home
- *   #/image-compressor              → tool page
- *   #/games/sudoku                  → game page
- *   #/image-tools                   → category page
- *   #/about                         → legal/about page
- *
- * The router keeps `path` and a `navigate` function in sync with the
- * browser's location hash and the back/forward buttons.
+ * Lightweight client router for Dueneo's statically generated real routes.
+ * Every public path is emitted by Next.js at build time, while in-app
+ * navigation stays instant through the History API.
  */
 
 export interface RouterState {
-  /** Hash path without the leading `#`, e.g. `/image-compressor`. */
+  /** Normalized pathname, e.g. `/image-compressor`. */
   path: string;
   /** Segments of the path (split on `/`, empty strings removed). */
   segments: string[];
@@ -29,60 +19,47 @@ export interface RouterState {
 
 const RouterContext = React.createContext<RouterState | null>(null);
 
-function readHash(): string {
-  if (typeof window === "undefined") return "/";
-  const raw = window.location.hash.replace(/^#/, "");
+function normalizePath(raw: string): string {
   if (!raw) return "/";
-  // Normalise: ensure leading slash, no trailing slash (except root).
   let p = raw.startsWith("/") ? raw : `/${raw}`;
   if (p.length > 1 && p.endsWith("/")) p = p.slice(0, -1);
   return p;
 }
 
-export function RouterProvider({ children }: { children: React.ReactNode }) {
-  const [path, setPath] = React.useState<string>("/");
+function publicHref(path: string): string {
+  const normalized = normalizePath(path);
+  return normalized === "/" ? "/" : `${normalized}/`;
+}
+
+export function RouterProvider({
+  children,
+  initialPath = "/",
+}: {
+  children: React.ReactNode;
+  initialPath?: string;
+}) {
+  const [path, setPath] = React.useState<string>(() => normalizePath(initialPath));
 
   React.useEffect(() => {
-    setPath(readHash());
-    const onHashChange = () => setPath(readHash());
-    window.addEventListener("hashchange", onHashChange);
-    // Also listen to popstate for full back-button support.
-    window.addEventListener("popstate", onHashChange);
+    // Preserve old shared links by upgrading them to the equivalent real URL.
+    const legacyHash = window.location.hash.replace(/^#/, "");
+    if (legacyHash.startsWith("/")) {
+      window.location.replace(publicHref(legacyHash));
+      return;
+    }
+
+    const onPopState = () => setPath(normalizePath(window.location.pathname));
+    window.addEventListener("popstate", onPopState);
     return () => {
-      window.removeEventListener("hashchange", onHashChange);
-      window.removeEventListener("popstate", onHashChange);
+      window.removeEventListener("popstate", onPopState);
     };
   }, []);
 
-  // Ensure the hash is initialised on first load.
-  // If the user arrives at a tool/category/game URL (from search engines),
-  // redirect to the SPA hash route.
-  React.useEffect(() => {
-    const pathname = window.location.pathname;
-    if (pathname && pathname !== "/" && pathname !== "/index.html") {
-      // Convert /image-compressor/ to #/image-compressor
-      let hashPath = pathname;
-      if (hashPath.endsWith("/")) hashPath = hashPath.slice(0, -1);
-      window.location.replace("/#" + hashPath);
-      return;
-    }
-    if (!window.location.hash) {
-      window.history.replaceState(null, "", "#/");
-    }
-  }, []);
-
   const navigate = React.useCallback((to: string) => {
-    let target = to.startsWith("/") ? to : `/${to}`;
-    if (target.length > 1 && target.endsWith("/")) target = target.slice(0, -1);
-    if (target === "/") {
-      window.location.hash = "#/";
-    } else {
-      window.location.hash = `#${target}`;
-    }
-    // Scroll to top on navigation.
-    if (typeof window !== "undefined") {
-      window.scrollTo({ top: 0, behavior: "auto" });
-    }
+    const target = normalizePath(to);
+    if (target === normalizePath(window.location.pathname)) return;
+    window.history.pushState(null, "", publicHref(target));
+    setPath(target);
   }, []);
 
   const back = React.useCallback(() => {
@@ -113,7 +90,7 @@ export function useRouter(): RouterState {
 }
 
 /**
- * Anchor-style link that uses the hash router for navigation.
+ * Real anchor link enhanced with instant History API navigation.
  */
 export function RouterLink({
   to,
@@ -123,7 +100,7 @@ export function RouterLink({
   ...rest
 }: React.AnchorHTMLAttributes<HTMLAnchorElement> & { to: string }) {
   const { navigate } = useRouter();
-  const href = `#${to.startsWith("/") ? to : `/${to}`}`;
+  const href = publicHref(to);
   return (
     <a
       href={href}

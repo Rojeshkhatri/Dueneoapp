@@ -80,10 +80,6 @@ export function SearchBox({
   const results = React.useMemo(() => searchAll(query), [query]);
 
   React.useEffect(() => {
-    setActiveIndex(0);
-  }, [query]);
-
-  React.useEffect(() => {
     function onKey(e: KeyboardEvent) {
       if ((e.metaKey || e.ctrlKey) && e.key === "k") {
         e.preventDefault();
@@ -151,12 +147,13 @@ export function SearchBox({
           aria-label="Search Dueneo tools and games"
           placeholder={
             variant === "hero"
-              ? "Search 100+ tools and games — image compressor, pdf merge, sudoku…"
+              ? `Search ${tools.length} tools and ${games.length} games — image compressor, pdf merge, sudoku…`
               : "Search tools and games…"
           }
           value={query}
           onChange={(e) => {
             setQuery(e.target.value);
+            setActiveIndex(0);
             setOpen(true);
           }}
           onFocus={() => setOpen(true)}

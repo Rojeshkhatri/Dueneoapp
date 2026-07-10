@@ -2173,7 +2173,7 @@ export const tools: ToolDefinition[] = [
     keywords: ["bmi calculator", "body mass index", "bmi chart", "bmi calculator kg"],
     difficulty: "Easy",
     browserOnly: true,
-    related: ["age-calculator", "tip-calculator", "percentage-calculator", "calorie-calculator"],
+    related: ["age-calculator", "tip-calculator", "percentage-calculator", "unit-converter"],
     component: "bmi-calculator",
     privacyLevel: "standard",
     adProfile: "standard",
@@ -3078,7 +3078,7 @@ export const tools: ToolDefinition[] = [
     metaDescription: "Paste your resume and job description. See ATS compatibility score, keyword match, formatting issues and suggestions. No signup, browser-based.",
     keywords: ["resume ats scanner", "ats checker", "resume scanner", "applicant tracking system"],
     difficulty: "Hard", browserOnly: true,
-    related: ["salary-comparison-calculator", "offer-comparison-tool", "interview-scorecard-builder", "cover-letter"],
+    related: ["salary-comparison-calculator", "offer-comparison-tool", "interview-scorecard-builder", "notice-period-calculator"],
     component: "resume-ats-scanner", privacyLevel: "sensitive", adProfile: "reduced", implemented: true,
   },
   {

@@ -26,7 +26,7 @@ export function Dropzone({
   className?: string;
   maxSizeLabel?: string;
 }) {
-  const inputRef = React.useRef<HTMLInputElement>(null);
+  const inputId = React.useId();
   const [dragging, setDragging] = React.useState(false);
 
   const handleFiles = (fileList: FileList | null) => {
@@ -51,6 +51,25 @@ export function Dropzone({
 
   return (
     <div
+      className={cn(
+        "rounded-xl focus-within:ring-2 focus-within:ring-ring focus-within:ring-offset-2",
+        className
+      )}
+    >
+      <input
+        id={inputId}
+        type="file"
+        accept={accept}
+        multiple={multiple}
+        className="sr-only"
+        aria-label={label}
+        onChange={(e) => {
+          handleFiles(e.target.files);
+          e.target.value = "";
+        }}
+      />
+      <label
+      htmlFor={inputId}
       onDragEnter={(e) => {
         e.preventDefault();
         setDragging(true);
@@ -68,33 +87,11 @@ export function Dropzone({
         setDragging(false);
         handleFiles(e.dataTransfer.files);
       }}
-      onClick={() => inputRef.current?.click()}
-      onKeyDown={(e) => {
-        if (e.key === "Enter" || e.key === " ") {
-          e.preventDefault();
-          inputRef.current?.click();
-        }
-      }}
-      role="button"
-      tabIndex={0}
-      aria-label={label}
       className={cn(
-        "group flex cursor-pointer flex-col items-center justify-center rounded-xl border-2 border-dashed border-border bg-muted/30 px-6 py-10 text-center transition-colors hover:border-primary/50 hover:bg-muted/50 focus:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2",
+        "group flex cursor-pointer flex-col items-center justify-center rounded-xl border-2 border-dashed border-border bg-muted/30 px-6 py-10 text-center transition-colors hover:border-primary/50 hover:bg-muted/50",
         dragging && "border-primary bg-primary/5",
-        className
       )}
     >
-      <input
-        ref={inputRef}
-        type="file"
-        accept={accept}
-        multiple={multiple}
-        className="sr-only"
-        onChange={(e) => {
-          handleFiles(e.target.files);
-          e.target.value = "";
-        }}
-      />
       <span className="flex h-12 w-12 items-center justify-center rounded-full bg-primary/10 text-primary transition-transform group-hover:scale-105">
         <UploadCloud className="h-5 w-5" />
       </span>
@@ -103,6 +100,7 @@ export function Dropzone({
       {maxSizeLabel && (
         <p className="mt-1 text-xs text-muted-foreground">Max size: {maxSizeLabel}</p>
       )}
+      </label>
     </div>
   );
 }

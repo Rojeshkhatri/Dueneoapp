@@ -139,6 +139,23 @@ export function describeJsonError(err: unknown, source?: string): JsonErrorInfo 
   const posMatch = message.match(/position\s+(\d+)/i);
   if (posMatch) pos = Number(posMatch[1]);
 
+  // Newer Chromium messages may omit the numeric position but include the
+  // unexpected token and a source excerpt. Use the token as a best-effort
+  // pointer so single-token mistakes still receive actionable coordinates.
+  if (typeof pos !== "number" && typeof source === "string") {
+    const tokenMatch = message.match(/Unexpected token ['"](.+?)['"]/i);
+    const token = tokenMatch?.[1];
+    if (token) {
+      // Chromium includes a short excerpt near the failing token but not a
+      // numeric offset. Prefer the final match: repeated single-character
+      // tokens (for example the "o" in `nope`) otherwise point too early.
+      const tokenPosition = source.lastIndexOf(token);
+      if (tokenPosition >= 0) pos = tokenPosition;
+    } else if (/unexpected end/i.test(message)) {
+      pos = source.length;
+    }
+  }
+
   const lineMatch = message.match(/line\s+(\d+)/i);
   const colMatch = message.match(/column\s+(\d+)/i);
   if (lineMatch) line = Number(lineMatch[1]);

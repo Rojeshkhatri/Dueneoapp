@@ -19,11 +19,13 @@ export function BusinessDocumentShell({
   form,
   preview,
   onReset,
+  actions,
   printLabel = "Print / Save as PDF",
 }: {
   form: React.ReactNode;
   preview: React.ReactNode;
   onReset?: () => void;
+  actions?: React.ReactNode;
   printLabel?: string;
 }) {
   const print = () => {
@@ -47,7 +49,8 @@ export function BusinessDocumentShell({
             and choose “Save as PDF”.
           </p>
         </div>
-        <div className="flex gap-2">
+        <div className="flex flex-wrap justify-end gap-2">
+          {actions}
           {onReset && (
             <Button variant="ghost" size="sm" onClick={onReset}>
               <RotateCcw className="mr-1.5 h-3.5 w-3.5" /> Reset
@@ -119,8 +122,20 @@ export function Field({
   children: React.ReactNode;
   hint?: string;
 }) {
+  if (!htmlFor) {
+    return (
+      <label className="flex flex-col gap-1.5">
+        <span className="text-xs font-medium uppercase tracking-wide text-muted-foreground">
+          {label}
+        </span>
+        {children}
+        {hint && <span className="text-xs text-muted-foreground">{hint}</span>}
+      </label>
+    );
+  }
+
   return (
-    <div className="space-y-1.5">
+    <div className="flex flex-col gap-1.5">
       <label
         htmlFor={htmlFor}
         className="text-xs font-medium uppercase tracking-wide text-muted-foreground"

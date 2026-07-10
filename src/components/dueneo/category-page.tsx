@@ -16,6 +16,7 @@ import { categories } from "@/data/categories";
 import { categoryStructuredData, faqStructuredData } from "@/lib/dueneo/seo";
 import { ArrowRight, Filter } from "lucide-react";
 import { ComingSoonCard } from "./related-items";
+import { usePageMetadata } from "@/lib/dueneo/client-metadata";
 
 export function CategoryPage({ category }: { category: Category }) {
   const [query, setQuery] = React.useState("");
@@ -56,11 +57,11 @@ export function CategoryPage({ category }: { category: Category }) {
     },
   ];
 
-  React.useEffect(() => {
-    document.title = `Free ${category.name} — Browser-Based Utilities | Dueneo`;
-    const desc = document.querySelector('meta[name="description"]');
-    if (desc) desc.setAttribute("content", category.longDescription);
-  }, [category]);
+  usePageMetadata({
+    title: `Free ${category.name} — Browser-Based Utilities`,
+    description: category.longDescription,
+    pathname: `/${category.route}`,
+  });
 
   React.useEffect(() => {
     const scripts: HTMLScriptElement[] = [];
@@ -75,7 +76,7 @@ export function CategoryPage({ category }: { category: Category }) {
 
     // FAQPage schema
     const faqData = faqStructuredData(
-      faqItems,
+      faqItems.filter((item): item is { q: string; a: string } => typeof item.a === "string"),
       `https://dueneo.com/${category.route}/`
     );
     if (faqData) {

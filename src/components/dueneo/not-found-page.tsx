@@ -24,7 +24,7 @@ export function NotFoundPage({ path, note }: { path: string; note?: string }) {
           </RouterLink>
         </Button>
         <Button asChild variant="outline">
-          <RouterLink to="/image-tools">
+          <RouterLink to="/tools">
             <Search className="mr-1.5 h-3.5 w-3.5" /> Browse tools
           </RouterLink>
         </Button>

@@ -91,7 +91,7 @@ export function formatTime(totalSeconds: number): string {
 }
 
 /** Pick a random element from a non-empty array. */
-export function pickRandom<T>(arr: readonly T[], rng: () => Math.random = Math.random): T {
+export function pickRandom<T>(arr: readonly T[], rng: () => number = Math.random): T {
   return arr[Math.floor(rng() * arr.length)];
 }
 

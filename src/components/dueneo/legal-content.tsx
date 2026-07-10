@@ -8,6 +8,7 @@ export function PrivacyPolicyPage() {
   return (
     <LegalPage
       title="Privacy Policy"
+      pathname="/privacy-policy"
       lastUpdated={UPDATED}
       crumbs={[{ label: "Privacy Policy" }]}
       description="How Dueneo handles your data — short, plain, and honest."
@@ -57,7 +58,7 @@ export function PrivacyPolicyPage() {
               state. Third-party advertising networks (such as Google AdSense
               or Media.net, when enabled) may set their own cookies for ad
               personalisation and frequency capping. See our{" "}
-              <a href="#/cookie-policy" className="text-primary hover:underline">
+              <a href="/cookie-policy/" className="text-primary hover:underline">
                 Cookie Policy
               </a>{" "}
               for details.
@@ -140,6 +141,7 @@ export function TermsPage() {
   return (
     <LegalPage
       title="Terms of Service"
+      pathname="/terms"
       lastUpdated={UPDATED}
       crumbs={[{ label: "Terms" }]}
       description="The ground rules for using Dueneo."
@@ -247,6 +249,7 @@ export function CookiePolicyPage() {
   return (
     <LegalPage
       title="Cookie Policy"
+      pathname="/cookie-policy"
       lastUpdated={UPDATED}
       crumbs={[{ label: "Cookie Policy" }]}
       description="What cookies Dueneo uses and how to control them."

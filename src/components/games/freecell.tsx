@@ -41,14 +41,13 @@ type Selection =
   | { source: "freeCell"; index: number }
   | { source: "foundation"; pile: number }
   | null;
+type ActiveSelection = Exclude<Selection, null>;
 
 function sameSelection(a: Selection, b: Selection): boolean {
   if (!a || !b) return false;
-  if (a.source !== b.source) return false;
-  if (a.source === "freeCell") return a.index === b.index;
-  if (a.source === "foundation") return a.pile === b.pile;
-  // tableau
-  return a.pile === b.pile && a.cardIndex === b.cardIndex;
+  if (a.source === "freeCell") return b.source === "freeCell" && a.index === b.index;
+  if (a.source === "foundation") return b.source === "foundation" && a.pile === b.pile;
+  return b.source === "tableau" && a.pile === b.pile && a.cardIndex === b.cardIndex;
 }
 
 // ---- Setup ----
@@ -150,7 +149,7 @@ function findFoundationFor(state: FreeCellState, card: Card): number {
   return -1;
 }
 
-function removeFromSource(state: FreeCellState, sel: Selection) {
+function removeFromSource(state: FreeCellState, sel: ActiveSelection) {
   if (sel.source === "freeCell") {
     state.freeCells[sel.index] = null;
   } else if (sel.source === "foundation") {
@@ -160,7 +159,7 @@ function removeFromSource(state: FreeCellState, sel: Selection) {
   }
 }
 
-function moveToFreeCell(state: FreeCellState, sel: Selection, cellIdx: number): FreeCellState | null {
+function moveToFreeCell(state: FreeCellState, sel: ActiveSelection, cellIdx: number): FreeCellState | null {
   if (state.freeCells[cellIdx] !== null) return null;
   const cards = carriedCards(state, sel);
   if (cards.length !== 1) return null;
@@ -171,7 +170,7 @@ function moveToFreeCell(state: FreeCellState, sel: Selection, cellIdx: number): 
   return next;
 }
 
-function moveToFoundation(state: FreeCellState, sel: Selection, foundIdx: number): FreeCellState | null {
+function moveToFoundation(state: FreeCellState, sel: ActiveSelection, foundIdx: number): FreeCellState | null {
   const cards = carriedCards(state, sel);
   if (cards.length !== 1) return null;
   if (!canDropOnFoundation(cards, state.foundations[foundIdx])) return null;
@@ -182,7 +181,7 @@ function moveToFoundation(state: FreeCellState, sel: Selection, foundIdx: number
   return next;
 }
 
-function moveToTableau(state: FreeCellState, sel: Selection, colIdx: number): FreeCellState | null {
+function moveToTableau(state: FreeCellState, sel: ActiveSelection, colIdx: number): FreeCellState | null {
   const cards = carriedCards(state, sel);
   if (!isValidAltRun(cards)) return null;
   const targetEmpty = state.tableau[colIdx].length === 0;
@@ -264,7 +263,7 @@ export function FreeCell({ game }: { game: GameDefinition }) {
     return true;
   }
 
-  function pickUp(source: Selection): boolean {
+  function pickUp(source: ActiveSelection): boolean {
     const cards = carriedCards(state, source);
     if (cards.length === 0) return false;
     if (source.source === "tableau" && !isValidAltRun(cards)) return false;
@@ -272,7 +271,7 @@ export function FreeCell({ game }: { game: GameDefinition }) {
     return true;
   }
 
-  function dropOn(target: Selection) {
+  function dropOn(target: ActiveSelection) {
     if (!sel) return;
     let next: FreeCellState | null = null;
     if (target.source === "freeCell") {
@@ -288,8 +287,7 @@ export function FreeCell({ game }: { game: GameDefinition }) {
     }
   }
 
-  function handleSelectOrDrop(source: Selection) {
-    if (!source) return;
+  function handleSelectOrDrop(source: ActiveSelection) {
     if (!sel) {
       pickUp(source);
       return;
@@ -356,7 +354,7 @@ export function FreeCell({ game }: { game: GameDefinition }) {
     dropOn({ source: "tableau", pile: pileIdx, cardIndex: 0 });
   }
 
-  function handleAutoSend(source: Selection) {
+  function handleAutoSend(source: ActiveSelection) {
     const cards = carriedCards(state, source);
     if (cards.length !== 1) return;
     const idx = findFoundationFor(state, cards[0]);

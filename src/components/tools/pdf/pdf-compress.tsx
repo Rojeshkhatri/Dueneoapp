@@ -65,7 +65,7 @@ async function reencodeJpeg(
   maxSize: number,
   quality: number
 ): Promise<Uint8Array | null> {
-  const blob = new Blob([jpegBytes], { type: "image/jpeg" });
+  const blob = new Blob([Uint8Array.from(jpegBytes)], { type: "image/jpeg" });
   const url = URL.createObjectURL(blob);
   try {
     const img = await new Promise<HTMLImageElement>((resolve, reject) => {
@@ -278,7 +278,7 @@ export function PdfCompress({ tool }: { tool: ToolDefinition }) {
         setProgress((p) => Math.min(85, p + 5));
       });
       setProgress(95);
-      const blob = new Blob([output], { type: "application/pdf" });
+      const blob = new Blob([Uint8Array.from(output)], { type: "application/pdf" });
       setOutputUrl((prev) => replaceObjectUrl(prev, blob));
       setOutputSize(blob.size);
       setOutputName(derivedPdfName(file.name, "compressed"));

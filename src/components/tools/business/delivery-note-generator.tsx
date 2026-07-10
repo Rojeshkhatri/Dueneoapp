@@ -154,12 +154,14 @@ export function DeliveryNoteGenerator({ tool }: { tool: ToolDefinition }) {
                   className="h-7 w-7"
                   onClick={() => removeItem(item.id)}
                   disabled={items.length === 1}
-                  aria-label="Remove item"
+                  aria-label={`Remove item ${idx + 1}: ${item.description || "untitled item"}`}
                 >
                   <Trash2 className="h-3.5 w-3.5" />
                 </Button>
               </div>
+              <Label htmlFor={`dn-item-description-${item.id}`} className="sr-only">Description for item {idx + 1}</Label>
               <Input
+                id={`dn-item-description-${item.id}`}
                 value={item.description}
                 onChange={(e) => updateItem(item.id, { description: e.target.value })}
                 placeholder="Description"
@@ -167,16 +169,18 @@ export function DeliveryNoteGenerator({ tool }: { tool: ToolDefinition }) {
               />
               <div className="grid grid-cols-2 gap-2">
                 <div>
-                  <Label className="text-xs text-muted-foreground">Qty ordered</Label>
+                  <Label htmlFor={`dn-item-ordered-${item.id}`} className="text-xs text-muted-foreground">Qty ordered</Label>
                   <Input
+                    id={`dn-item-ordered-${item.id}`}
                     inputMode="decimal"
                     value={item.quantityOrdered}
                     onChange={(e) => updateItem(item.id, { quantityOrdered: e.target.value })}
                   />
                 </div>
                 <div>
-                  <Label className="text-xs text-muted-foreground">Qty delivered</Label>
+                  <Label htmlFor={`dn-item-delivered-${item.id}`} className="text-xs text-muted-foreground">Qty delivered</Label>
                   <Input
+                    id={`dn-item-delivered-${item.id}`}
                     inputMode="decimal"
                     value={item.quantityDelivered}
                     onChange={(e) => updateItem(item.id, { quantityDelivered: e.target.value })}

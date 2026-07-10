@@ -119,7 +119,7 @@ export function PdfToJpg({ tool }: { tool: ToolDefinition }) {
       // Free the document — we'll re-open it during render to avoid keeping
       // two copies of the ArrayBuffer alive.
       pdf.cleanup();
-      pdf.destroy();
+      await (pdf as unknown as { destroy?: () => Promise<void> }).destroy?.();
     } catch (err) {
       const msg = err instanceof Error ? err.message : "Could not read this PDF.";
       toast.error(`Could not open PDF: ${msg}`);
@@ -244,7 +244,7 @@ export function PdfToJpg({ tool }: { tool: ToolDefinition }) {
       }
       // Free the document.
       pdf.cleanup();
-      pdf.destroy();
+      await (pdf as unknown as { destroy?: () => Promise<void> }).destroy?.();
       const okCount = pages.filter((p) => p.status === "done").length;
       void okCount;
       toast.success(
