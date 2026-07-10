@@ -1,6 +1,7 @@
 "use client";
 
 import * as React from "react";
+import { flushSync } from "react-dom";
 import { GameLayout, type GameContent } from "@/components/dueneo/game-layout";
 import { Button } from "@/components/ui/button";
 import { Slider } from "@/components/ui/slider";
@@ -38,53 +39,35 @@ export function Scribble({ game }: { game: GameDefinition }) {
   const [size, setSize] = React.useState<number>(6);
   const [strokes, setStrokes] = React.useState<Stroke[]>([]);
   const drawingRef = React.useRef<Stroke | null>(null);
+  const canvasInitRef = React.useRef(false);
+  // Full canvas state as data URL — persists between strokes without React.
+  const canvasStateRef = React.useRef<string | null>(null);
 
-  // Resize canvas to its container, preserving aspect ratio 4:3.
-  const redraw = React.useCallback(() => {
-    const canvas = canvasRef.current;
-    if (!canvas) return;
+  function getCanvas(): HTMLCanvasElement | null {
+    return canvasRef.current ?? document.querySelector<HTMLCanvasElement>('canvas[aria-label="Drawing canvas"]');
+  }
+
+  function saveCanvas() {
+    const canvas = getCanvas();
+    if (canvas) canvasStateRef.current = canvas.toDataURL();
+  }
+
+  async function restoreCanvas() {
+    const canvas = getCanvas();
+    const state = canvasStateRef.current;
+    if (!canvas || !state) return;
     const ctx = canvas.getContext("2d");
     if (!ctx) return;
-    const dpr = window.devicePixelRatio || 1;
-    const width = canvas.width / dpr;
-    const height = canvas.height / dpr;
-    ctx.save();
-    ctx.fillStyle = "#ffffff";
-    ctx.fillRect(0, 0, width, height);
-    ctx.restore();
+    const img = new Image();
+    img.src = state;
+    await img.decode();
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+    ctx.drawImage(img, 0, 0);
+  }
 
-    for (const stroke of strokes) {
-      if (stroke.points.length === 0) continue;
-      ctx.save();
-      ctx.lineCap = "round";
-      ctx.lineJoin = "round";
-      ctx.lineWidth = stroke.size;
-      if (stroke.tool === "eraser") {
-        ctx.strokeStyle = "#ffffff";
-      } else {
-        ctx.strokeStyle = stroke.color;
-      }
-      ctx.beginPath();
-      const pts = stroke.points;
-      ctx.moveTo(pts[0].x, pts[0].y);
-      if (pts.length === 1) {
-        // Dot for single click.
-        ctx.lineTo(pts[0].x + 0.5, pts[0].y + 0.5);
-      } else {
-        for (let i = 1; i < pts.length; i++) {
-          ctx.lineTo(pts[i].x, pts[i].y);
-        }
-      }
-      ctx.stroke();
-      ctx.restore();
-    }
-  }, [strokes]);
-
-  const setupCanvas = React.useCallback(() => {
-    const canvas = canvasRef.current;
-    const container = containerRef.current;
-    if (!canvas || !container) return;
+  const initCanvas = React.useCallback((canvas: HTMLCanvasElement, container: HTMLDivElement) => {
     const rect = container.getBoundingClientRect();
+    if (rect.width < 1) return;
     const dpr = window.devicePixelRatio || 1;
     const width = Math.max(320, rect.width);
     const height = Math.max(240, Math.round(width * 0.75));
@@ -98,21 +81,90 @@ export function Scribble({ game }: { game: GameDefinition }) {
       ctx.lineCap = "round";
       ctx.lineJoin = "round";
     }
+    canvasInitRef.current = true;
   }, []);
 
+  // Resize canvas to its container, preserving aspect ratio 4:3.
+  const strokesRef = React.useRef<Stroke[]>([]);
+  strokesRef.current = strokes;
+
+  const redraw = React.useCallback(() => {
+    const canvas = canvasRef.current;
+    if (!canvas) return;
+    const ctx = canvas.getContext("2d");
+    if (!ctx) return;
+    const dpr = window.devicePixelRatio || 1;
+    const width = canvas.width / dpr;
+    const height = canvas.height / dpr;
+    ctx.save();
+    ctx.fillStyle = "#ffffff";
+    ctx.fillRect(0, 0, width, height);
+    ctx.restore();
+
+    const drawStroke = (stroke: Stroke) => {
+      if (stroke.points.length === 0) return;
+      ctx.save();
+      ctx.lineCap = "round";
+      ctx.lineJoin = "round";
+      ctx.lineWidth = stroke.size;
+      ctx.strokeStyle = stroke.tool === "eraser" ? "#ffffff" : stroke.color;
+      ctx.beginPath();
+      const pts = stroke.points;
+      ctx.moveTo(pts[0].x, pts[0].y);
+      if (pts.length === 1) {
+        ctx.lineTo(pts[0].x + 0.5, pts[0].y + 0.5);
+      } else {
+        for (let i = 1; i < pts.length; i++) {
+          ctx.lineTo(pts[i].x, pts[i].y);
+        }
+      }
+      ctx.stroke();
+      ctx.restore();
+    };
+
+    // Draw committed strokes.
+    for (const stroke of strokesRef.current) drawStroke(stroke);
+    // Draw in-progress stroke (for resize during drawing).
+    if (drawingRef.current) drawStroke(drawingRef.current);
+  }, []);
+
+  // Initialize canvas — use querySelector to bypass ref issues.
   React.useEffect(() => {
-    setupCanvas();
-    redraw();
-    const onResize = () => { setupCanvas(); redraw(); };
+    const canvas = document.querySelector<HTMLCanvasElement>('canvas[aria-label="Drawing canvas"]');
+    const container = canvas?.parentElement;
+    if (!canvas || !container) return;
+
+    const setup = () => {
+      const rect = container.getBoundingClientRect();
+      if (rect.width < 1) return;
+      const dpr = window.devicePixelRatio || 1;
+      const width = Math.max(320, rect.width);
+      const height = Math.max(240, Math.round(width * 0.75));
+      canvas.width = Math.round(width * dpr);
+      canvas.height = Math.round(height * dpr);
+      canvas.style.width = `${width}px`;
+      canvas.style.height = `${height}px`;
+      const ctx = canvas.getContext("2d");
+      if (ctx) {
+        ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+        ctx.lineCap = "round";
+        ctx.lineJoin = "round";
+      }
+      canvasInitRef.current = true;
+    };
+
+    // Try immediately, then on next frame.
+    setup();
+    const raf = requestAnimationFrame(setup);
+
+    const onResize = () => { setup(); redrawAll(); };
     window.addEventListener("resize", onResize);
-    return () => window.removeEventListener("resize", onResize);
-  }, [setupCanvas]);
+    return () => { cancelAnimationFrame(raf); window.removeEventListener("resize", onResize); };
+  }, []);
 
-  React.useEffect(() => {
-    redraw();
-  }, [redraw]);
+  type CanvasPointerEvent = React.PointerEvent<HTMLCanvasElement> | React.MouseEvent<HTMLCanvasElement>;
 
-  function getPoint(e: React.PointerEvent<HTMLCanvasElement>): { x: number; y: number } {
+  function getPoint(e: CanvasPointerEvent): { x: number; y: number } {
     const canvas = canvasRef.current!;
     const rect = canvas.getBoundingClientRect();
     return {
@@ -121,9 +173,66 @@ export function Scribble({ game }: { game: GameDefinition }) {
     };
   }
 
-  function startStroke(e: React.PointerEvent<HTMLCanvasElement>) {
+  // Lazy canvas initialization — runs on first interaction if useEffect didn't.
+  function ensureCanvas() {
+    if (canvasInitRef.current) return;
+    // Try refs first, then fall back to DOM query.
+    const canvas = canvasRef.current ?? document.querySelector<HTMLCanvasElement>('canvas[aria-label="Drawing canvas"]');
+    const container = containerRef.current ?? canvas?.parentElement;
+    if (!canvas || !container) return;
+    const rect = container.getBoundingClientRect();
+    if (rect.width < 1) return;
+    const dpr = window.devicePixelRatio || 1;
+    const width = Math.max(320, rect.width);
+    const height = Math.max(240, Math.round(width * 0.75));
+    canvas.width = Math.round(width * dpr);
+    canvas.height = Math.round(height * dpr);
+    canvas.style.width = `${width}px`;
+    canvas.style.height = `${height}px`;
+    const ctx = canvas.getContext("2d");
+    if (ctx) {
+      ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+      ctx.lineCap = "round";
+      ctx.lineJoin = "round";
+    }
+    // Store refs for subsequent calls.
+    if (!canvasRef.current) canvasRef.current = canvas;
+    if (!containerRef.current) containerRef.current = container as HTMLDivElement;
+    canvasInitRef.current = true;
+  }
+
+  function startStroke(e: CanvasPointerEvent) {
+    const canvas = e.currentTarget;
+    const container = canvas.parentElement;
+    if (!canvas || !container) return;
+
+    // Initialize canvas if not done yet.
+    if (!canvasInitRef.current) {
+      const rect = container.getBoundingClientRect();
+      if (rect.width > 0) {
+        const dpr = window.devicePixelRatio || 1;
+        const width = Math.max(320, rect.width);
+        const height = Math.max(240, Math.round(width * 0.75));
+        canvas.width = Math.round(width * dpr);
+        canvas.height = Math.round(height * dpr);
+        canvas.style.width = `${width}px`;
+        canvas.style.height = `${height}px`;
+        const ctx = canvas.getContext("2d");
+        if (ctx) {
+          ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+          ctx.lineCap = "round";
+          ctx.lineJoin = "round";
+        }
+        canvasInitRef.current = true;
+        // Store refs for subsequent calls.
+        canvasRef.current = canvas;
+        containerRef.current = container as HTMLDivElement;
+      }
+    }
+
+    // No restoreCanvas() — draw directly on top of existing canvas content.
     e.preventDefault();
-    (e.target as HTMLElement).setPointerCapture?.(e.pointerId);
+    if ('pointerId' in e) (e.target as HTMLElement).setPointerCapture?.(e.pointerId);
     const pt = getPoint(e);
     const stroke: Stroke = {
       tool,
@@ -133,8 +242,7 @@ export function Scribble({ game }: { game: GameDefinition }) {
     };
     drawingRef.current = stroke;
     // Draw the initial dot immediately.
-    const canvas = canvasRef.current;
-    const ctx = canvas?.getContext("2d");
+    const ctx = canvas.getContext("2d");
     if (ctx) {
       ctx.save();
       ctx.lineCap = "round";
@@ -149,13 +257,13 @@ export function Scribble({ game }: { game: GameDefinition }) {
     }
   }
 
-  function continueStroke(e: React.PointerEvent<HTMLCanvasElement>) {
+  function continueStroke(e: CanvasPointerEvent) {
     if (!drawingRef.current) return;
     e.preventDefault();
     const pt = getPoint(e);
     drawingRef.current.points.push(pt);
     // Live-draw the new segment.
-    const canvas = canvasRef.current;
+    const canvas = getCanvas();
     const ctx = canvas?.getContext("2d");
     if (ctx) {
       const pts = drawingRef.current.points;
@@ -173,20 +281,70 @@ export function Scribble({ game }: { game: GameDefinition }) {
     }
   }
 
-  function endStroke(e: React.PointerEvent<HTMLCanvasElement>) {
+  function endStroke(e: CanvasPointerEvent) {
     if (!drawingRef.current) return;
     e.preventDefault();
-    setStrokes((prev) => [...prev, drawingRef.current!]);
+    const stroke = drawingRef.current;
     drawingRef.current = null;
+    // Save canvas state — the stroke is already drawn on canvas by continueStroke.
+    saveCanvas();
+    flushSync(() => {
+      setStrokes((prev) => [...prev, stroke]);
+    });
+  }
+
+  function redrawAll() {
+    const canvas = canvasRef.current;
+    if (!canvas) return;
+    const ctx = canvas.getContext("2d");
+    if (!ctx) return;
+    const dpr = window.devicePixelRatio || 1;
+    const width = canvas.width / dpr;
+    const height = canvas.height / dpr;
+    ctx.save();
+    ctx.fillStyle = "#ffffff";
+    ctx.fillRect(0, 0, width, height);
+    ctx.restore();
+
+    for (const stroke of strokesRef.current) {
+      if (stroke.points.length === 0) continue;
+      ctx.save();
+      ctx.lineCap = "round";
+      ctx.lineJoin = "round";
+      ctx.lineWidth = stroke.size;
+      ctx.strokeStyle = stroke.tool === "eraser" ? "#ffffff" : stroke.color;
+      ctx.beginPath();
+      const pts = stroke.points;
+      ctx.moveTo(pts[0].x, pts[0].y);
+      for (let i = 1; i < pts.length; i++) {
+        ctx.lineTo(pts[i].x, pts[i].y);
+      }
+      ctx.stroke();
+      ctx.restore();
+    }
+    saveCanvas();
   }
 
   function undo() {
-    setStrokes((prev) => prev.slice(0, -1));
+    flushSync(() => { setStrokes((prev) => prev.slice(0, -1)); });
+    redrawAll();
     toast.message("Undid last stroke.");
   }
 
   function clearAll() {
-    setStrokes([]);
+    flushSync(() => { setStrokes([]); });
+    const canvas = canvasRef.current;
+    if (canvas) {
+      const ctx = canvas.getContext("2d");
+      if (ctx) {
+        const dpr = window.devicePixelRatio || 1;
+        ctx.save();
+        ctx.fillStyle = "#ffffff";
+        ctx.fillRect(0, 0, canvas.width / dpr, canvas.height / dpr);
+        ctx.restore();
+      }
+    }
+    canvasStateRef.current = null;
     toast.message("Canvas cleared.");
   }
 
@@ -282,8 +440,11 @@ export function Scribble({ game }: { game: GameDefinition }) {
           <canvas
             ref={canvasRef}
             onPointerDown={startStroke}
+            onMouseDown={startStroke}
             onPointerMove={continueStroke}
+            onMouseMove={continueStroke}
             onPointerUp={endStroke}
+            onMouseUp={endStroke}
             onPointerCancel={endStroke}
             onPointerLeave={endStroke}
             className="block w-full touch-none rounded-lg border border-input bg-white"

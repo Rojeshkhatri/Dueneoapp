@@ -176,9 +176,15 @@ export function WordSearch({ game }: { game: GameDefinition }) {
 
   const selection = getSelectionString();
   const selectionCells = React.useMemo(() => {
-    if (!selection) return new Set<string>();
-    return new Set(selection.cells.map(([r, c]) => cellKey(r, c)));
-  }, [selection]);
+    const keys = new Set<string>();
+    // Highlight the start cell on first tap (visual feedback).
+    if (startCell) keys.add(cellKey(startCell[0], startCell[1]));
+    // Highlight the full selection line when both cells are set.
+    if (selection) {
+      for (const [r, c] of selection.cells) keys.add(cellKey(r, c));
+    }
+    return keys;
+  }, [selection, startCell]);
 
   function tryMatch(from?: [number, number] | null, to?: [number, number] | null) {
     const s = from ?? startCell;
