@@ -318,7 +318,7 @@ export function ConnectFour({ game }: { game: GameDefinition }) {
               ))}
             </div>
             <div
-              className="grid grid-cols-7 gap-1.5 rounded-xl bg-blue-900/80 p-2 dark:bg-blue-950"
+              className="grid grid-cols-7 gap-1.5 rounded-xl bg-blue-900/80 p-2 dark:bg-blue-950 grid-rows-6"
               role="grid"
               aria-label="Connect Four board"
             >
@@ -333,7 +333,7 @@ export function ConnectFour({ game }: { game: GameDefinition }) {
                       onClick={() => play(c)}
                       disabled={gameOver || (mode !== "friend" && turn !== 1)}
                       aria-label={`Row ${r + 1} column ${c + 1}${cell ? `, ${cell === 1 ? "red" : "yellow"}` : ", empty"}`}
-                      className={`aspect-square rounded-full border-2 transition-all ${
+                      className={`aspect-square min-h-[2rem] sm:min-h-[2.5rem] rounded-full border-2 transition-all ${
                         cell === 0
                           ? "border-blue-950/40 bg-blue-950/30"
                           : cell === 1

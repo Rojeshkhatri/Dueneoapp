@@ -328,9 +328,7 @@ function downloadBlobUrl(url: string, filename: string): boolean {
   a.download = filename;
   a.style.display = "none";
   document.body.appendChild(a);
-  requestAnimationFrame(() => {
-    a.click();
-    setTimeout(() => a.remove(), 100);
-  });
+  a.click();
+  setTimeout(() => a.remove(), 100);
   return true;
 }

@@ -191,7 +191,7 @@ export function ImageToAscii({ tool }: { tool: ToolDefinition }) {
     a.download = "ascii-art.txt";
     a.style.display = "none";
     document.body.appendChild(a);
-    requestAnimationFrame(() => { a.click(); setTimeout(() => { URL.revokeObjectURL(url); a.remove(); }, 100); });
+    a.click(); setTimeout(() => { URL.revokeObjectURL(url); a.remove(); }, 100);
     toast.success("ASCII art downloaded.");
   };
 

@@ -284,7 +284,7 @@ export function PdfSplit({ tool }: { tool: ToolDefinition }) {
                         a.download = outputName;
                         a.style.display = "none";
                         document.body.appendChild(a);
-                        requestAnimationFrame(() => { a.click(); setTimeout(() => a.remove(), 100); });
+                        a.click(); setTimeout(() => a.remove(), 100);
                       } else {
                         toast.error("Nothing to download yet.");
                       }

@@ -230,10 +230,8 @@ export function PasswordProtectPdf({ tool }: { tool: ToolDefinition }) {
     a.download = derivedPdfName(file?.name, "encrypted");
     a.style.display = "none";
     document.body.appendChild(a);
-    requestAnimationFrame(() => {
-      a.click();
-      setTimeout(() => a.remove(), 100);
-    });
+    a.click();
+    setTimeout(() => a.remove(), 100);
     toast.success("Download started.");
   };
 

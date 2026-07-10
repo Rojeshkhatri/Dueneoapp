@@ -157,7 +157,7 @@ export function InstagramGridPlanner({ tool }: { tool: ToolDefinition }) {
     a.download = "instagram-grid-arrangement.json";
     a.style.display = "none";
     document.body.appendChild(a);
-    requestAnimationFrame(() => { a.click(); setTimeout(() => { URL.revokeObjectURL(url); a.remove(); }, 100); });
+    a.click(); setTimeout(() => { URL.revokeObjectURL(url); a.remove(); }, 100);
     toast.success("Grid arrangement exported as JSON.");
   };
 

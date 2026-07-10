@@ -210,7 +210,7 @@ export function QrCodeGenerator({ tool }: { tool: ToolDefinition }) {
     a.download = "dueneo-qr.png";
     a.style.display = "none";
     document.body.appendChild(a);
-    requestAnimationFrame(() => { a.click(); setTimeout(() => a.remove(), 100); });
+    a.click(); setTimeout(() => a.remove(), 100);
     toast.success("Downloaded dueneo-qr.png");
   };
 

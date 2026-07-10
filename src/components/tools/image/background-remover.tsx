@@ -264,7 +264,7 @@ export function BackgroundRemover({ tool }: { tool: ToolDefinition }) {
                     a.download = downloadName;
                     a.style.display = "none";
                     document.body.appendChild(a);
-                    requestAnimationFrame(() => { a.click(); setTimeout(() => { URL.revokeObjectURL(url); a.remove(); }, 100); });
+                    a.click(); setTimeout(() => { URL.revokeObjectURL(url); a.remove(); }, 100);
                   }}
                   className="w-full sm:w-auto"
                 >

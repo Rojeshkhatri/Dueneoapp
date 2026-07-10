@@ -253,19 +253,9 @@ export function WordSearch({ game }: { game: GameDefinition }) {
         setEndCell(null);
       }
     }
-    function onTouchEnd(e: TouchEvent) {
-      // Only handle if we have an active selection (drag started on grid).
-      if (startCell && endCell) {
-        tryMatch(startCell, endCell);
-        setStartCell(null);
-        setEndCell(null);
-      }
-    }
     window.addEventListener("mouseup", onMouseUp);
-    window.addEventListener("touchend", onTouchEnd);
     return () => {
       window.removeEventListener("mouseup", onMouseUp);
-      window.removeEventListener("touchend", onTouchEnd);
     };
   }, [startCell, endCell, data, foundWords, foundCells]);
 
@@ -322,7 +312,7 @@ export function WordSearch({ game }: { game: GameDefinition }) {
         <div className="mt-4 grid gap-4 sm:grid-cols-[1fr_200px]">
           <div className="overflow-x-auto">
             <div
-              className="inline-grid gap-px select-none"
+              className="inline-grid gap-px select-none touch-none"
               style={{ gridTemplateColumns: `repeat(${size}, minmax(0, 1fr))` }}
               role="grid"
               aria-label="Word search grid"
@@ -339,8 +329,7 @@ export function WordSearch({ game }: { game: GameDefinition }) {
                       onMouseDown={() => handleCellDown(r, c)}
                       onMouseEnter={() => handleCellEnter(r, c)}
                       onClick={() => handleCellClick(r, c)}
-                      onTouchStart={() => handleCellDown(r, c)}
-                      className={`flex items-center justify-center rounded-sm font-bold transition-colors ${cellSizeClass} ${
+                      className={`flex items-center justify-center rounded-sm font-bold transition-colors touch-none ${cellSizeClass} ${
                         isFound
                           ? "bg-emerald-500/30 text-emerald-700 dark:text-emerald-200"
                           : isSelected

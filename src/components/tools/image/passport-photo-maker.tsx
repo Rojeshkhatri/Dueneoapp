@@ -153,7 +153,7 @@ export function PassportPhotoMaker({ tool }: { tool: ToolDefinition }) {
       a.download = `${preset.id}-passport.png`;
       a.style.display = "none";
       document.body.appendChild(a);
-      requestAnimationFrame(() => { a.click(); setTimeout(() => { URL.revokeObjectURL(url); a.remove(); }, 100); });
+      a.click(); setTimeout(() => { URL.revokeObjectURL(url); a.remove(); }, 100);
       toast.success(
         `Passport photo downloaded (${canvas.width}×${canvas.height}px @ 300 DPI).`
       );

@@ -173,7 +173,7 @@ export function ImageColorExtractor({ tool }: { tool: ToolDefinition }) {
     a.download = "palette.json";
     a.style.display = "none";
     document.body.appendChild(a);
-    requestAnimationFrame(() => { a.click(); setTimeout(() => { URL.revokeObjectURL(url); a.remove(); }, 100); });
+    a.click(); setTimeout(() => { URL.revokeObjectURL(url); a.remove(); }, 100);
     toast.success("Palette JSON downloaded.");
   };
 

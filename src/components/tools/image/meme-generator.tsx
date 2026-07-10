@@ -201,7 +201,7 @@ export function MemeGenerator({ tool }: { tool: ToolDefinition }) {
         : "meme.png";
       a.style.display = "none";
       document.body.appendChild(a);
-      requestAnimationFrame(() => { a.click(); setTimeout(() => { URL.revokeObjectURL(url); a.remove(); }, 100); });
+      a.click(); setTimeout(() => { URL.revokeObjectURL(url); a.remove(); }, 100);
       toast.success("Meme downloaded.");
     }, "image/png");
   };

@@ -63,13 +63,11 @@ export function downloadBlob(blob: Blob | null, filename: string): boolean {
   a.download = filename;
   a.style.display = "none";
   document.body.appendChild(a);
-  requestAnimationFrame(() => {
-    a.click();
-    setTimeout(() => {
-      URL.revokeObjectURL(url);
-      a.remove();
-    }, 100);
-  });
+  a.click();
+  setTimeout(() => {
+    URL.revokeObjectURL(url);
+    a.remove();
+  }, 100);
   return true;
 }
 
