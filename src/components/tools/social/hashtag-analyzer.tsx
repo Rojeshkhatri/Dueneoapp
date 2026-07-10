@@ -258,6 +258,7 @@ export function HashtagAnalyzer({ tool }: { tool: ToolDefinition }) {
               onChange={(e) => setFilter(e.target.value)}
               placeholder="Filter suggestions…"
               className="h-8 w-48 rounded-md border border-input bg-background pl-7 pr-2 text-xs shadow-sm focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring"
+              aria-label="Filter suggestions"
             />
           </div>
         </div>

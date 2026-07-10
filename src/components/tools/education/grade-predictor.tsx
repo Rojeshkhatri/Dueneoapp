@@ -94,6 +94,7 @@ export function GradePredictor({ tool }: { tool: ToolDefinition }) {
                     onChange={(e) => update(c.id, { name: e.target.value })}
                     placeholder={`Component ${i + 1}`}
                     className="h-8"
+                    aria-label={`Component ${i + 1} name`}
                   />
                   <Input
                     inputMode="decimal"
@@ -101,6 +102,7 @@ export function GradePredictor({ tool }: { tool: ToolDefinition }) {
                     onChange={(e) => update(c.id, { score: e.target.value })}
                     placeholder="0"
                     className="h-8 text-right"
+                    aria-label={`Component ${i + 1} score`}
                   />
                   <Input
                     inputMode="decimal"
@@ -108,6 +110,7 @@ export function GradePredictor({ tool }: { tool: ToolDefinition }) {
                     onChange={(e) => update(c.id, { weight: e.target.value })}
                     placeholder="0"
                     className="h-8 text-right"
+                    aria-label={`Component ${i + 1} weight`}
                   />
                   <Button size="icon" variant="ghost" className="h-8 w-8" onClick={() => remove(c.id)} aria-label="Remove">
                     <Trash2 className="h-3.5 w-3.5 text-destructive" />

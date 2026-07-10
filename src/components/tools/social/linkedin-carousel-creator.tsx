@@ -611,6 +611,7 @@ export function LinkedinCarouselCreator({ tool }: { tool: ToolDefinition }) {
                     value={settings.bgColor}
                     onChange={(e) => setSettings((s) => ({ ...s, bgColor: e.target.value }))}
                     className="font-mono"
+                    aria-label="Background colour hex"
                   />
                 </div>
               ) : (
@@ -634,6 +635,7 @@ export function LinkedinCarouselCreator({ tool }: { tool: ToolDefinition }) {
                             setSettings((s) => ({ ...s, gradFrom: e.target.value }))
                           }
                           className="font-mono text-xs"
+                          aria-label="Gradient start hex"
                         />
                       </div>
                     </div>
@@ -655,6 +657,7 @@ export function LinkedinCarouselCreator({ tool }: { tool: ToolDefinition }) {
                             setSettings((s) => ({ ...s, gradTo: e.target.value }))
                           }
                           className="font-mono text-xs"
+                          aria-label="Gradient end hex"
                         />
                       </div>
                     </div>

@@ -333,6 +333,7 @@ export function ReelCoverGenerator({ tool }: { tool: ToolDefinition }) {
                   value={settings.bgColor}
                   onChange={(e) => setSettings((s) => ({ ...s, bgColor: e.target.value }))}
                   className="font-mono"
+                  aria-label="Background colour hex"
                 />
               </div>
             ) : (
@@ -352,6 +353,7 @@ export function ReelCoverGenerator({ tool }: { tool: ToolDefinition }) {
                         value={settings.gradFrom}
                         onChange={(e) => setSettings((s) => ({ ...s, gradFrom: e.target.value }))}
                         className="font-mono text-xs"
+                        aria-label="Gradient start hex"
                       />
                     </div>
                   </div>
@@ -369,6 +371,7 @@ export function ReelCoverGenerator({ tool }: { tool: ToolDefinition }) {
                         value={settings.gradTo}
                         onChange={(e) => setSettings((s) => ({ ...s, gradTo: e.target.value }))}
                         className="font-mono text-xs"
+                        aria-label="Gradient end hex"
                       />
                     </div>
                   </div>

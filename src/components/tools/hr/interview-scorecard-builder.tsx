@@ -426,6 +426,7 @@ export function InterviewScorecardBuilder({ tool }: { tool: ToolDefinition }) {
                           onChange={(e) => updateQuestion(c.id, qi, e.target.value)}
                           placeholder="Type the interview question…"
                           className="h-7 flex-1 text-sm"
+                          aria-label={`Question ${qi + 1} for ${c.name}`}
                         />
                         <Button
                           variant="ghost"

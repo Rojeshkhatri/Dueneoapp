@@ -71,7 +71,7 @@ function generateGrid(size: number, words: string[]): { grid: string[][]; placed
       }
       if (!ok) continue;
       for (let i = 0; i < word.length; i++) {
-        grid[cells[i][0]][cells[i][1]] = word[i];
+        grid[cells[i][0]][cells[i][1]] = word[i].toUpperCase();
       }
       placed.push({ word, cells });
       placedThis = true;
@@ -326,8 +326,8 @@ export function WordSearch({ game }: { game: GameDefinition }) {
                     <button
                       key={key}
                       type="button"
-                      onMouseDown={() => handleCellDown(r, c)}
-                      onMouseEnter={() => handleCellEnter(r, c)}
+                      onPointerDown={(e) => { if (e.pointerType === 'mouse') handleCellDown(r, c); }}
+                      onPointerEnter={(e) => { if (e.pointerType === 'mouse') handleCellEnter(r, c); }}
                       onClick={() => handleCellClick(r, c)}
                       className={`flex items-center justify-center rounded-sm font-bold transition-colors touch-none ${cellSizeClass} ${
                         isFound

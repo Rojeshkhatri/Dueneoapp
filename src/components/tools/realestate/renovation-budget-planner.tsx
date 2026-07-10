@@ -196,6 +196,7 @@ export function RenovationBudgetPlanner({ tool }: { tool: ToolDefinition }) {
                         onChange={(e2) => update(it.id, { description: e2.target.value })}
                         placeholder="What's being done"
                         className="h-8"
+                        aria-label="Item description"
                       />
                       <Input
                         inputMode="decimal"
@@ -203,6 +204,7 @@ export function RenovationBudgetPlanner({ tool }: { tool: ToolDefinition }) {
                         onChange={(e2) => update(it.id, { estimated: e2.target.value })}
                         placeholder="0"
                         className="h-8 text-right"
+                        aria-label="Estimated cost"
                       />
                       <Input
                         inputMode="decimal"
@@ -210,6 +212,7 @@ export function RenovationBudgetPlanner({ tool }: { tool: ToolDefinition }) {
                         onChange={(e2) => update(it.id, { actual: e2.target.value })}
                         placeholder="0"
                         className="h-8 text-right"
+                        aria-label="Actual cost"
                       />
                       <span className={"text-right font-mono text-xs " + (hasActual ? (v > 0 ? "text-rose-600 dark:text-rose-400" : v < 0 ? "text-emerald-600 dark:text-emerald-400" : "") : "text-muted-foreground")}>
                         {hasActual ? formatCurrency(v, { currency }) : "—"}

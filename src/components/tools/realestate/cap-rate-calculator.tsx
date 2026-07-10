@@ -91,6 +91,7 @@ export function CapRateCalculator({ tool }: { tool: ToolDefinition }) {
                         value={p.label}
                         onChange={(e) => update(p.id, { label: e.target.value })}
                         className="h-7 w-40 text-sm"
+                        aria-label="Property name"
                       />
                     </CardTitle>
                     <Button size="icon" variant="ghost" className="h-7 w-7" onClick={() => remove(p.id)} aria-label="Remove property">
@@ -235,7 +236,7 @@ function Field({ label, value, onChange }: { label: string; value: string; onCha
   return (
     <div className="space-y-1.5">
       <Label className="text-xs">{label}</Label>
-      <Input inputMode="decimal" value={value} onChange={(e) => onChange(e.target.value)} className="h-8" />
+      <Input inputMode="decimal" value={value} onChange={(e) => onChange(e.target.value)} className="h-8" aria-label={label} />
     </div>
   );
 }

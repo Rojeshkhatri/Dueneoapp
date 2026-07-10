@@ -241,6 +241,7 @@ export function PayslipGenerator({ tool }: { tool: ToolDefinition }) {
                 onChange={(ev) => updateEarning(e.id, "label", ev.target.value)}
                 placeholder="Earning type (e.g. Basic Salary)"
                 className="flex-1"
+                aria-label="Earning type"
               />
               <Input
                 value={e.amount}
@@ -248,6 +249,7 @@ export function PayslipGenerator({ tool }: { tool: ToolDefinition }) {
                 placeholder="0.00"
                 inputMode="decimal"
                 className="w-28 text-right"
+                aria-label="Earning amount"
               />
               <Button
                 variant="ghost"
@@ -275,6 +277,7 @@ export function PayslipGenerator({ tool }: { tool: ToolDefinition }) {
                 onChange={(ev) => updateDeduction(d.id, "label", ev.target.value)}
                 placeholder="Deduction type (e.g. Income Tax)"
                 className="flex-1"
+                aria-label="Deduction type"
               />
               <Input
                 value={d.amount}
@@ -282,6 +285,7 @@ export function PayslipGenerator({ tool }: { tool: ToolDefinition }) {
                 placeholder="0.00"
                 inputMode="decimal"
                 className="w-28 text-right"
+                aria-label="Deduction amount"
               />
               <Button
                 variant="ghost"
@@ -306,6 +310,7 @@ export function PayslipGenerator({ tool }: { tool: ToolDefinition }) {
           onChange={(e) => setNotes(e.target.value)}
           rows={3}
           className="resize-none text-xs"
+          aria-label="Notes"
         />
       </FormSection>
     </>
@@ -323,9 +328,9 @@ export function PayslipGenerator({ tool }: { tool: ToolDefinition }) {
       {/* Header */}
       <div className="flex items-start justify-between border-b-2 border-slate-900 pb-4">
         <div>
-          <h1 className="text-2xl font-bold tracking-tight text-slate-900">
+          <div className="text-2xl font-bold tracking-tight text-slate-900">
             {companyName || "Your Company"}
-          </h1>
+          </div>
           <p className="mt-1 whitespace-pre-line text-xs text-slate-600">
             {companyAddress}
           </p>

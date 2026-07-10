@@ -86,7 +86,7 @@ Sensitivity (occupancy −10%):
               <Field label="Platform fee (%)" value={platformFee} onChange={setPlatformFee} />
               <div className="space-y-2 sm:col-span-2">
                 <Label>Monthly operating expenses</Label>
-                <Input inputMode="decimal" value={monthlyExpenses} onChange={(e) => setMonthlyExpenses(e.target.value)} placeholder="Utilities, supplies, mgmt, etc." />
+                <Input inputMode="decimal" value={monthlyExpenses} onChange={(e) => setMonthlyExpenses(e.target.value)} placeholder="Utilities, supplies, mgmt, etc." aria-label="Monthly operating expenses" />
               </div>
               <Button size="sm" variant="ghost" onClick={reset} className="sm:col-span-2">
                 <RotateCcw className="mr-1.5 h-3.5 w-3.5" /> Reset
@@ -199,7 +199,7 @@ function Field({ label, value, onChange }: { label: string; value: string; onCha
   return (
     <div className="space-y-2">
       <Label>{label}</Label>
-      <Input inputMode="decimal" value={value} onChange={(e) => onChange(e.target.value)} />
+      <Input inputMode="decimal" value={value} onChange={(e) => onChange(e.target.value)} aria-label={label} />
     </div>
   );
 }

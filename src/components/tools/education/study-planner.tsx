@@ -247,6 +247,7 @@ export function StudyPlanner({ tool }: { tool: ToolDefinition }) {
                   onChange={(e) => updateTopic(t.id, { name: e.target.value })}
                   placeholder="Topic name"
                   className="flex-1"
+                  aria-label={`Topic ${i + 1} name`}
                 />
                 <Input
                   type="number"

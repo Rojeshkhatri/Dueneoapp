@@ -241,6 +241,7 @@ export function DesignTokenGenerator({ tool }: { tool: ToolDefinition }) {
                       className="h-7 text-xs"
                       placeholder="name"
                       spellCheck={false}
+                      aria-label="Colour name"
                     />
                     <Input
                       value={p.hex}
@@ -253,6 +254,7 @@ export function DesignTokenGenerator({ tool }: { tool: ToolDefinition }) {
                       }}
                       className="h-7 font-mono text-xs"
                       spellCheck={false}
+                      aria-label="Colour hex value"
                     />
                   </div>
                   <Button

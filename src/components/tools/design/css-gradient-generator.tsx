@@ -164,7 +164,7 @@ export function CssGradientGenerator({ tool }: { tool: ToolDefinition }) {
             ) : (
               <div className="grid grid-cols-2 gap-3">
                 <div className="space-y-2">
-                  <Label>Shape</Label>
+                  <Label htmlFor="gg-shape">Shape</Label>
                   <Select
                     value={shape}
                     onValueChange={(v) => setShape(v as RadialShape)}
@@ -179,7 +179,7 @@ export function CssGradientGenerator({ tool }: { tool: ToolDefinition }) {
                   </Select>
                 </div>
                 <div className="space-y-2">
-                  <Label>Position</Label>
+                  <Label htmlFor="gg-pos">Position</Label>
                   <Select
                     value={position}
                     onValueChange={(v) => setPosition(v as RadialPosition)}
@@ -223,6 +223,7 @@ export function CssGradientGenerator({ tool }: { tool: ToolDefinition }) {
                         onChange={(e) => updateStop(s.id, { color: e.target.value })}
                         className="w-24 font-mono text-xs"
                         spellCheck={false}
+                        aria-label="Stop colour hex"
                       />
                       <div className="flex flex-1 items-center gap-2">
                         <Slider

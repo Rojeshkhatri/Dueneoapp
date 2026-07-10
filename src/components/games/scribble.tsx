@@ -38,7 +38,6 @@ export function Scribble({ game }: { game: GameDefinition }) {
   const [size, setSize] = React.useState<number>(6);
   const [strokes, setStrokes] = React.useState<Stroke[]>([]);
   const drawingRef = React.useRef<Stroke | null>(null);
-  const [drawing, setDrawing] = React.useState(false);
 
   // Resize canvas to its container, preserving aspect ratio 4:3.
   const redraw = React.useCallback(() => {
@@ -99,12 +98,12 @@ export function Scribble({ game }: { game: GameDefinition }) {
       ctx.lineCap = "round";
       ctx.lineJoin = "round";
     }
-    redraw();
-  }, [redraw]);
+  }, []);
 
   React.useEffect(() => {
     setupCanvas();
-    const onResize = () => setupCanvas();
+    redraw();
+    const onResize = () => { setupCanvas(); redraw(); };
     window.addEventListener("resize", onResize);
     return () => window.removeEventListener("resize", onResize);
   }, [setupCanvas]);
@@ -133,7 +132,6 @@ export function Scribble({ game }: { game: GameDefinition }) {
       points: [pt],
     };
     drawingRef.current = stroke;
-    setDrawing(true);
     // Draw the initial dot immediately.
     const canvas = canvasRef.current;
     const ctx = canvas?.getContext("2d");
@@ -152,7 +150,7 @@ export function Scribble({ game }: { game: GameDefinition }) {
   }
 
   function continueStroke(e: React.PointerEvent<HTMLCanvasElement>) {
-    if (!drawing || !drawingRef.current) return;
+    if (!drawingRef.current) return;
     e.preventDefault();
     const pt = getPoint(e);
     drawingRef.current.points.push(pt);
@@ -176,11 +174,10 @@ export function Scribble({ game }: { game: GameDefinition }) {
   }
 
   function endStroke(e: React.PointerEvent<HTMLCanvasElement>) {
-    if (!drawing || !drawingRef.current) return;
+    if (!drawingRef.current) return;
     e.preventDefault();
     setStrokes((prev) => [...prev, drawingRef.current!]);
     drawingRef.current = null;
-    setDrawing(false);
   }
 
   function undo() {

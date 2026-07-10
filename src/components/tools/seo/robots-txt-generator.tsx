@@ -156,6 +156,7 @@ export function RobotsTxtGenerator({ tool }: { tool: ToolDefinition }) {
                           onChange={(e) => updateRule(r.id, { userAgent: e.target.value })}
                           placeholder="User-agent (e.g. * or Googlebot)"
                           className="h-8 flex-1 text-xs"
+                          aria-label="User-agent"
                         />
                         <Button
                           variant="ghost"

@@ -260,10 +260,11 @@ export function Game2048({ game }: { game: GameDefinition }) {
                     className={`flex items-center justify-center rounded-md font-bold tabular-nums ${tileSize} ${
                       val === 0
                         ? "bg-amber-100/60 dark:bg-amber-950/30"
-                        : TILE_COLORS[val] ?? "bg-fuchsia-600 text-white"
+                        : `${TILE_COLORS[val] ?? "bg-fuchsia-600 text-white"} ${
+                            val < 100 ? "text-2xl" : val < 1000 ? "text-xl" : "text-lg"
+                          }`
                     }`}
                   >
-                    {val !== 0 && (val < 100 ? "text-2xl" : val < 1000 ? "text-xl" : "text-lg")}
                     {val !== 0 && val}
                   </div>
                 ))

@@ -210,7 +210,7 @@ function Field({ label, value, onChange, icon }: { label: string; value: string;
   return (
     <div className="space-y-2">
       <Label className="flex items-center gap-1.5 text-xs">{icon}{label}</Label>
-      <Input inputMode="decimal" value={value} onChange={(e) => onChange(e.target.value)} />
+      <Input inputMode="decimal" value={value} onChange={(e) => onChange(e.target.value)} aria-label={label} />
     </div>
   );
 }

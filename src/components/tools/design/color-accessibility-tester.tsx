@@ -162,6 +162,7 @@ export function ColorAccessibilityTester({ tool }: { tool: ToolDefinition }) {
                       }}
                       className="h-8 font-mono text-xs"
                       spellCheck={false}
+                      aria-label="Colour hex value"
                     />
                     <Input
                       value={p.label}

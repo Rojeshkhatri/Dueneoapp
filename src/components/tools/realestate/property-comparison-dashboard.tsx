@@ -118,6 +118,7 @@ export function PropertyComparisonDashboard({ tool }: { tool: ToolDefinition }) 
                                 onChange={(e) => update(p.id, { address: e.target.value })}
                                 placeholder={`Property ${computed.indexOf(p) + 1}`}
                                 className="h-7 text-sm font-semibold"
+                                aria-label={`Property ${computed.indexOf(p) + 1} address`}
                               />
                             </div>
                           </th>
@@ -128,35 +129,35 @@ export function PropertyComparisonDashboard({ tool }: { tool: ToolDefinition }) 
                       <Row label="Price">
                         {computed.map((p) => (
                           <td key={p.id} className="py-1.5 pr-3">
-                            <Input inputMode="decimal" value={p.price} onChange={(e) => update(p.id, { price: e.target.value })} className="h-8 text-right font-mono text-xs" />
+                            <Input inputMode="decimal" value={p.price} onChange={(e) => update(p.id, { price: e.target.value })} className="h-8 text-right font-mono text-xs" aria-label="Price" />
                           </td>
                         ))}
                       </Row>
                       <Row label="Sqft">
                         {computed.map((p) => (
                           <td key={p.id} className="py-1.5 pr-3">
-                            <Input inputMode="decimal" value={p.sqft} onChange={(e) => update(p.id, { sqft: e.target.value })} className="h-8 text-right font-mono text-xs" />
+                            <Input inputMode="decimal" value={p.sqft} onChange={(e) => update(p.id, { sqft: e.target.value })} className="h-8 text-right font-mono text-xs" aria-label="Square footage" />
                           </td>
                         ))}
                       </Row>
                       <Row label="Beds">
                         {computed.map((p) => (
                           <td key={p.id} className="py-1.5 pr-3">
-                            <Input inputMode="numeric" value={p.beds} onChange={(e) => update(p.id, { beds: e.target.value })} className="h-8 text-right font-mono text-xs" />
+                            <Input inputMode="numeric" value={p.beds} onChange={(e) => update(p.id, { beds: e.target.value })} className="h-8 text-right font-mono text-xs" aria-label="Bedrooms" />
                           </td>
                         ))}
                       </Row>
                       <Row label="Baths">
                         {computed.map((p) => (
                           <td key={p.id} className="py-1.5 pr-3">
-                            <Input inputMode="decimal" value={p.baths} onChange={(e) => update(p.id, { baths: e.target.value })} className="h-8 text-right font-mono text-xs" />
+                            <Input inputMode="decimal" value={p.baths} onChange={(e) => update(p.id, { baths: e.target.value })} className="h-8 text-right font-mono text-xs" aria-label="Bathrooms" />
                           </td>
                         ))}
                       </Row>
                       <Row label="Monthly rent">
                         {computed.map((p) => (
                           <td key={p.id} className="py-1.5 pr-3">
-                            <Input inputMode="decimal" value={p.monthlyRent} onChange={(e) => update(p.id, { monthlyRent: e.target.value })} className="h-8 text-right font-mono text-xs" placeholder="(if rental)" />
+                            <Input inputMode="decimal" value={p.monthlyRent} onChange={(e) => update(p.id, { monthlyRent: e.target.value })} className="h-8 text-right font-mono text-xs" placeholder="(if rental)" aria-label="Monthly rent" />
                           </td>
                         ))}
                       </Row>

@@ -149,6 +149,7 @@ export function BorderRadiusPlayground({ tool }: { tool: ToolDefinition }) {
                         if (Number.isFinite(n)) update(def.key, Math.max(0, Math.min(200, n)));
                       }}
                       className="h-7 w-16 font-mono text-xs"
+                      aria-label={`${def.label} value`}
                     />
                   </div>
                   <Slider

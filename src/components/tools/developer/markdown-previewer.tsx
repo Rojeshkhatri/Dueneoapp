@@ -17,11 +17,11 @@ import {
   downloadText,
 } from "./_dev-helpers";
 
-const SAMPLE = `# Hello, Dueneo
+const SAMPLE = `## Hello, Dueneo
 
 A **live** Markdown previewer — _nothing_ leaves your browser.
 
-## Why use it?
+### Why use it?
 
 - Type on the left, see the result on the right.
 - Supports headings, **bold**, _italic_, \`code\`, lists and links.
