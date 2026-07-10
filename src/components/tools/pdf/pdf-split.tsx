@@ -149,7 +149,7 @@ export function PdfSplit({ tool }: { tool: ToolDefinition }) {
         const copied = await outDoc.copyPages(src, piece.indices);
         for (const p of copied) outDoc.addPage(p);
         const bytes = await outDoc.save();
-        const blob = new Blob([bytes], { type: "application/pdf" });
+        const blob = new Blob([Uint8Array.from(bytes)], { type: "application/pdf" });
         out.push({ name: piece.name, blob, size: blob.size });
       }
 

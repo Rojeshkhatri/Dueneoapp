@@ -1,12 +1,8 @@
 "use client";
 
-import { useTheme } from "next-themes";
 import { RouterLink } from "@/lib/dueneo/router";
 
 export function Logo({ className }: { className?: string }) {
-  const { resolvedTheme } = useTheme();
-  const logoSrc = resolvedTheme === "dark" ? "/inverselogo.svg" : "/logo.svg";
-
   return (
     <RouterLink
       to="/"
@@ -14,11 +10,11 @@ export function Logo({ className }: { className?: string }) {
       aria-label="Dueneo home"
     >
       <img
-        src={logoSrc}
+        src="/logo.svg"
         alt="Dueneo"
         width={36}
         height={36}
-        className="h-9 w-9 rounded-lg"
+        className="h-9 w-9 rounded-lg dark:invert"
       />
       <span className="text-xl tracking-tight">Dueneo</span>
     </RouterLink>

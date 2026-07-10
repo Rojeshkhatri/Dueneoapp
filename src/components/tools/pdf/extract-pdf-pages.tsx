@@ -116,7 +116,7 @@ export function ExtractPdfPages({ tool }: { tool: ToolDefinition }) {
       for (const p of copied) out.addPage(p);
 
       const bytes = await out.save();
-      const blob = new Blob([bytes], { type: "application/pdf" });
+      const blob = new Blob([Uint8Array.from(bytes)], { type: "application/pdf" });
       setOutputUrl((prev) => replaceObjectUrl(prev, blob));
       setOutputSize(blob.size);
       setOutputName(derivedPdfName(file.name, "extracted"));

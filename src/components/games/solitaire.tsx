@@ -42,12 +42,15 @@ type Selection =
   | { source: "tableau"; pile: number; cardIndex: number }
   | { source: "foundation"; pile: number; cardIndex: number }
   | null;
+type ActiveSelection = Exclude<Selection, null>;
 
 function sameSelection(a: Selection, b: Selection): boolean {
   if (!a || !b) return false;
-  if (a.source !== b.source) return false;
   if (a.source === "waste") return true;
-  return a.pile === b.pile && a.cardIndex === b.cardIndex;
+  if (a.source === "foundation") {
+    return b.source === "foundation" && a.pile === b.pile && a.cardIndex === b.cardIndex;
+  }
+  return b.source === "tableau" && a.pile === b.pile && a.cardIndex === b.cardIndex;
 }
 
 // ---------------------------------------------------------------------------
@@ -140,7 +143,7 @@ function findFoundationFor(state: SolitaireState, card: Card): number {
 }
 
 /** Execute a move from `sel` to a foundation pile. Returns new state or null if illegal. */
-function moveToFoundation(state: SolitaireState, sel: Selection, foundationIdx: number): SolitaireState | null {
+function moveToFoundation(state: SolitaireState, sel: ActiveSelection, foundationIdx: number): SolitaireState | null {
   const cards = carriedCards(state, sel);
   if (!isValidCarry(cards)) return null;
   if (!canDropOnFoundation(cards, state.foundations[foundationIdx])) return null;
@@ -152,7 +155,7 @@ function moveToFoundation(state: SolitaireState, sel: Selection, foundationIdx: 
   return next;
 }
 
-function moveToTableau(state: SolitaireState, sel: Selection, colIdx: number, easyEmpty: boolean): SolitaireState | null {
+function moveToTableau(state: SolitaireState, sel: ActiveSelection, colIdx: number, easyEmpty: boolean): SolitaireState | null {
   const cards = carriedCards(state, sel);
   if (!isValidCarry(cards)) return null;
   if (!canDropOnTableau(cards, state.tableau[colIdx], easyEmpty)) return null;
@@ -164,7 +167,7 @@ function moveToTableau(state: SolitaireState, sel: Selection, colIdx: number, ea
   return next;
 }
 
-function removeFromSource(state: SolitaireState, sel: Selection) {
+function removeFromSource(state: SolitaireState, sel: ActiveSelection) {
   if (sel.source === "waste") {
     state.waste.pop();
     // Decrement wasteDrawnCount if we used one of the drawn cards.
@@ -177,7 +180,7 @@ function removeFromSource(state: SolitaireState, sel: Selection) {
 }
 
 /** After removing cards, flip the new top of a tableau column if it's face-down. */
-function flipTop(state: SolitaireState, sel: Selection) {
+function flipTop(state: SolitaireState, sel: ActiveSelection) {
   if (sel.source !== "tableau") return;
   const col = state.tableau[sel.pile];
   if (col.length > 0 && !col[col.length - 1].faceUp) {
@@ -318,7 +321,7 @@ export function Solitaire({ game }: { game: GameDefinition }) {
     dropSelection(source);
   }
 
-  function dropSelection(target: Selection) {
+  function dropSelection(target: ActiveSelection) {
     if (!sel) return;
     if (target.source === "foundation") {
       const next = moveToFoundation(state, sel, target.pile);
@@ -381,7 +384,7 @@ export function Solitaire({ game }: { game: GameDefinition }) {
     handleSelect({ source: "waste", cardIndex: state.waste.length - 1 });
   }
 
-  function handleAutoSend(source: Selection) {
+  function handleAutoSend(source: ActiveSelection) {
     const cards = carriedCards(state, source);
     if (cards.length !== 1) return;
     const idx = findFoundationFor(state, cards[0]);

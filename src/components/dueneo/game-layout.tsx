@@ -8,6 +8,7 @@ import { RelatedGames } from "./related-items";
 import type { GameDefinition } from "@/data/games";
 import { gameStructuredData } from "@/lib/dueneo/seo";
 import { Gamepad2, Keyboard, Smartphone } from "lucide-react";
+import { usePageMetadata } from "@/lib/dueneo/client-metadata";
 
 export interface GameContent {
   intro: React.ReactNode;
@@ -24,11 +25,11 @@ export function GameLayout({ game, content }: { game: GameDefinition; content: G
     { label: game.name },
   ];
 
-  React.useEffect(() => {
-    document.title = `${game.seoTitle} | Dueneo`;
-    const desc = document.querySelector('meta[name="description"]');
-    if (desc) desc.setAttribute("content", game.metaDescription);
-  }, [game.seoTitle, game.metaDescription]);
+  usePageMetadata({
+    title: game.seoTitle,
+    description: game.metaDescription,
+    pathname: `/games/${game.slug}`,
+  });
 
   React.useEffect(() => {
     const data = gameStructuredData(game);

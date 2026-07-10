@@ -1,14 +1,5 @@
-"use client";
-
-import { RouterProvider } from "@/lib/dueneo/router";
-import { DueneoApp } from "@/components/dueneo/dueneo-app";
-import { Toaster as SonnerToaster } from "sonner";
+import { AppShell } from "@/components/dueneo/app-shell";
 
 export default function Page() {
-  return (
-    <RouterProvider>
-      <DueneoApp />
-      <SonnerToaster position="top-center" richColors closeButton />
-    </RouterProvider>
-  );
+  return <AppShell initialPath="/" />;
 }

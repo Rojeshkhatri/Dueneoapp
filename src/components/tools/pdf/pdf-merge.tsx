@@ -121,7 +121,7 @@ export function PdfMerge({ tool }: { tool: ToolDefinition }) {
         for (const p of pages) merged.addPage(p);
       }
       const bytes = await merged.save();
-      const blob = new Blob([bytes], { type: "application/pdf" });
+      const blob = new Blob([Uint8Array.from(bytes)], { type: "application/pdf" });
       if (outputUrl) URL.revokeObjectURL(outputUrl);
       setOutputUrl(URL.createObjectURL(blob));
       setOutputSize(blob.size);

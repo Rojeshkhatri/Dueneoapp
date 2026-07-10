@@ -16,17 +16,9 @@ import {
   Lock,
   Sparkles,
   ArrowRight,
-  Image as ImageIcon,
-  FileText,
-  Code2,
-  Type,
-  Briefcase,
-  Calculator,
-  Palette,
-  Search,
   Gamepad2,
-  Wrench,
 } from "lucide-react";
+import { usePageMetadata } from "@/lib/dueneo/client-metadata";
 
 const popularToolSlugs = [
   "image-compressor",
@@ -46,6 +38,12 @@ const popularToolSlugs = [
 const popularGameSlugs = ["sudoku", "2048", "minesweeper", "tic-tac-toe", "memory-match", "connect-four"];
 
 export function HomePage() {
+  usePageMetadata({
+    title: "Dueneo — Free Browser Tools & Classic Games",
+    description:
+      "Fast, private browser-based tools for images, PDFs, developers, text, business, finance, design, and SEO — plus lightweight classic games.",
+    pathname: "/",
+  });
   const popularTools = popularToolSlugs
     .map((s) => tools.find((t) => t.slug === s))
     .filter((t): t is NonNullable<typeof t> => Boolean(t));
@@ -55,6 +53,14 @@ export function HomePage() {
 
   const implementedTools = tools.filter((t) => t.implemented);
   const implementedGames = games.filter((g) => g.implemented);
+  const categoryStats = categories.map((category) => ({
+    ...category,
+    count:
+      category.slug === "games"
+        ? implementedGames.length
+        : implementedTools.filter((tool) => tool.category === category.slug).length,
+  }));
+  const toolCategoryCount = categories.filter((category) => category.slug !== "games").length;
 
   // Inject WebSite + Organization schema on mount.
   React.useEffect(() => {
@@ -104,11 +110,11 @@ export function HomePage() {
           <div>
             <h2 className="text-2xl font-semibold tracking-tight sm:text-3xl">Browse by category</h2>
             <p className="mt-1 text-sm text-muted-foreground">
-              Ten tool categories plus a games arcade — pick what you need.
+              {toolCategoryCount} tool categories plus a games arcade — pick what you need.
             </p>
           </div>
         </div>
-        <div className="mt-6 grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-4">
+        <div className="mt-6 grid grid-cols-1 gap-3 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4">
           {categories.map((c) => (
             <RouterLink
               key={c.slug}
@@ -120,7 +126,7 @@ export function HomePage() {
                   <c.icon className={`h-5 w-5 ${c.color}`} />
                 </span>
                 <div className="min-w-0">
-                  <h3 className="truncate text-sm font-semibold">{c.name}</h3>
+                  <h3 className="text-sm font-semibold">{c.name}</h3>
                 </div>
               </div>
               <p className="mt-3 line-clamp-2 text-xs text-muted-foreground">{c.description}</p>
@@ -145,7 +151,7 @@ export function HomePage() {
               </p>
             </div>
             <RouterLink
-              to="/image-tools"
+              to="/tools"
               className="hidden items-center gap-1 text-sm font-medium text-primary hover:underline sm:inline-flex"
             >
               View all tools <ArrowRight className="h-3.5 w-3.5" />
@@ -187,7 +193,7 @@ export function HomePage() {
                 </span>
                 <span>
                   <strong>Fast.</strong> Static, lightweight pages built for
-                  Core Web Vitals. No spinners, no waiting on a server.
+                  Core Web Vitals. No server processing for your tool input.
                 </span>
               </li>
               <li className="flex items-start gap-3">
@@ -202,25 +208,14 @@ export function HomePage() {
             </ul>
           </div>
           <div className="grid grid-cols-2 gap-3">
-            {[
-              { icon: ImageIcon, label: "Image tools", count: 20, route: "/image-tools", color: "text-rose-500" },
-              { icon: FileText, label: "PDF tools", count: 15, route: "/pdf-tools", color: "text-orange-500" },
-              { icon: Code2, label: "Developer tools", count: 19, route: "/developer-tools", color: "text-emerald-500" },
-              { icon: Type, label: "Text tools", count: 15, route: "/text-tools", color: "text-sky-500" },
-              { icon: Briefcase, label: "Business tools", count: 5, route: "/business-tools", color: "text-violet-500" },
-              { icon: Calculator, label: "Finance tools", count: 10, route: "/finance-tools", color: "text-teal-500" },
-              { icon: Palette, label: "Design tools", count: 5, route: "/design-tools", color: "text-fuchsia-500" },
-              { icon: Search, label: "SEO tools", count: 4, route: "/seo-tools", color: "text-cyan-500" },
-              { icon: Wrench, label: "Utility tools", count: 2, route: "/utility-tools", color: "text-lime-500" },
-              { icon: Gamepad2, label: "Classic games", count: 15, route: "/games", color: "text-indigo-500" },
-            ].map((c) => (
+            {categoryStats.map((c) => (
               <RouterLink
-                key={c.label}
-                to={c.route}
+                key={c.slug}
+                to={`/${c.route}`}
                 className="group rounded-xl border bg-card p-4 transition-all hover:border-primary/40 hover:shadow-md"
               >
                 <c.icon className={`h-5 w-5 ${c.color}`} />
-                <div className="mt-3 text-sm font-medium">{c.label}</div>
+                <div className="mt-3 text-sm font-medium">{c.name}</div>
                 <div className="text-xs text-muted-foreground">{c.count} available</div>
               </RouterLink>
             ))}

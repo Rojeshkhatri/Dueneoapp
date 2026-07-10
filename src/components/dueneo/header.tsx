@@ -12,6 +12,7 @@ import { cn } from "@/lib/utils";
 import {
   Sheet,
   SheetContent,
+  SheetDescription,
   SheetHeader,
   SheetTitle,
   SheetTrigger,
@@ -67,8 +68,14 @@ export function Header() {
             <SheetContent side="right" className="w-[320px] sm:w-[380px]">
               <SheetHeader>
                 <SheetTitle className="text-left">Browse Dueneo</SheetTitle>
+                <SheetDescription className="sr-only">
+                  Search Dueneo or choose a tool category, popular tool, or site page.
+                </SheetDescription>
               </SheetHeader>
-              <div className="mt-4 flex flex-col gap-4 overflow-y-auto pb-6">
+              <nav
+                aria-label="Mobile navigation"
+                className="mt-4 flex flex-col gap-4 overflow-y-auto pb-6"
+              >
                 <SearchBox variant="default" />
                 <div className="space-y-1">
                   <p className="px-2 text-xs font-medium uppercase tracking-wide text-muted-foreground">
@@ -135,7 +142,7 @@ export function Header() {
                     Terms
                   </RouterLink>
                 </div>
-              </div>
+              </nav>
             </SheetContent>
           </Sheet>
         </div>

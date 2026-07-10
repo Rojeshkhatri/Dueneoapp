@@ -7,6 +7,7 @@ import { Card } from "@/components/ui/card";
 import { ArrowRight, Wrench, Gamepad2 } from "lucide-react";
 import { getRelatedTools, type ToolDefinition } from "@/data/tools";
 import { getRelatedGames, type GameDefinition } from "@/data/games";
+import { getCategory } from "@/data/categories";
 
 /**
  * Related-links section used on tool and game pages.
@@ -16,10 +17,12 @@ export function RelatedItems({
   items,
   kind,
   title,
+  viewAllTo,
 }: {
   items: ToolDefinition[] | GameDefinition[];
   kind: "tool" | "game";
   title?: string;
+  viewAllTo: string;
 }) {
   if (items.length === 0) return null;
   const heading = title ?? (kind === "tool" ? "Related tools" : "Related games");
@@ -31,7 +34,7 @@ export function RelatedItems({
           {heading}
         </h2>
         <RouterLink
-          to={kind === "tool" ? "/image-tools" : "/games"}
+          to={viewAllTo}
           className="inline-flex items-center gap-1 text-sm text-primary hover:underline"
         >
           View all <ArrowRight className="h-3.5 w-3.5" />
@@ -51,11 +54,18 @@ export function RelatedItems({
 }
 
 export function RelatedTools({ tool }: { tool: ToolDefinition }) {
-  return <RelatedItems kind="tool" items={getRelatedTools(tool)} />;
+  const category = getCategory(tool.category);
+  return (
+    <RelatedItems
+      kind="tool"
+      items={getRelatedTools(tool)}
+      viewAllTo={category ? `/${category.route}` : "/tools"}
+    />
+  );
 }
 
 export function RelatedGames({ game }: { game: GameDefinition }) {
-  return <RelatedItems kind="game" items={getRelatedGames(game)} />;
+  return <RelatedItems kind="game" items={getRelatedGames(game)} viewAllTo="/games" />;
 }
 
 /**

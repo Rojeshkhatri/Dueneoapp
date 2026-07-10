@@ -196,12 +196,14 @@ export function PurchaseOrderGenerator({ tool }: { tool: ToolDefinition }) {
                   className="h-7 w-7"
                   onClick={() => removeItem(item.id)}
                   disabled={items.length === 1}
-                  aria-label="Remove item"
+                  aria-label={`Remove item ${idx + 1}: ${item.description || "untitled item"}`}
                 >
                   <Trash2 className="h-3.5 w-3.5" />
                 </Button>
               </div>
+              <Label htmlFor={`po-item-description-${item.id}`} className="sr-only">Description for item {idx + 1}</Label>
               <Input
+                id={`po-item-description-${item.id}`}
                 value={item.description}
                 onChange={(e) => updateItem(item.id, { description: e.target.value })}
                 placeholder="Description"
@@ -209,16 +211,18 @@ export function PurchaseOrderGenerator({ tool }: { tool: ToolDefinition }) {
               />
               <div className="grid grid-cols-2 gap-2">
                 <div>
-                  <Label className="text-xs text-muted-foreground">Qty</Label>
+                  <Label htmlFor={`po-item-quantity-${item.id}`} className="text-xs text-muted-foreground">Qty</Label>
                   <Input
+                    id={`po-item-quantity-${item.id}`}
                     inputMode="decimal"
                     value={item.quantity}
                     onChange={(e) => updateItem(item.id, { quantity: e.target.value })}
                   />
                 </div>
                 <div>
-                  <Label className="text-xs text-muted-foreground">Unit price</Label>
+                  <Label htmlFor={`po-item-price-${item.id}`} className="text-xs text-muted-foreground">Unit price</Label>
                   <Input
+                    id={`po-item-price-${item.id}`}
                     inputMode="decimal"
                     value={item.unitPrice}
                     onChange={(e) => updateItem(item.id, { unitPrice: e.target.value })}

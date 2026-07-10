@@ -84,28 +84,28 @@ const STORAGE_KEY = "dueneo:currency";
  * localStorage so it sticks across visits and is shared across all
  * Dueneo money tools.
  */
-export function useCurrency(defaultCode = "USD") {
+export function useCurrency(defaultCode = "USD", storageKey = STORAGE_KEY) {
   const [code, setCode] = React.useState<string>(defaultCode);
 
   React.useEffect(() => {
     try {
-      const stored = localStorage.getItem(STORAGE_KEY);
+      const stored = localStorage.getItem(storageKey);
       if (stored && CURRENCIES.some((c) => c.code === stored)) {
         setCode(stored);
       }
     } catch {
       // ignore
     }
-  }, []);
+  }, [storageKey]);
 
   const update = React.useCallback((next: string) => {
     setCode(next);
     try {
-      localStorage.setItem(STORAGE_KEY, next);
+      localStorage.setItem(storageKey, next);
     } catch {
       // ignore
     }
-  }, []);
+  }, [storageKey]);
 
   const option = CURRENCIES.find((c) => c.code === code) ?? CURRENCIES[0];
 

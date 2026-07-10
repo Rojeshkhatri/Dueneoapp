@@ -6,7 +6,8 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Button } from "@/components/ui/button";
-import { Plus, Trash2 } from "lucide-react";
+import { FolderOpen, Plus, Save, Trash2 } from "lucide-react";
+import { toast } from "sonner";
 import type { ToolDefinition } from "@/data/tools";
 import {
   BusinessDocumentShell,
@@ -26,6 +27,23 @@ import {
   type LineItem,
 } from "./_business-helpers";
 import { useCurrency, CurrencySelector } from "@/components/dueneo/currency-selector";
+
+const INVOICE_DRAFT_KEY = "dueneo:invoice-generator:draft:v1";
+
+interface InvoiceDraft {
+  fromName: string;
+  fromAddress: string;
+  fromEmail: string;
+  toName: string;
+  toAddress: string;
+  invoiceNo: string;
+  issueDate: string;
+  dueDate: string;
+  items: LineItem[];
+  taxRate: string;
+  notes: string;
+  currency: string;
+}
 
 export function InvoiceGenerator({ tool }: { tool: ToolDefinition }) {
   const [fromName, setFromName] = React.useState("Your Company LLC");
@@ -86,6 +104,74 @@ export function InvoiceGenerator({ tool }: { tool: ToolDefinition }) {
     setNotes(
       "Payment due within 30 days. Please reference invoice number on your payment. Thank you for your business!"
     );
+  };
+
+  const saveDraft = () => {
+    const draft: InvoiceDraft = {
+      fromName,
+      fromAddress,
+      fromEmail,
+      toName,
+      toAddress,
+      invoiceNo,
+      issueDate,
+      dueDate,
+      items,
+      taxRate,
+      notes,
+      currency,
+    };
+    try {
+      localStorage.setItem(INVOICE_DRAFT_KEY, JSON.stringify(draft));
+      toast.success("Invoice draft saved on this device.");
+    } catch {
+      toast.error("The draft could not be saved in this browser.");
+    }
+  };
+
+  const restoreDraft = () => {
+    try {
+      const raw = localStorage.getItem(INVOICE_DRAFT_KEY);
+      if (!raw) {
+        toast.info("No saved invoice draft was found on this device.");
+        return;
+      }
+      const draft = JSON.parse(raw) as InvoiceDraft;
+      if (!draft || !Array.isArray(draft.items) || !draft.items.length) {
+        throw new Error("Invalid draft");
+      }
+      setFromName(String(draft.fromName ?? ""));
+      setFromAddress(String(draft.fromAddress ?? ""));
+      setFromEmail(String(draft.fromEmail ?? ""));
+      setToName(String(draft.toName ?? ""));
+      setToAddress(String(draft.toAddress ?? ""));
+      setInvoiceNo(String(draft.invoiceNo ?? ""));
+      setIssueDate(String(draft.issueDate ?? ""));
+      setDueDate(String(draft.dueDate ?? ""));
+      setItems(
+        draft.items.map((item) => ({
+          id: String(item.id || makeLineItemId()),
+          description: String(item.description ?? ""),
+          quantity: String(item.quantity ?? "1"),
+          unitPrice: String(item.unitPrice ?? "0"),
+        }))
+      );
+      setTaxRate(String(draft.taxRate ?? "0"));
+      setNotes(String(draft.notes ?? ""));
+      if (draft.currency) setCurrency(draft.currency);
+      toast.success("Invoice draft restored.");
+    } catch {
+      toast.error("The saved draft is invalid or could not be read.");
+    }
+  };
+
+  const clearDraft = () => {
+    try {
+      localStorage.removeItem(INVOICE_DRAFT_KEY);
+      toast.success("Saved invoice draft cleared.");
+    } catch {
+      toast.error("The saved draft could not be cleared.");
+    }
   };
 
   const form = (
@@ -172,12 +258,16 @@ export function InvoiceGenerator({ tool }: { tool: ToolDefinition }) {
                   className="h-7 w-7"
                   onClick={() => removeItem(item.id)}
                   disabled={items.length === 1}
-                  aria-label="Remove item"
+                  aria-label={`Remove item ${idx + 1}: ${item.description || "untitled item"}`}
                 >
                   <Trash2 className="h-3.5 w-3.5" />
                 </Button>
               </div>
+              <Label htmlFor={`inv-item-description-${item.id}`} className="sr-only">
+                Description for item {idx + 1}
+              </Label>
               <Input
+                id={`inv-item-description-${item.id}`}
                 value={item.description}
                 onChange={(e) => updateItem(item.id, { description: e.target.value })}
                 placeholder="Description"
@@ -185,16 +275,18 @@ export function InvoiceGenerator({ tool }: { tool: ToolDefinition }) {
               />
               <div className="grid grid-cols-2 gap-2">
                 <div>
-                  <Label className="text-xs text-muted-foreground">Qty</Label>
+                  <Label htmlFor={`inv-item-quantity-${item.id}`} className="text-xs text-muted-foreground">Qty</Label>
                   <Input
+                    id={`inv-item-quantity-${item.id}`}
                     inputMode="decimal"
                     value={item.quantity}
                     onChange={(e) => updateItem(item.id, { quantity: e.target.value })}
                   />
                 </div>
                 <div>
-                  <Label className="text-xs text-muted-foreground">Unit price</Label>
+                  <Label htmlFor={`inv-item-price-${item.id}`} className="text-xs text-muted-foreground">Unit price</Label>
                   <Input
+                    id={`inv-item-price-${item.id}`}
                     inputMode="decimal"
                     value={item.unitPrice}
                     onChange={(e) => updateItem(item.id, { unitPrice: e.target.value })}
@@ -335,7 +427,24 @@ export function InvoiceGenerator({ tool }: { tool: ToolDefinition }) {
     intro:
       "Create a professional, printable invoice in your browser. Fill in your business and client details, add line items with quantities and unit prices, set a tax rate and notes, then click Print to save the invoice as a PDF. Nothing is uploaded — the document is generated entirely from the form on this page.",
     tool: (
-      <BusinessDocumentShell form={form} preview={preview} onReset={reset} />
+      <BusinessDocumentShell
+        form={form}
+        preview={preview}
+        onReset={reset}
+        actions={
+          <>
+            <Button variant="outline" size="sm" onClick={saveDraft}>
+              <Save className="mr-1.5 h-3.5 w-3.5" /> Save draft
+            </Button>
+            <Button variant="outline" size="sm" onClick={restoreDraft}>
+              <FolderOpen className="mr-1.5 h-3.5 w-3.5" /> Restore draft
+            </Button>
+            <Button variant="ghost" size="sm" onClick={clearDraft}>
+              Clear saved draft
+            </Button>
+          </>
+        }
+      />
     ),
     howTo: [
       {
@@ -354,9 +463,9 @@ export function InvoiceGenerator({ tool }: { tool: ToolDefinition }) {
           "For each item enter a description, quantity and unit price. The amount calculates automatically. Add or remove rows as needed.",
       },
       {
-        title: "Print or save as PDF",
+        title: "Save a draft or export",
         description:
-          "Click Print / Save as PDF. Your browser's print dialog opens with only the invoice visible — choose “Save as PDF” as the destination.",
+          "Optionally save a private draft on this device, or click Print / Save as PDF and choose “Save as PDF” in your browser's print dialog.",
       },
     ],
     useCases: [
@@ -373,8 +482,8 @@ export function InvoiceGenerator({ tool }: { tool: ToolDefinition }) {
           result.
         </li>
         <li>
-          This tool does not store anything. Refreshing the page resets the form to its
-          defaults. Use the print dialog's PDF output to keep a copy.
+          Drafts are opt-in and stored only in this browser&apos;s local storage. They
+          do not sync across browsers or devices, and clearing site data removes them.
         </li>
         <li>
           Currency formatting uses your browser's locale. Verify the symbol matches your
@@ -389,7 +498,7 @@ export function InvoiceGenerator({ tool }: { tool: ToolDefinition }) {
     faq: [
       {
         q: "Is my invoice data sent to a server?",
-        a: "No. Everything you type stays in this browser tab. The PDF is produced by your browser's built-in print engine — no upload happens.",
+        a: "No. Everything stays in your browser. If you click Save draft, a copy is stored only in this browser's local storage; the PDF is produced by the built-in print engine.",
       },
       {
         q: "How do I save the invoice as a PDF?",

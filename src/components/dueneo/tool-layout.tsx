@@ -10,6 +10,8 @@ import { RelatedTools } from "./related-items";
 import type { ToolDefinition } from "@/data/tools";
 import { getCategory } from "@/data/categories";
 import { toolStructuredData, faqStructuredData } from "@/lib/dueneo/seo";
+import { usePageMetadata } from "@/lib/dueneo/client-metadata";
+import { recordRecentTool } from "@/lib/dueneo/tool-library";
 
 export interface ToolContent {
   intro: React.ReactNode;
@@ -42,13 +44,30 @@ export function ToolLayout({
       ]
     : [{ label: tool.name }];
 
+  usePageMetadata({
+    title: tool.seoTitle,
+    description: tool.metaDescription,
+    pathname: `/${tool.slug}`,
+  });
+
   React.useEffect(() => {
-    document.title = tool.seoTitle.trim().endsWith("| Dueneo")
-      ? tool.seoTitle
-      : `${tool.seoTitle} | Dueneo`;
-    const desc = document.querySelector('meta[name="description"]');
-    if (desc) desc.setAttribute("content", tool.metaDescription);
-  }, [tool.seoTitle, tool.metaDescription]);
+    recordRecentTool(tool.slug);
+  }, [tool.slug]);
+
+  const reportProblem = () => {
+    const subject = `Problem with ${tool.name}`;
+    const body = [
+      `Tool: ${window.location.href}`,
+      `Browser: ${navigator.userAgent}`,
+      "",
+      "What happened?",
+      "",
+      "What did you expect?",
+      "",
+      "Please do not include passwords, tokens, private files, or other sensitive inputs.",
+    ].join("\n");
+    window.location.href = `mailto:bugs@dueneo.com?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
+  };
 
   // Inject JSON-LD structured data.
   React.useEffect(() => {
@@ -66,7 +85,7 @@ export function ToolLayout({
     // FAQPage schema
     if (content.faq && content.faq.length > 0) {
       const faqData = faqStructuredData(
-        content.faq,
+        content.faq.filter((item): item is { q: string; a: string } => typeof item.a === "string"),
         `https://dueneo.com/${tool.slug}/`
       );
       if (faqData) {
@@ -158,6 +177,20 @@ export function ToolLayout({
                 </span>
               ))}
             </div>
+          </div>
+          <div className="rounded-xl border bg-muted/30 p-4 text-sm">
+            <h3 className="font-semibold">Found a problem?</h3>
+            <p className="mt-2 text-muted-foreground">
+              Send the tool URL and browser details without including anything
+              you entered into the tool.
+            </p>
+            <button
+              type="button"
+              onClick={reportProblem}
+              className="mt-3 font-medium text-primary underline-offset-4 hover:underline"
+            >
+              Report a problem with this tool
+            </button>
           </div>
           <AdSlot id="ad-sidebar" placement="sidebar" />
         </aside>

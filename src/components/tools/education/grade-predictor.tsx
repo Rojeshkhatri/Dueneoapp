@@ -119,8 +119,8 @@ export function GradePredictor({ tool }: { tool: ToolDefinition }) {
               </Button>
               <div className="mt-2 grid grid-cols-[1fr_80px_80px_32px] gap-2 border-t pt-2 text-xs">
                 <span className="text-muted-foreground">Totals so far</span>
-                <span className="text-right font-mono">{formatNumber(avgSoFar, 1)}%</span>
-                <span className="text-right font-mono">{formatNumber(componentsWeight, 1)}%</span>
+                <span className="text-right font-mono">{formatNumber(avgSoFar, { digits: 1 })}%</span>
+                <span className="text-right font-mono">{formatNumber(componentsWeight, { digits: 1 })}%</span>
                 <span />
               </div>
             </CardContent>
@@ -141,7 +141,7 @@ export function GradePredictor({ tool }: { tool: ToolDefinition }) {
               </div>
               {weightWarning && (
                 <div className="rounded-md border border-amber-300/60 bg-amber-50 p-2 text-xs text-amber-800 dark:bg-amber-950/30 dark:text-amber-300">
-                  Component weights + final = {formatNumber(totalW, 1)}%, not 100%. Check your syllabus for the correct weights.
+                  Component weights + final = {formatNumber(totalW, { digits: 1 })}%, not 100%. Check your syllabus for the correct weights.
                 </div>
               )}
               <Button size="sm" variant="ghost" onClick={reset}>
@@ -159,24 +159,24 @@ export function GradePredictor({ tool }: { tool: ToolDefinition }) {
           </CardHeader>
           <CardContent className="space-y-4">
             <div className="grid gap-3 sm:grid-cols-3">
-              <Stat label="Current weighted grade" value={`${formatNumber(earnedPctOfFinal, 1)}%`} sub={`from ${formatNumber(totalWeightSoFar, 1)}% of total weight`} icon={<TrendingUp className="h-4 w-4" />} />
-              <Stat label="Required on final exam" value={`${formatNumber(requiredFinal, 1)}%`} sub={`on a ${formatNumber(finalExamWeight, 1)}% final`} icon={<Target className="h-4 w-4" />} highlight={stillPossible ? "amber" : "rose"} />
-              <Stat label="Projected if same average" value={`${formatNumber(projectedIfSame, 1)}%`} sub={`at current ${formatNumber(avgSoFar, 1)}% avg`} icon={<TrendingUp className="h-4 w-4" />} />
+              <Stat label="Current weighted grade" value={`${formatNumber(earnedPctOfFinal, { digits: 1 })}%`} sub={`from ${formatNumber(totalWeightSoFar, { digits: 1 })}% of total weight`} icon={<TrendingUp className="h-4 w-4" />} />
+              <Stat label="Required on final exam" value={`${formatNumber(requiredFinal, { digits: 1 })}%`} sub={`on a ${formatNumber(finalExamWeight, { digits: 1 })}% final`} icon={<Target className="h-4 w-4" />} highlight={stillPossible ? "amber" : "rose"} />
+              <Stat label="Projected if same average" value={`${formatNumber(projectedIfSame, { digits: 1 })}%`} sub={`at current ${formatNumber(avgSoFar, { digits: 1 })}% avg`} icon={<TrendingUp className="h-4 w-4" />} />
             </div>
 
             {guaranteed ? (
               <div className="flex items-start gap-3 rounded-lg border border-emerald-300/60 bg-emerald-50 p-4 text-sm text-emerald-800 dark:bg-emerald-950/30 dark:text-emerald-300">
                 <CheckCircle2 className="mt-0.5 h-5 w-5 flex-none" />
                 <div>
-                  <p className="font-semibold">Target already met — even 0% on the final keeps you at {formatNumber(targetNum, 1)}%.</p>
-                  <p className="mt-1 text-xs">Your current weighted grade of {formatNumber(earnedPctOfFinal, 1)}% already meets the {formatNumber(targetNum, 1)}% target.</p>
+                  <p className="font-semibold">Target already met — even 0% on the final keeps you at {formatNumber(targetNum, { digits: 1 })}%.</p>
+                  <p className="mt-1 text-xs">Your current weighted grade of {formatNumber(earnedPctOfFinal, { digits: 1 })}% already meets the {formatNumber(targetNum, { digits: 1 })}% target.</p>
                 </div>
               </div>
             ) : !feasible ? (
               <div className="flex items-start gap-3 rounded-lg border border-rose-300/60 bg-rose-50 p-4 text-sm text-rose-800 dark:bg-rose-950/30 dark:text-rose-300">
                 <AlertTriangle className="mt-0.5 h-5 w-5 flex-none" />
                 <div>
-                  <p className="font-semibold">Out of reach — you'd need {formatNumber(requiredFinal, 1)}% on the final.</p>
+                  <p className="font-semibold">Out of reach — you'd need {formatNumber(requiredFinal, { digits: 1 })}% on the final.</p>
                   <p className="mt-1 text-xs">That's above 100%, which isn't possible. Consider asking for extra credit, scaling your target down, or improving earlier components if re-submission is allowed.</p>
                 </div>
               </div>
@@ -184,8 +184,8 @@ export function GradePredictor({ tool }: { tool: ToolDefinition }) {
               <div className="flex items-start gap-3 rounded-lg border border-amber-300/60 bg-amber-50 p-4 text-sm text-amber-800 dark:bg-amber-950/30 dark:text-amber-300">
                 <Target className="mt-0.5 h-5 w-5 flex-none" />
                 <div>
-                  <p className="font-semibold">You need {formatNumber(requiredFinal, 1)}% on the final exam to finish at {formatNumber(targetNum, 1)}%.</p>
-                  <p className="mt-1 text-xs">That's {requiredFinal > avgSoFar ? "above" : "below"} your current average of {formatNumber(avgSoFar, 1)}% — {requiredFinal > avgSoFar ? "you'll need to step up" : "you're on track"}.</p>
+                  <p className="font-semibold">You need {formatNumber(requiredFinal, { digits: 1 })}% on the final exam to finish at {formatNumber(targetNum, { digits: 1 })}%.</p>
+                  <p className="mt-1 text-xs">That's {requiredFinal > avgSoFar ? "above" : "below"} your current average of {formatNumber(avgSoFar, { digits: 1 })}% — {requiredFinal > avgSoFar ? "you'll need to step up" : "you're on track"}.</p>
                 </div>
               </div>
             )}

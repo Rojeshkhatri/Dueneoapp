@@ -15,17 +15,18 @@ import { getCategoryByRoute, getCategory } from "@/data/categories";
 import { ToolRouter } from "@/components/tools/tool-router";
 import { GameRouter } from "@/components/games/game-router";
 import { NotFoundPage } from "@/components/dueneo/not-found-page";
+import { AllToolsPage } from "@/components/dueneo/all-tools-page";
 
 /**
  * Top-level Dueneo application. Wraps every page in the shared
  * header / footer shell and dispatches to the right page based on the
- * hash router path.
+ * current real URL path.
  */
 export function DueneoApp() {
   const { path, segments } = useRouter();
 
   // Scroll to top whenever the path changes (handled in router navigate,
-  // but also here for direct hash edits and back/forward).
+  // but also here for direct history navigation and back/forward).
   React.useEffect(() => {
     window.scrollTo({ top: 0, behavior: "auto" });
   }, [path]);
@@ -39,6 +40,8 @@ export function DueneoApp() {
     // Legal pages.
     if (seg === "about") {
       body = <AboutPage />;
+    } else if (seg === "tools") {
+      body = <AllToolsPage />;
     } else if (seg === "contact") {
       body = <ContactPage />;
     } else if (seg === "privacy-policy") {
@@ -82,8 +85,16 @@ export function DueneoApp() {
 
   return (
     <div className="flex min-h-screen flex-col">
+      <a
+        href="#main-content"
+        className="sr-only z-50 rounded-md bg-background px-4 py-2 text-sm font-medium focus:not-sr-only focus:fixed focus:left-4 focus:top-4 focus:ring-2 focus:ring-ring"
+      >
+        Skip to main content
+      </a>
       <Header />
-      {body}
+      <div id="main-content" tabIndex={-1} className="contents">
+        {body}
+      </div>
       <Footer />
     </div>
   );

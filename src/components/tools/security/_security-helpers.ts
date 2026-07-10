@@ -491,7 +491,7 @@ export async function sha256Hex(input: string): Promise<string> {
 
 /** Compute SHA-256 of a byte array and return lowercase hex. */
 export async function sha256Bytes(input: Uint8Array): Promise<string> {
-  const digest = await crypto.subtle.digest("SHA-256", input);
+  const digest = await crypto.subtle.digest("SHA-256", Uint8Array.from(input));
   return bytesToHex(new Uint8Array(digest));
 }
 

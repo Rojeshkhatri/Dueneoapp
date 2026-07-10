@@ -68,9 +68,12 @@ export function TaxCalculator({
   };
 }) {
   const { taxName, defaultRate, presets } = config;
-  // Shared, persisted currency. The per-tool `config.currency` is no longer
-  // used for display — the user's global selection (default USD) wins.
-  const { code: currency, setCode: setCurrency } = useCurrency();
+  // Tax tools keep jurisdiction-aware defaults without overriding the user's
+  // global currency preference in unrelated calculators.
+  const { code: currency, setCode: setCurrency } = useCurrency(
+    config.currency ?? "USD",
+    `dueneo:currency:tax:${taxName.toLowerCase().replace(/\s+/g, "-")}`
+  );
   const [amount, setAmount] = React.useState<string>("");
   const [rate, setRate] = React.useState<string>(String(defaultRate));
   const [mode, setMode] = React.useState<Mode>("exclusive");

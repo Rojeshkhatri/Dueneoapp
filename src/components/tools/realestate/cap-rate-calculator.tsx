@@ -36,7 +36,7 @@ export function CapRateCalculator({ tool }: { tool: ToolDefinition }) {
       const opex = Math.max(0, parseNumber(p.operatingExpenses));
       const noi = gross - opex;
       const cap = value > 0 ? (noi / value) * 100 : 0;
-      return { ...p, value, gross, opex, noi, cap };
+      return { ...p, propertyValue: value, gross, opex, noi, cap };
     });
   }, [properties]);
 
@@ -51,7 +51,7 @@ export function CapRateCalculator({ tool }: { tool: ToolDefinition }) {
 
   const best = computed.length > 0 ? computed.reduce((a, b) => (b.cap > a.cap ? b : a)) : null;
   const summary = computed
-    .map((p) => `${p.label || "Property"}: value ${formatCurrency(p.value, { currency })}, NOI ${formatCurrency(p.noi, { currency })}, cap rate ${formatPercent(p.cap)}`)
+    .map((p) => `${p.label || "Property"}: value ${formatCurrency(p.propertyValue, { currency })}, NOI ${formatCurrency(p.noi, { currency })}, cap rate ${formatPercent(p.cap)}`)
     .join("\n");
 
   const content: ToolContent = {
@@ -144,7 +144,7 @@ export function CapRateCalculator({ tool }: { tool: ToolDefinition }) {
                     {computed.map((p) => (
                       <tr key={p.id} className="border-b last:border-0">
                         <td className="py-2 pr-4 font-medium">{p.label || "Property"}</td>
-                        <td className="py-2 pr-4 text-right font-mono tabular-nums">{formatCurrency(p.value, { currency })}</td>
+                        <td className="py-2 pr-4 text-right font-mono tabular-nums">{formatCurrency(p.propertyValue, { currency })}</td>
                         <td className="py-2 pr-4 text-right font-mono tabular-nums">{formatCurrency(p.gross, { currency })}</td>
                         <td className="py-2 pr-4 text-right font-mono tabular-nums">{formatCurrency(p.opex, { currency })}</td>
                         <td className="py-2 pr-4 text-right font-mono tabular-nums">{formatCurrency(p.noi, { currency })}</td>
