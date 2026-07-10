@@ -27,6 +27,8 @@ export interface TaxCalculatorConfig {
   presets: number[];
   /** Suggested currency for the formatted output. */
   currency?: string;
+  /** Optional versioned persistence key for a jurisdiction-specific default. */
+  currencyStorageKey?: string;
 }
 
 type Mode = "exclusive" | "inclusive";
@@ -72,7 +74,8 @@ export function TaxCalculator({
   // global currency preference in unrelated calculators.
   const { code: currency, setCode: setCurrency } = useCurrency(
     config.currency ?? "USD",
-    `dueneo:currency:tax:${taxName.toLowerCase().replace(/\s+/g, "-")}`
+    config.currencyStorageKey ??
+      `dueneo:currency:tax:${taxName.toLowerCase().replace(/\s+/g, "-")}`
   );
   const [amount, setAmount] = React.useState<string>("");
   const [rate, setRate] = React.useState<string>(String(defaultRate));

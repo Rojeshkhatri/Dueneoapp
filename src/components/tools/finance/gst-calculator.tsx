@@ -12,7 +12,8 @@ export function GstCalculator({ tool }: { tool: ToolDefinition }) {
         taxName: "GST",
         defaultRate: 18,
         presets: [0, 5, 12, 18, 28],
-        currency: "INR",
+        currency: "USD",
+        currencyStorageKey: "dueneo:currency:tax:gst:v2",
       }}
       content={{
         intro:
