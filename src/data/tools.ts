@@ -3582,10 +3582,30 @@ export function searchTools(query: string): ToolDefinition[] {
   return tools
     .map((t) => {
       let score = 0;
-      if (t.name.toLowerCase().includes(q)) score += 10;
-      if (t.slug.toLowerCase().includes(q)) score += 8;
-      if (t.summary.toLowerCase().includes(q)) score += 4;
-      if (t.keywords.some((k) => k.toLowerCase().includes(q))) score += 6;
+      const name = t.name.toLowerCase();
+      const slug = t.slug.toLowerCase();
+      const summary = t.summary.toLowerCase();
+
+      // Name matching — highest weight
+      if (name === q) score += 100;          // exact match
+      else if (name.startsWith(q)) score += 50;  // prefix match
+      else if (name.includes(q)) score += 10;     // substring
+
+      // Word-boundary match in name (e.g., "sci calc" matches "Scientific Calculator")
+      const nameWords = name.split(/\s+/);
+      if (nameWords.some((w) => w.startsWith(q))) score += 30;
+
+      // Slug matching
+      if (slug.startsWith(q)) score += 20;
+      else if (slug.includes(q)) score += 8;
+
+      // Keyword matching
+      if (t.keywords.some((k) => k.toLowerCase().startsWith(q))) score += 15;
+      else if (t.keywords.some((k) => k.toLowerCase().includes(q))) score += 6;
+
+      // Summary — lowest weight
+      if (summary.includes(q)) score += 2;
+
       return { t, score };
     })
     .filter(({ score }) => score > 0)
