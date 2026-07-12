@@ -81,7 +81,7 @@ export function ToolLayout({
       : null;
 
   return (
-    <article className="dueneo-container py-6 sm:py-10">
+    <article className="dueneo-container overflow-x-hidden py-6 sm:py-10">
       {toolJsonLd && (
         <script
           type="application/ld+json"

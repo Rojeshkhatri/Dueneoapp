@@ -173,6 +173,7 @@ export function ScientificCalculator({ tool }: { tool: ToolDefinition }) {
 
       {/* Number pad + operators */}
       <div className="grid grid-cols-4 gap-1.5">
+        {/* eslint-disable-next-line react-hooks/refs -- false positive: no refs accessed, only state setters */}
         {[
           { label: "MC", action: memoryClear, variant: "clear" as const },
           { label: "MR", action: memoryRecall, variant: "function" as const },

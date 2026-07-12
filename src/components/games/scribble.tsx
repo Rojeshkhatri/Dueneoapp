@@ -86,7 +86,7 @@ export function Scribble({ game }: { game: GameDefinition }) {
 
   // Resize canvas to its container, preserving aspect ratio 4:3.
   const strokesRef = React.useRef<Stroke[]>([]);
-  strokesRef.current = strokes;
+  React.useEffect(() => { strokesRef.current = strokes; }, [strokes]);
 
   const redraw = React.useCallback(() => {
     const canvas = canvasRef.current;
@@ -127,6 +127,38 @@ export function Scribble({ game }: { game: GameDefinition }) {
     // Draw in-progress stroke (for resize during drawing).
     if (drawingRef.current) drawStroke(drawingRef.current);
   }, []);
+
+  function redrawAll() {
+    const canvas = canvasRef.current;
+    if (!canvas) return;
+    const ctx = canvas.getContext("2d");
+    if (!ctx) return;
+    const dpr = window.devicePixelRatio || 1;
+    const width = canvas.width / dpr;
+    const height = canvas.height / dpr;
+    ctx.save();
+    ctx.fillStyle = "#ffffff";
+    ctx.fillRect(0, 0, width, height);
+    ctx.restore();
+
+    for (const stroke of strokesRef.current) {
+      if (stroke.points.length === 0) continue;
+      ctx.save();
+      ctx.lineCap = "round";
+      ctx.lineJoin = "round";
+      ctx.lineWidth = stroke.size;
+      ctx.strokeStyle = stroke.tool === "eraser" ? "#ffffff" : stroke.color;
+      ctx.beginPath();
+      const pts = stroke.points;
+      ctx.moveTo(pts[0].x, pts[0].y);
+      for (let i = 1; i < pts.length; i++) {
+        ctx.lineTo(pts[i].x, pts[i].y);
+      }
+      ctx.stroke();
+      ctx.restore();
+    }
+    saveCanvas();
+  }
 
   // Initialize canvas — use querySelector to bypass ref issues.
   React.useEffect(() => {
@@ -291,38 +323,6 @@ export function Scribble({ game }: { game: GameDefinition }) {
     flushSync(() => {
       setStrokes((prev) => [...prev, stroke]);
     });
-  }
-
-  function redrawAll() {
-    const canvas = canvasRef.current;
-    if (!canvas) return;
-    const ctx = canvas.getContext("2d");
-    if (!ctx) return;
-    const dpr = window.devicePixelRatio || 1;
-    const width = canvas.width / dpr;
-    const height = canvas.height / dpr;
-    ctx.save();
-    ctx.fillStyle = "#ffffff";
-    ctx.fillRect(0, 0, width, height);
-    ctx.restore();
-
-    for (const stroke of strokesRef.current) {
-      if (stroke.points.length === 0) continue;
-      ctx.save();
-      ctx.lineCap = "round";
-      ctx.lineJoin = "round";
-      ctx.lineWidth = stroke.size;
-      ctx.strokeStyle = stroke.tool === "eraser" ? "#ffffff" : stroke.color;
-      ctx.beginPath();
-      const pts = stroke.points;
-      ctx.moveTo(pts[0].x, pts[0].y);
-      for (let i = 1; i < pts.length; i++) {
-        ctx.lineTo(pts[i].x, pts[i].y);
-      }
-      ctx.stroke();
-      ctx.restore();
-    }
-    saveCanvas();
   }
 
   function undo() {

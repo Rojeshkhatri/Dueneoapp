@@ -7,9 +7,8 @@ import type { ToolDefinition } from "@/data/tools";
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
 import { toast } from "sonner";
 
-// Decimal.js + formulajs loaded dynamically
+// Decimal.js loaded dynamically
 let Decimal: any = null;
-let formulajs: any = null;
 let libsReady = false;
 
 function ensureLibs() {
@@ -46,9 +45,8 @@ function BusinessCalculatorInner() {
   const [ready, setReady] = React.useState(false);
 
   React.useEffect(() => {
-    Promise.all([import("decimal.js"), import("formulajs")]).then(([d, f]) => {
+    import("decimal.js").then((d) => {
       Decimal = d.default || d;
-      formulajs = f;
       libsReady = true;
       setReady(true);
     });
