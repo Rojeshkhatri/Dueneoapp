@@ -715,6 +715,7 @@ export function LinkedinCarouselCreator({ tool }: { tool: ToolDefinition }) {
                       setSettings((s) => ({ ...s, textColor: e.target.value }))
                     }
                     className="font-mono"
+                    aria-label="Text colour hex"
                   />
                 </div>
               )}

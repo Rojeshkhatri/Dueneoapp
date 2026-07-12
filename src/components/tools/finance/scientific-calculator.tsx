@@ -127,6 +127,7 @@ export function ScientificCalculator({ tool }: { tool: ToolDefinition }) {
         }}
         placeholder="Type expression or use buttons..."
         className="w-full rounded-lg border bg-background px-4 py-3 font-mono text-sm outline-none focus:ring-2 focus:ring-ring"
+        aria-label="Mathematical expression"
         autoFocus
       />
 

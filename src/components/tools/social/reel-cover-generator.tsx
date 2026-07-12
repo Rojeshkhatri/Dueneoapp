@@ -423,6 +423,7 @@ export function ReelCoverGenerator({ tool }: { tool: ToolDefinition }) {
                   value={settings.textColor}
                   onChange={(e) => setSettings((s) => ({ ...s, textColor: e.target.value }))}
                   className="font-mono"
+                  aria-label="Text colour hex"
                 />
               </div>
             )}

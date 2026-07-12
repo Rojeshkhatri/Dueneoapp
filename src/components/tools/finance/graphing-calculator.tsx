@@ -126,6 +126,7 @@ function GraphingCalculatorInner() {
           onKeyDown={(e) => { if (e.key === "Enter") addFunction(); }}
           placeholder="Enter function of x, e.g. x^2, sin(x), 2*x+1"
           className="flex-1 rounded-lg border bg-background px-4 py-2.5 font-mono text-sm outline-none focus:ring-2 focus:ring-ring"
+          aria-label="Function expression"
         />
         <button onClick={addFunction} className="flex items-center gap-1 rounded-lg bg-primary px-4 py-2.5 text-sm font-medium text-primary-foreground hover:bg-primary/90">
           <Plus className="h-4 w-4" /> Graph

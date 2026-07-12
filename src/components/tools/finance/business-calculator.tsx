@@ -234,6 +234,7 @@ function NPVCalculator() {
           className="w-full rounded-lg border bg-background px-3 py-2 font-mono text-sm outline-none focus:ring-2 focus:ring-ring"
           rows={3}
           placeholder="-10000, 3000, 3000, 3000, 3000"
+          aria-label="Cash Flows"
         />
         <p className="mt-1 text-xs text-muted-foreground">
           First value is typically negative (investment). Subsequent values are returns.
@@ -396,6 +397,7 @@ function DepreciationCalculator() {
             value={method}
             onChange={(e) => setMethod(e.target.value as any)}
             className="w-full rounded-lg border bg-background px-3 py-2 text-sm"
+            aria-label="Method"
           >
             <option value="straight">Straight Line</option>
             <option value="declining">Double Declining Balance</option>
@@ -453,6 +455,7 @@ function Field({
         value={value}
         onChange={(e) => onChange(e.target.value)}
         placeholder={placeholder}
+        aria-label={label}
         className={`w-full rounded-lg border bg-background px-3 py-2 text-sm outline-none focus:ring-2 focus:ring-ring ${
           solving ? "ring-2 ring-primary" : ""
         }`}
