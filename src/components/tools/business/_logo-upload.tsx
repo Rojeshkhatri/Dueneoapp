@@ -87,6 +87,7 @@ export function LogoUpload({
     <div
       className={`flex cursor-pointer items-center gap-2 rounded-lg border border-dashed p-3 text-sm text-muted-foreground transition-colors hover:border-primary/40 hover:text-foreground ${className ?? ""}`}
       onClick={() => inputRef.current?.click()}
+      onKeyDown={(e) => { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); inputRef.current?.click(); } }}
       onDragOver={(e) => e.preventDefault()}
       onDrop={handleDrop}
       role="button"
