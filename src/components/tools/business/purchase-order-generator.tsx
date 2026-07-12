@@ -26,6 +26,7 @@ import {
   type LineItem,
 } from "./_business-helpers";
 import { useCurrency, CurrencySelector } from "@/components/dueneo/currency-selector";
+import { LogoUpload, LogoPreview, getCompanyLogo } from "./_logo-upload";
 
 export function PurchaseOrderGenerator({ tool }: { tool: ToolDefinition }) {
   const [buyerName, setBuyerName] = React.useState("Your Company LLC");
@@ -33,6 +34,7 @@ export function PurchaseOrderGenerator({ tool }: { tool: ToolDefinition }) {
     "123 Market Street\nSuite 400\nSan Francisco, CA 94103\nUnited States"
   );
   const [buyerContact, setBuyerContact] = React.useState("procurement@yourcompany.com");
+  const [logo, setLogo] = React.useState<string | null>(getCompanyLogo);
 
   const [vendorName, setVendorName] = React.useState("Vendor Inc.");
   const [vendorAddress, setVendorAddress] = React.useState(
@@ -119,6 +121,9 @@ export function PurchaseOrderGenerator({ tool }: { tool: ToolDefinition }) {
             value={buyerContact}
             onChange={(e) => setBuyerContact(e.target.value)}
           />
+        </Field>
+        <Field label="Logo">
+          <LogoUpload value={logo} onChange={setLogo} />
         </Field>
       </FormSection>
 
@@ -277,6 +282,7 @@ export function PurchaseOrderGenerator({ tool }: { tool: ToolDefinition }) {
         </div>
         <div className="text-right text-xs text-slate-600">
           <div className="font-semibold text-slate-900">{buyerName}</div>
+          {logo && <LogoPreview className="mb-2 ml-auto h-10 w-auto max-w-[140px] object-contain" />}
           <div className="mt-1 whitespace-pre-line">{buyerAddress}</div>
           {buyerContact && <div className="mt-1">{buyerContact}</div>}
         </div>

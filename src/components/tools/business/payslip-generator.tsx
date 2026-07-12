@@ -20,6 +20,7 @@ import {
   defaultDocumentNumber,
 } from "./_business-helpers";
 import { useCurrency, CurrencySelector, money } from "@/components/dueneo/currency-selector";
+import { LogoUpload, LogoPreview, getCompanyLogo } from "./_logo-upload";
 
 interface EarningItem {
   id: string;
@@ -43,6 +44,7 @@ export function PayslipGenerator({ tool }: { tool: ToolDefinition }) {
     "123 Business Park\nSuite 200\nSan Francisco, CA 94103"
   );
   const [companyEmail, setCompanyEmail] = React.useState("payroll@yourcompany.com");
+  const [logo, setLogo] = React.useState<string | null>(getCompanyLogo);
 
   // Employee details
   const [employeeName, setEmployeeName] = React.useState("Jane Doe");
@@ -161,6 +163,9 @@ export function PayslipGenerator({ tool }: { tool: ToolDefinition }) {
             value={companyEmail}
             onChange={(e) => setCompanyEmail(e.target.value)}
           />
+        </Field>
+        <Field label="Logo">
+          <LogoUpload value={logo} onChange={setLogo} />
         </Field>
       </FormSection>
 
@@ -331,6 +336,7 @@ export function PayslipGenerator({ tool }: { tool: ToolDefinition }) {
           <div className="text-2xl font-bold tracking-tight text-slate-900">
             {companyName || "Your Company"}
           </div>
+          {logo && <LogoPreview className="mb-2 ml-auto h-10 w-auto max-w-[140px] object-contain" />}
           <p className="mt-1 whitespace-pre-line text-xs text-slate-600">
             {companyAddress}
           </p>

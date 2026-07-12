@@ -19,6 +19,7 @@ import {
   defaultDocumentNumber,
 } from "./_business-helpers";
 import { useCurrency, CurrencySelector } from "@/components/dueneo/currency-selector";
+import { LogoUpload, LogoPreview, getCompanyLogo } from "./_logo-upload";
 
 const PAYMENT_METHODS = [
   "Cash",
@@ -41,6 +42,7 @@ export function ReceiptGenerator({ tool }: { tool: ToolDefinition }) {
   const [payeeAddress, setPayeeAddress] = React.useState(
     "123 Market Street\nSuite 400\nSan Francisco, CA 94103\nUnited States"
   );
+  const [logo, setLogo] = React.useState<string | null>(getCompanyLogo);
 
   const [payerName, setPayerName] = React.useState("Client Name");
   const [payerAddress, setPayerAddress] = React.useState(
@@ -124,6 +126,9 @@ export function ReceiptGenerator({ tool }: { tool: ToolDefinition }) {
             className="text-sm"
           />
         </Field>
+        <Field label="Logo">
+          <LogoUpload value={logo} onChange={setLogo} />
+        </Field>
       </FormSection>
 
       <FormSection title="Payment">
@@ -191,6 +196,7 @@ export function ReceiptGenerator({ tool }: { tool: ToolDefinition }) {
         </div>
         <div className="text-right text-xs text-slate-600">
           <div className="font-semibold text-slate-900">{payeeName}</div>
+          {logo && <LogoPreview className="mb-2 ml-auto h-10 w-auto max-w-[140px] object-contain" />}
           <div className="mt-1 whitespace-pre-line">{payeeAddress}</div>
         </div>
       </div>
