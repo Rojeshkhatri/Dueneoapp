@@ -7,7 +7,7 @@ import { Button } from "@/components/ui/button";
 import { Slider } from "@/components/ui/slider";
 import { Label } from "@/components/ui/label";
 import { toast } from "sonner";
-import { Download, RotateCcw, Wand2 } from "lucide-react";
+import { Download, RotateCcw } from "lucide-react";
 import type { ToolDefinition } from "@/data/tools";
 import {
   PreviewTile,
@@ -25,6 +25,7 @@ export function PixelateImage({ tool }: { tool: ToolDefinition }) {
   const [outputBlob, setOutputBlob] = React.useState<Blob | null>(null);
   const [blockSize, setBlockSize] = React.useState<number>(16);
   const [busy, setBusy] = React.useState(false);
+  const processGen = React.useRef(0);
 
   React.useEffect(() => {
     return () => {
@@ -45,52 +46,55 @@ export function PixelateImage({ tool }: { tool: ToolDefinition }) {
     setOriginalUrl(URL.createObjectURL(f));
     setOutputUrl(null);
     setOutputBlob(null);
-    applyPixelate(f, blockSize);
   };
 
-  const applyPixelate = async (source: File, size: number) => {
-    setBusy(true);
-    try {
-      const img = await loadImageFromFile(source);
-      const w = img.naturalWidth;
-      const h = img.naturalHeight;
-      const canvas = document.createElement("canvas");
-      canvas.width = w;
-      canvas.height = h;
-      const ctx = getCanvas2D(canvas);
+  // Auto-pixelate when file or blockSize changes (debounced).
+  React.useEffect(() => {
+    if (!file) return;
+    const gen = ++processGen.current;
+    const timer = setTimeout(async () => {
+      setBusy(true);
+      try {
+        const img = await loadImageFromFile(file);
+        if (processGen.current !== gen) return;
+        const w = img.naturalWidth;
+        const h = img.naturalHeight;
+        const canvas = document.createElement("canvas");
+        canvas.width = w;
+        canvas.height = h;
+        const ctx = getCanvas2D(canvas);
 
-      // Draw to a small canvas with image smoothing disabled, then scale back up.
-      const smallW = Math.max(1, Math.floor(w / size));
-      const smallH = Math.max(1, Math.floor(h / size));
-      const small = document.createElement("canvas");
-      small.width = smallW;
-      small.height = smallH;
-      const smallCtx = getCanvas2D(small);
-      smallCtx.imageSmoothingEnabled = false;
-      smallCtx.drawImage(img, 0, 0, smallW, smallH);
+        const smallW = Math.max(1, Math.floor(w / blockSize));
+        const smallH = Math.max(1, Math.floor(h / blockSize));
+        const small = document.createElement("canvas");
+        small.width = smallW;
+        small.height = smallH;
+        const smallCtx = getCanvas2D(small);
+        smallCtx.imageSmoothingEnabled = false;
+        smallCtx.drawImage(img, 0, 0, smallW, smallH);
 
-      ctx.imageSmoothingEnabled = false;
-      ctx.drawImage(small, 0, 0, smallW, smallH, 0, 0, w, h);
+        ctx.imageSmoothingEnabled = false;
+        ctx.drawImage(small, 0, 0, smallW, smallH, 0, 0, w, h);
 
-      const outType = source.type === "image/png" ? "image/png" : "image/jpeg";
-      const blob = await new Promise<Blob | null>((resolve) =>
-        canvas.toBlob(resolve, outType, 0.92)
-      );
-      if (!blob) throw new Error("Pixelation failed.");
-      if (outputUrl) URL.revokeObjectURL(outputUrl);
-      setOutputUrl(URL.createObjectURL(blob));
-      setOutputBlob(blob);
-    } catch (err) {
-      toast.error(err instanceof Error ? err.message : "Pixelation failed.");
-    } finally {
-      setBusy(false);
-    }
-  };
-
-  const onBlockSizeChange = (v: number) => {
-    setBlockSize(v);
-    if (file) applyPixelate(file, v);
-  };
+        const outType = file.type === "image/png" ? "image/png" : "image/jpeg";
+        const blob = await new Promise<Blob | null>((resolve) =>
+          canvas.toBlob(resolve, outType, 0.92)
+        );
+        if (processGen.current !== gen) return;
+        if (!blob) throw new Error("Pixelation failed.");
+        if (outputUrl) URL.revokeObjectURL(outputUrl);
+        setOutputUrl(URL.createObjectURL(blob));
+        setOutputBlob(blob);
+      } catch (err) {
+        if (processGen.current === gen) {
+          toast.error(err instanceof Error ? err.message : "Pixelation failed.");
+        }
+      } finally {
+        if (processGen.current === gen) setBusy(false);
+      }
+    }, 300);
+    return () => clearTimeout(timer);
+  }, [file, blockSize]);
 
   const reset = () => {
     setFile(null);
@@ -131,17 +135,16 @@ export function PixelateImage({ tool }: { tool: ToolDefinition }) {
                 min={2}
                 max={64}
                 step={1}
-                onValueChange={(v) => onBlockSizeChange(v[0] ?? 16)}
+                onValueChange={(v) => setBlockSize(v[0] ?? 16)}
               />
               <p className="text-xs text-muted-foreground">
                 Larger blocks produce a more aggressive pixelation. The preview updates automatically.
               </p>
             </div>
 
-            <Button onClick={() => file && applyPixelate(file, blockSize)} disabled={busy} className="w-full sm:w-auto">
-              <Wand2 className="mr-1.5 h-4 w-4" />
-              {busy ? "Pixelating…" : "Re-apply pixelate"}
-            </Button>
+            {busy && (
+              <p className="text-xs text-muted-foreground animate-pulse">Pixelating…</p>
+            )}
 
             {outputUrl && (
               <div className="grid gap-4 sm:grid-cols-2">

@@ -8,7 +8,7 @@ import { Slider } from "@/components/ui/slider";
 import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
 import { toast } from "sonner";
-import { Download, RotateCcw, Wand2 } from "lucide-react";
+import { Download, RotateCcw } from "lucide-react";
 import type { ToolDefinition } from "@/data/tools";
 import {
   PreviewTile,
@@ -32,6 +32,7 @@ export function SvgToPng({ tool }: { tool: ToolDefinition }) {
   const [bg, setBg] = React.useState<string>("#ffffff");
   const [transparent, setTransparent] = React.useState<boolean>(false);
   const [busy, setBusy] = React.useState(false);
+  const processGen = React.useRef(0);
 
   React.useEffect(() => {
     return () => {
@@ -81,43 +82,48 @@ export function SvgToPng({ tool }: { tool: ToolDefinition }) {
     }
   };
 
-  const runConvert = async () => {
-    if (!svgUrl) {
-      toast.error("Please upload an SVG first.");
-      return;
-    }
-    setBusy(true);
-    try {
-      const img = await loadImageFromSrc(svgUrl);
-      const srcW = naturalW || img.naturalWidth || 512;
-      const srcH = naturalH || img.naturalHeight || 512;
-      const aspect = srcH / srcW;
-      const outW = Math.max(1, Math.round(srcW * scale));
-      const outH = Math.max(1, Math.round(outW * aspect));
-      const canvas = document.createElement("canvas");
-      canvas.width = outW;
-      canvas.height = outH;
-      const ctx = getCanvas2D(canvas);
-      if (!transparent) {
-        ctx.fillStyle = bg;
-        ctx.fillRect(0, 0, outW, outH);
+  // Auto-convert when svgUrl, scale, bg, or transparent changes (debounced).
+  React.useEffect(() => {
+    if (!svgUrl) return;
+    const gen = ++processGen.current;
+    const timer = setTimeout(async () => {
+      setBusy(true);
+      try {
+        const img = await loadImageFromSrc(svgUrl);
+        if (processGen.current !== gen) return;
+        const srcW = naturalW || img.naturalWidth || 512;
+        const srcH = naturalH || img.naturalHeight || 512;
+        const aspect = srcH / srcW;
+        const outW = Math.max(1, Math.round(srcW * scale));
+        const outH = Math.max(1, Math.round(outW * aspect));
+        const canvas = document.createElement("canvas");
+        canvas.width = outW;
+        canvas.height = outH;
+        const ctx = getCanvas2D(canvas);
+        if (!transparent) {
+          ctx.fillStyle = bg;
+          ctx.fillRect(0, 0, outW, outH);
+        }
+        ctx.drawImage(img, 0, 0, outW, outH);
+        const blob = await new Promise<Blob | null>((resolve) =>
+          canvas.toBlob(resolve, "image/png")
+        );
+        if (processGen.current !== gen) return;
+        if (!blob) throw new Error("Could not rasterise the SVG.");
+        if (outputUrl) URL.revokeObjectURL(outputUrl);
+        setOutputUrl(URL.createObjectURL(blob));
+        setOutputBlob(blob);
+        setTargetW(outW);
+      } catch (err) {
+        if (processGen.current === gen) {
+          toast.error(err instanceof Error ? err.message : "Rasterisation failed.");
+        }
+      } finally {
+        if (processGen.current === gen) setBusy(false);
       }
-      ctx.drawImage(img, 0, 0, outW, outH);
-      const blob = await new Promise<Blob | null>((resolve) =>
-        canvas.toBlob(resolve, "image/png")
-      );
-      if (!blob) throw new Error("Could not rasterise the SVG.");
-      if (outputUrl) URL.revokeObjectURL(outputUrl);
-      setOutputUrl(URL.createObjectURL(blob));
-      setOutputBlob(blob);
-      setTargetW(outW);
-      toast.success(`Rasterised to ${outW} × ${outH}px PNG (${formatBytes(blob.size)}).`);
-    } catch (err) {
-      toast.error(err instanceof Error ? err.message : "Rasterisation failed.");
-    } finally {
-      setBusy(false);
-    }
-  };
+    }, 300);
+    return () => clearTimeout(timer);
+  }, [svgUrl, scale, bg, transparent]);
 
   const reset = () => {
     setFile(null);
@@ -204,10 +210,9 @@ export function SvgToPng({ tool }: { tool: ToolDefinition }) {
               </div>
             </div>
 
-            <Button onClick={runConvert} disabled={busy} className="w-full sm:w-auto">
-              <Wand2 className="mr-1.5 h-4 w-4" />
-              {busy ? "Rasterising…" : "Rasterise to PNG"}
-            </Button>
+            {busy && (
+              <p className="text-xs text-muted-foreground animate-pulse">Rasterising…</p>
+            )}
 
             {outputUrl && (
               <div className="grid gap-4 sm:grid-cols-2">

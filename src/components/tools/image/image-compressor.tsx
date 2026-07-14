@@ -14,7 +14,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { toast } from "sonner";
-import { Download, RotateCcw, Wand2 } from "lucide-react";
+import { Download, RotateCcw } from "lucide-react";
 import type { ToolDefinition } from "@/data/tools";
 import {
   PreviewTile,
@@ -50,6 +50,7 @@ export function ImageCompressor({ tool }: { tool: ToolDefinition }) {
   const [outputSize, setOutputSize] = React.useState<number>(0);
   const [dimensions, setDimensions] = React.useState<{ w: number; h: number } | null>(null);
   const [busy, setBusy] = React.useState(false);
+  const processGen = React.useRef(0);
 
   // Revoke object URLs on cleanup / replace.
   React.useEffect(() => {
@@ -78,50 +79,48 @@ export function ImageCompressor({ tool }: { tool: ToolDefinition }) {
     setFormat(detectFormat(f));
     if (originalUrl) URL.revokeObjectURL(originalUrl);
     setOriginalUrl(URL.createObjectURL(f));
-    // Load to read dimensions.
     loadImageFromFile(f)
       .then((img) => setDimensions({ w: img.naturalWidth, h: img.naturalHeight }))
       .catch(() => setDimensions(null));
   };
 
-  const runCompress = async () => {
-    if (!file) {
-      toast.error("Please upload an image first.");
-      return;
-    }
-    setBusy(true);
-    try {
-      const img = await loadImageFromFile(file);
-      const canvas = document.createElement("canvas");
-      canvas.width = img.naturalWidth;
-      canvas.height = img.naturalHeight;
-      const ctx = getCanvas2D(canvas);
-      // For JPEG output with transparency, paint a white background.
-      if (format === "image/jpeg") {
-        ctx.fillStyle = "#ffffff";
-        ctx.fillRect(0, 0, canvas.width, canvas.height);
+  // Auto-compress when file, quality, or format changes (debounced).
+  React.useEffect(() => {
+    if (!file) return;
+    const gen = ++processGen.current;
+    const timer = setTimeout(async () => {
+      setBusy(true);
+      try {
+        const img = await loadImageFromFile(file);
+        if (processGen.current !== gen) return;
+        const canvas = document.createElement("canvas");
+        canvas.width = img.naturalWidth;
+        canvas.height = img.naturalHeight;
+        const ctx = getCanvas2D(canvas);
+        if (format === "image/jpeg") {
+          ctx.fillStyle = "#ffffff";
+          ctx.fillRect(0, 0, canvas.width, canvas.height);
+        }
+        ctx.drawImage(img, 0, 0);
+        const blob = await new Promise<Blob | null>((resolve) =>
+          canvas.toBlob(resolve, format, quality / 100)
+        );
+        if (processGen.current !== gen) return;
+        if (!blob) throw new Error("Compression failed.");
+        if (outputUrl) URL.revokeObjectURL(outputUrl);
+        setOutputUrl(URL.createObjectURL(blob));
+        setOutputBlob(blob);
+        setOutputSize(blob.size);
+      } catch (err) {
+        if (processGen.current === gen) {
+          toast.error(err instanceof Error ? err.message : "Compression failed.");
+        }
+      } finally {
+        if (processGen.current === gen) setBusy(false);
       }
-      ctx.drawImage(img, 0, 0);
-      const blob = await new Promise<Blob | null>((resolve) =>
-        canvas.toBlob(resolve, format, quality / 100)
-      );
-      if (!blob) throw new Error("Compression failed. The browser may not support this format.");
-      if (outputUrl) URL.revokeObjectURL(outputUrl);
-      setOutputUrl(URL.createObjectURL(blob));
-      setOutputBlob(blob);
-      setOutputSize(blob.size);
-      toast.success(
-        `Compressed to ${formatBytes(blob.size)} (${Math.max(
-          0,
-          Math.round((1 - blob.size / file.size) * 100)
-        )}% smaller).`
-      );
-    } catch (err) {
-      toast.error(err instanceof Error ? err.message : "Compression failed.");
-    } finally {
-      setBusy(false);
-    }
-  };
+    }, 300);
+    return () => clearTimeout(timer);
+  }, [file, quality, format]);
 
   const reset = () => {
     setFile(null);
@@ -212,10 +211,9 @@ export function ImageCompressor({ tool }: { tool: ToolDefinition }) {
               </p>
             )}
 
-            <Button onClick={runCompress} disabled={busy} className="w-full sm:w-auto">
-              <Wand2 className="mr-1.5 h-4 w-4" />
-              {busy ? "Compressing…" : "Compress image"}
-            </Button>
+            {busy && (
+              <p className="text-xs text-muted-foreground animate-pulse">Compressing…</p>
+            )}
 
             {outputUrl && (
               <div className="grid gap-4 sm:grid-cols-2">

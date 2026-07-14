@@ -16,7 +16,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { toast } from "sonner";
-import { Download, Link2, RotateCcw, Wand2 } from "lucide-react";
+import { Download, Link2, RotateCcw } from "lucide-react";
 import type { ToolDefinition } from "@/data/tools";
 import {
   PreviewTile,
@@ -54,6 +54,7 @@ export function ImageResizer({ tool }: { tool: ToolDefinition }) {
   const [outputUrl, setOutputUrl] = React.useState<string | null>(null);
   const [outputBlob, setOutputBlob] = React.useState<Blob | null>(null);
   const [busy, setBusy] = React.useState(false);
+  const processGen = React.useRef(0);
 
   React.useEffect(() => {
     return () => {
@@ -112,37 +113,42 @@ export function ImageResizer({ tool }: { tool: ToolDefinition }) {
     }
   };
 
-  const runResize = async () => {
-    if (!file) {
-      toast.error("Please upload an image first.");
-      return;
-    }
-    setBusy(true);
-    try {
-      const img = await loadImageFromFile(file);
-      const { w, h } = targetDimensions;
-      const canvas = document.createElement("canvas");
-      canvas.width = w;
-      canvas.height = h;
-      const ctx = getCanvas2D(canvas);
-      ctx.imageSmoothingEnabled = true;
-      ctx.imageSmoothingQuality = "high";
-      ctx.drawImage(img, 0, 0, w, h);
-      const outType = file.type === "image/png" ? "image/png" : "image/jpeg";
-      const blob = await new Promise<Blob | null>((resolve) =>
-        canvas.toBlob(resolve, outType, 0.92)
-      );
-      if (!blob) throw new Error("Resize failed.");
-      if (outputUrl) URL.revokeObjectURL(outputUrl);
-      setOutputUrl(URL.createObjectURL(blob));
-      setOutputBlob(blob);
-      toast.success(`Resized to ${w} × ${h}px (${formatBytes(blob.size)}).`);
-    } catch (err) {
-      toast.error(err instanceof Error ? err.message : "Resize failed.");
-    } finally {
-      setBusy(false);
-    }
-  };
+  // Auto-resize when file or target dimensions change (debounced).
+  React.useEffect(() => {
+    if (!file) return;
+    const gen = ++processGen.current;
+    const timer = setTimeout(async () => {
+      setBusy(true);
+      try {
+        const img = await loadImageFromFile(file);
+        if (processGen.current !== gen) return;
+        const { w, h } = targetDimensions;
+        const canvas = document.createElement("canvas");
+        canvas.width = w;
+        canvas.height = h;
+        const ctx = getCanvas2D(canvas);
+        ctx.imageSmoothingEnabled = true;
+        ctx.imageSmoothingQuality = "high";
+        ctx.drawImage(img, 0, 0, w, h);
+        const outType = file.type === "image/png" ? "image/png" : "image/jpeg";
+        const blob = await new Promise<Blob | null>((resolve) =>
+          canvas.toBlob(resolve, outType, 0.92)
+        );
+        if (processGen.current !== gen) return;
+        if (!blob) throw new Error("Resize failed.");
+        if (outputUrl) URL.revokeObjectURL(outputUrl);
+        setOutputUrl(URL.createObjectURL(blob));
+        setOutputBlob(blob);
+      } catch (err) {
+        if (processGen.current === gen) {
+          toast.error(err instanceof Error ? err.message : "Resize failed.");
+        }
+      } finally {
+        if (processGen.current === gen) setBusy(false);
+      }
+    }, 300);
+    return () => clearTimeout(timer);
+  }, [file, targetDimensions]);
 
   const reset = () => {
     setFile(null);
@@ -273,10 +279,9 @@ export function ImageResizer({ tool }: { tool: ToolDefinition }) {
               </div>
             )}
 
-            <Button onClick={runResize} disabled={busy} className="w-full sm:w-auto">
-              <Wand2 className="mr-1.5 h-4 w-4" />
-              {busy ? "Resizing…" : `Resize to ${targetDimensions.w} × ${targetDimensions.h}`}
-            </Button>
+            {busy && (
+              <p className="text-xs text-muted-foreground animate-pulse">Resizing…</p>
+            )}
 
             {outputUrl && (
               <div className="grid gap-4 sm:grid-cols-2">

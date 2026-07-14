@@ -18,6 +18,7 @@ import { Download, RotateCcw, User, Info } from "lucide-react";
 import type { ToolDefinition } from "@/data/tools";
 import {
   MAX_IMAGE_BYTES,
+  PreviewTile,
   formatBytes,
   getCanvas2D,
   loadImageFromFile,
@@ -74,6 +75,8 @@ export function PassportPhotoMaker({ tool }: { tool: ToolDefinition }) {
   const [zoom, setZoom] = React.useState<number>(1);   // 1 = cover; >1 = zoom in further
   const [bgWhite, setBgWhite] = React.useState<boolean>(false);
   const [busy, setBusy] = React.useState(false);
+  const [outputUrl, setOutputUrl] = React.useState<string | null>(null);
+  const processGen = React.useRef(0);
 
   const preset = PRESETS.find((p) => p.id === presetId)!;
 
@@ -115,6 +118,8 @@ export function PassportPhotoMaker({ tool }: { tool: ToolDefinition }) {
   const reset = () => {
     if (photo) URL.revokeObjectURL(photo.url);
     setPhoto(null);
+    if (outputUrl) URL.revokeObjectURL(outputUrl);
+    setOutputUrl(null);
     setPanX(0.5);
     setPanY(0.4);
     setZoom(1);
@@ -127,6 +132,37 @@ export function PassportPhotoMaker({ tool }: { tool: ToolDefinition }) {
     }),
     [preset]
   );
+
+  // Auto-render passport preview when settings change (debounced).
+  React.useEffect(() => {
+    if (!photo) return;
+    const gen = ++processGen.current;
+    const timer = setTimeout(() => {
+      const canvas = document.createElement("canvas");
+      canvas.width = outputPixels.w;
+      canvas.height = outputPixels.h;
+      const ctx = getCanvas2D(canvas);
+      if (bgWhite) {
+        ctx.fillStyle = "#ffffff";
+        ctx.fillRect(0, 0, canvas.width, canvas.height);
+      }
+      drawCoverCropped(ctx, photo.img, canvas.width, canvas.height, panX, panY, zoom);
+      canvas.toBlob((blob) => {
+        if (processGen.current !== gen) return;
+        if (!blob) return;
+        if (outputUrl) URL.revokeObjectURL(outputUrl);
+        setOutputUrl(URL.createObjectURL(blob));
+      }, "image/png");
+    }, 300);
+    return () => clearTimeout(timer);
+  }, [photo, presetId, panX, panY, zoom, bgWhite, outputPixels]);
+
+  // Revoke outputUrl on cleanup.
+  React.useEffect(() => {
+    return () => {
+      if (outputUrl) URL.revokeObjectURL(outputUrl);
+    };
+  }, [outputUrl]);
 
   const download = async () => {
     if (!photo) {
@@ -210,25 +246,30 @@ export function PassportPhotoMaker({ tool }: { tool: ToolDefinition }) {
               </Button>
             </div>
 
-            <div className="grid gap-4 lg:grid-cols-[minmax(0,360px)_1fr]">
-              {/* Crop preview */}
-              <div>
-                <p className="mb-2 text-sm font-medium text-foreground">Crop & align</p>
-                <PassportCropPreview
-                  photoUrl={photo.url}
-                  aspect={outputPixels.w / outputPixels.h}
-                  panX={panX}
-                  panY={panY}
-                  zoom={zoom}
-                  bgWhite={bgWhite}
-                />
-                <p className="mt-2 text-xs text-muted-foreground">
-                  Output: {preset.widthMm} × {preset.heightMm} mm · {outputPixels.w} × {outputPixels.h}px @ 300 DPI
-                </p>
-              </div>
+            <div className="grid gap-4 sm:grid-cols-2">
+              <PreviewTile src={photo.url} label="Original" />
+              <PreviewTile
+                src={outputUrl}
+                label="Passport photo"
+                caption={`${preset.widthMm} × ${preset.heightMm} mm · ${outputPixels.w} × ${outputPixels.h}px @ 300 DPI`}
+              />
+            </div>
 
-              {/* Controls */}
-              <div className="space-y-3">
+            {/* Head alignment guide */}
+            <div>
+              <p className="mb-2 text-sm font-medium text-foreground">Crop & align</p>
+              <PassportCropPreview
+                photoUrl={photo.url}
+                aspect={outputPixels.w / outputPixels.h}
+                panX={panX}
+                panY={panY}
+                zoom={zoom}
+                bgWhite={bgWhite}
+              />
+            </div>
+
+            {/* Controls */}
+            <div className="space-y-3">
                 <div className="space-y-2">
                   <Label>Country / format</Label>
                   <Select value={presetId} onValueChange={setPresetId}>
@@ -308,7 +349,6 @@ export function PassportPhotoMaker({ tool }: { tool: ToolDefinition }) {
                   </div>
                   <Switch id="pp-bg" checked={bgWhite} onCheckedChange={setBgWhite} />
                 </div>
-              </div>
             </div>
 
             <Button onClick={download} disabled={busy} className="w-full sm:w-auto">
