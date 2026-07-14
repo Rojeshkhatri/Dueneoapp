@@ -12,6 +12,7 @@ import { Download, RotateCcw } from "lucide-react";
 import type { ToolDefinition } from "@/data/tools";
 import {
   MAX_IMAGE_BYTES,
+  PreviewTile,
   formatBytes,
   getCanvas2D,
   loadImageFromFile,
@@ -94,8 +95,10 @@ export function MemeGenerator({ tool }: { tool: ToolDefinition }) {
   const [outline, setOutline] = React.useState<boolean>(true);
   const [uppercase, setUppercase] = React.useState<boolean>(true);
   const [busy, setBusy] = React.useState(false);
-
-  const previewCanvasRef = React.useRef<HTMLCanvasElement | null>(null);
+  const [originalUrl, setOriginalUrl] = React.useState<string | null>(null);
+  const [memeUrl, setMemeUrl] = React.useState<string | null>(null);
+  const processGen = React.useRef(0);
+  const debounceRef = React.useRef<ReturnType<typeof setTimeout>>(undefined);
 
   React.useEffect(() => {
     return () => {
@@ -103,18 +106,43 @@ export function MemeGenerator({ tool }: { tool: ToolDefinition }) {
     };
   }, [source]);
 
-  // Re-render the canvas preview whenever inputs change.
   React.useEffect(() => {
-    void renderToCanvas(previewCanvasRef.current, {
-      source,
-      template,
-      topText,
-      bottomText,
-      fontSize,
-      textColor,
-      outline,
-      uppercase,
-    });
+    return () => {
+      if (originalUrl) URL.revokeObjectURL(originalUrl);
+      if (memeUrl) URL.revokeObjectURL(memeUrl);
+    };
+  }, [originalUrl, memeUrl]);
+
+  // Auto-process when inputs change (debounced).
+  React.useEffect(() => {
+    if (!source && !template) return;
+    clearTimeout(debounceRef.current);
+    debounceRef.current = setTimeout(() => {
+      const gen = ++processGen.current;
+      const canvas = document.createElement("canvas");
+      void renderToCanvas(canvas, {
+        source,
+        template,
+        topText,
+        bottomText,
+        fontSize,
+        textColor,
+        outline,
+        uppercase,
+      }).then(() => {
+        if (gen !== processGen.current) return;
+        canvas.toBlob((blob) => {
+          if (gen !== processGen.current) return;
+          if (blob) {
+            setMemeUrl((prev) => {
+              if (prev) URL.revokeObjectURL(prev);
+              return URL.createObjectURL(blob);
+            });
+          }
+        }, "image/png");
+      });
+    }, 300);
+    return () => clearTimeout(debounceRef.current);
   }, [source, template, topText, bottomText, fontSize, textColor, outline, uppercase]);
 
   const onFiles = (files: { file: File }[]) => {
@@ -142,6 +170,8 @@ export function MemeGenerator({ tool }: { tool: ToolDefinition }) {
           url,
         });
         setTemplate(null);
+        if (originalUrl) URL.revokeObjectURL(originalUrl);
+        setOriginalUrl(null);
       })
       .catch((err) => {
         toast.error(err instanceof Error ? err.message : "Could not load the image.");
@@ -153,12 +183,35 @@ export function MemeGenerator({ tool }: { tool: ToolDefinition }) {
     if (source) URL.revokeObjectURL(source.url);
     setSource(null);
     setTemplate(t);
+    const canvas = document.createElement("canvas");
+    canvas.width = t.width;
+    canvas.height = t.height;
+    const ctx = getCanvas2D(canvas);
+    const grad = parseGradient(ctx, t.fill, t.width, t.height);
+    if (grad) {
+      ctx.fillStyle = grad;
+    } else {
+      ctx.fillStyle = t.fill;
+    }
+    ctx.fillRect(0, 0, t.width, t.height);
+    canvas.toBlob((blob) => {
+      if (blob) {
+        setOriginalUrl((prev) => {
+          if (prev) URL.revokeObjectURL(prev);
+          return URL.createObjectURL(blob);
+        });
+      }
+    }, "image/png");
   };
 
   const reset = () => {
     if (source) URL.revokeObjectURL(source.url);
     setSource(null);
     setTemplate(null);
+    if (originalUrl) URL.revokeObjectURL(originalUrl);
+    setOriginalUrl(null);
+    if (memeUrl) URL.revokeObjectURL(memeUrl);
+    setMemeUrl(null);
     setTopText("TOP TEXT");
     setBottomText("BOTTOM TEXT");
     setFontSize(48);
@@ -257,18 +310,13 @@ export function MemeGenerator({ tool }: { tool: ToolDefinition }) {
 
             <div className="grid gap-4 lg:grid-cols-[1fr_minmax(0,360px)]">
               {/* Preview */}
-              <div className="order-2 lg:order-1">
-                <p className="mb-2 text-sm font-medium text-foreground">Preview</p>
-                <div className="overflow-hidden rounded-lg border bg-muted/40">
-                  <canvas
-                    ref={previewCanvasRef}
-                    className="block h-auto w-full max-w-full"
-                    aria-label="Meme preview"
-                  />
-                </div>
-                <p className="mt-2 text-xs text-muted-foreground">
-                  Live preview — adjusts as you type. Download for full resolution.
-                </p>
+              <div className="order-2 space-y-4 lg:order-1">
+                <PreviewTile src={source ? source.url : originalUrl} label="Original" />
+                <PreviewTile
+                  src={memeUrl}
+                  label="Meme preview"
+                  caption="Live preview — adjusts as you type. Download for full resolution."
+                />
               </div>
 
               {/* Controls */}

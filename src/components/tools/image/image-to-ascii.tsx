@@ -18,6 +18,7 @@ import { Download, RotateCcw, Copy, Check } from "lucide-react";
 import type { ToolDefinition } from "@/data/tools";
 import {
   MAX_IMAGE_BYTES,
+  PreviewTile,
   formatBytes,
   getCanvas2D,
   loadImageFromFile,
@@ -63,6 +64,8 @@ export function ImageToAscii({ tool }: { tool: ToolDefinition }) {
   const [color, setColor] = React.useState<boolean>(false);
   const [busy, setBusy] = React.useState(false);
   const [copied, setCopied] = React.useState(false);
+  const processGen = React.useRef(0);
+  const debounceRef = React.useRef<ReturnType<typeof setTimeout>>(undefined);
 
   React.useEffect(() => {
     return () => {
@@ -91,12 +94,12 @@ export function ImageToAscii({ tool }: { tool: ToolDefinition }) {
 
   const convert = React.useCallback(
     async (f: File, opts: AsciiOptions) => {
+      const gen = ++processGen.current;
       setBusy(true);
       try {
         const img = await loadImageFromFile(f);
+        if (gen !== processGen.current) return;
         const canvas = document.createElement("canvas");
-        // Account for character cell aspect ratio — characters are taller than
-        // they are wide, so we scale height by ~0.55 to keep the image looking right.
         const aspectFix = 0.55;
         const targetW = Math.max(8, Math.min(200, opts.width));
         const targetH = Math.max(1, Math.round((img.naturalHeight / img.naturalWidth) * targetW * aspectFix));
@@ -119,7 +122,6 @@ export function ImageToAscii({ tool }: { tool: ToolDefinition }) {
             const g = data[i + 1];
             const b = data[i + 2];
             const a = data[i + 3];
-            // Treat transparent pixels as background (brightest).
             const alpha = a / 255;
             const lum = (0.299 * r + 0.587 * g + 0.114 * b) / 255;
             const effective = alpha === 0 ? 1 : lum;
@@ -136,6 +138,7 @@ export function ImageToAscii({ tool }: { tool: ToolDefinition }) {
           coloredLines.push(coloredLine);
         }
 
+        if (gen !== processGen.current) return;
         setResult({
           text: lines.join("\n"),
           coloredLines,
@@ -143,20 +146,25 @@ export function ImageToAscii({ tool }: { tool: ToolDefinition }) {
           height: targetH,
         });
       } catch (err) {
+        if (gen !== processGen.current) return;
         toast.error(err instanceof Error ? err.message : "ASCII conversion failed.");
         setResult(null);
       } finally {
-        setBusy(false);
+        if (gen === processGen.current) setBusy(false);
       }
     },
     []
   );
 
-  // Re-run conversion when any option changes.
+  // Auto-convert when options change (debounced).
   React.useEffect(() => {
     if (!file) return;
-    void convert(file, { width, charset, invert, color });
-  }, [width, charset, invert, color]);
+    clearTimeout(debounceRef.current);
+    debounceRef.current = setTimeout(() => {
+      void convert(file, { width, charset, invert, color });
+    }, 300);
+    return () => clearTimeout(debounceRef.current);
+  }, [file, width, charset, invert, color]);
 
   const reset = () => {
     setFile(null);
@@ -257,53 +265,61 @@ export function ImageToAscii({ tool }: { tool: ToolDefinition }) {
               </div>
             </div>
 
-            {busy && <p className="text-xs text-muted-foreground">Converting…</p>}
-
-            {result && (
-              <div className="space-y-3">
-                <div className="overflow-auto rounded-lg border bg-zinc-950 p-3 text-zinc-100">
-                  {color ? (
-                    <pre
-                      className="font-mono text-[10px] leading-[10px] sm:text-[11px] sm:leading-[11px]"
-                      aria-label="Colour ASCII art preview"
-                    >
-                      {result.coloredLines.map((line, y) => (
-                        <div key={y}>
-                          {line.map((cell, x) => (
-                            <span key={x} style={{ color: cell.color }}>
-                              {cell.ch}
-                            </span>
+            <div className="grid gap-4 sm:grid-cols-2">
+              <PreviewTile src={previewUrl} label="Original" />
+              <div>
+                <p className="mb-2 text-sm font-medium text-foreground">ASCII Art</p>
+                {result ? (
+                  <div className="space-y-3">
+                    <div className="max-h-[360px] overflow-auto rounded-lg border bg-zinc-950 p-3 text-zinc-100">
+                      {color ? (
+                        <pre
+                          className="font-mono text-[10px] leading-[10px] sm:text-[11px] sm:leading-[11px]"
+                          aria-label="Colour ASCII art preview"
+                        >
+                          {result.coloredLines.map((line, y) => (
+                            <div key={y}>
+                              {line.map((cell, x) => (
+                                <span key={x} style={{ color: cell.color }}>
+                                  {cell.ch}
+                                </span>
+                              ))}
+                            </div>
                           ))}
-                        </div>
-                      ))}
-                    </pre>
-                  ) : (
-                    <pre
-                      className="whitespace-pre font-mono text-[10px] leading-[10px] sm:text-[11px] sm:leading-[11px]"
-                      aria-label="ASCII art preview"
-                    >
-                      {result.text}
-                    </pre>
-                  )}
-                </div>
-                <p className="text-xs text-muted-foreground">
-                  Output size: {result.width} × {result.height} characters.
-                </p>
-                <div className="flex flex-wrap gap-2">
-                  <Button onClick={copyText} variant="outline" size="sm">
-                    {copied ? (
-                      <Check className="mr-1.5 h-3.5 w-3.5" />
-                    ) : (
-                      <Copy className="mr-1.5 h-3.5 w-3.5" />
-                    )}
-                    {copied ? "Copied" : "Copy text"}
-                  </Button>
-                  <Button onClick={downloadTxt} variant="outline" size="sm">
-                    <Download className="mr-1.5 h-3.5 w-3.5" /> Download .txt
-                  </Button>
-                </div>
+                        </pre>
+                      ) : (
+                        <pre
+                          className="whitespace-pre font-mono text-[10px] leading-[10px] sm:text-[11px] sm:leading-[11px]"
+                          aria-label="ASCII art preview"
+                        >
+                          {result.text}
+                        </pre>
+                      )}
+                    </div>
+                    <p className="text-xs text-muted-foreground">
+                      Output size: {result.width} × {result.height} characters.
+                    </p>
+                    <div className="flex flex-wrap gap-2">
+                      <Button onClick={copyText} variant="outline" size="sm">
+                        {copied ? (
+                          <Check className="mr-1.5 h-3.5 w-3.5" />
+                        ) : (
+                          <Copy className="mr-1.5 h-3.5 w-3.5" />
+                        )}
+                        {copied ? "Copied" : "Copy text"}
+                      </Button>
+                      <Button onClick={downloadTxt} variant="outline" size="sm">
+                        <Download className="mr-1.5 h-3.5 w-3.5" /> Download .txt
+                      </Button>
+                    </div>
+                  </div>
+                ) : busy ? (
+                  <p className="text-xs text-muted-foreground">Converting…</p>
+                ) : (
+                  <p className="text-xs text-muted-foreground">Nothing to preview yet.</p>
+                )}
               </div>
-            )}
+            </div>
           </div>
         )}
       </div>

@@ -14,7 +14,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { toast } from "sonner";
-import { Download, RotateCcw, Wand2 } from "lucide-react";
+import { Download, RotateCcw } from "lucide-react";
 import type { ToolDefinition } from "@/data/tools";
 import {
   PreviewTile,
@@ -54,6 +54,8 @@ export function SocialMediaImageResizer({ tool }: { tool: ToolDefinition }) {
   const [fit, setFit] = React.useState<FitMode>("cover");
   const [bg, setBg] = React.useState<string>("#ffffff");
   const [busy, setBusy] = React.useState(false);
+  const processGen = React.useRef(0);
+  const debounceRef = React.useRef<ReturnType<typeof setTimeout>>(undefined);
 
   React.useEffect(() => {
     return () => {
@@ -62,36 +64,20 @@ export function SocialMediaImageResizer({ tool }: { tool: ToolDefinition }) {
     };
   }, [originalUrl, outputUrl]);
 
-  const onFiles = (files: { file: File }[]) => {
-    const f = files[0]?.file;
-    if (!f) return;
-    if (!/^image\//.test(f.type)) {
-      toast.error("Please choose an image file.");
-      return;
-    }
-    setFile(f);
-    if (originalUrl) URL.revokeObjectURL(originalUrl);
-    setOriginalUrl(URL.createObjectURL(f));
-    setOutputUrl(null);
-    setOutputBlob(null);
-  };
-
   const preset = PRESETS.find((p) => p.id === presetId) ?? PRESETS[0];
 
   const runResize = async () => {
-    if (!file) {
-      toast.error("Please upload an image first.");
-      return;
-    }
+    if (!file) return;
+    const gen = ++processGen.current;
     setBusy(true);
     try {
       const img = await loadImageFromFile(file);
+      if (gen !== processGen.current) return;
       const canvas = document.createElement("canvas");
       canvas.width = preset.w;
       canvas.height = preset.h;
       const ctx = getCanvas2D(canvas);
 
-      // Fill background first (used for contain letterboxing).
       ctx.fillStyle = hexToRgba(bg, 1);
       ctx.fillRect(0, 0, preset.w, preset.h);
 
@@ -100,7 +86,6 @@ export function SocialMediaImageResizer({ tool }: { tool: ToolDefinition }) {
       let dw: number, dh: number, dx: number, dy: number;
 
       if (fit === "cover") {
-        // Cover the canvas; crop the overflow.
         if (sourceAspect > targetAspect) {
           dh = preset.h;
           dw = dh * sourceAspect;
@@ -111,7 +96,6 @@ export function SocialMediaImageResizer({ tool }: { tool: ToolDefinition }) {
         dx = (preset.w - dw) / 2;
         dy = (preset.h - dh) / 2;
       } else {
-        // Contain inside the canvas; letterbox with bg.
         if (sourceAspect > targetAspect) {
           dw = preset.w;
           dh = dw / sourceAspect;
@@ -131,17 +115,43 @@ export function SocialMediaImageResizer({ tool }: { tool: ToolDefinition }) {
       const blob = await new Promise<Blob | null>((resolve) =>
         canvas.toBlob(resolve, outType, 0.92)
       );
+      if (gen !== processGen.current) return;
       if (!blob) throw new Error("Resize failed.");
       if (outputUrl) URL.revokeObjectURL(outputUrl);
       setOutputUrl(URL.createObjectURL(blob));
       setOutputBlob(blob);
       toast.success(`Resized to ${preset.w} × ${preset.h}px (${formatBytes(blob.size)}).`);
     } catch (err) {
+      if (gen !== processGen.current) return;
       toast.error(err instanceof Error ? err.message : "Resize failed.");
     } finally {
-      setBusy(false);
+      if (gen === processGen.current) setBusy(false);
     }
   };
+
+  const onFiles = (files: { file: File }[]) => {
+    const f = files[0]?.file;
+    if (!f) return;
+    if (!/^image\//.test(f.type)) {
+      toast.error("Please choose an image file.");
+      return;
+    }
+    setFile(f);
+    if (originalUrl) URL.revokeObjectURL(originalUrl);
+    setOriginalUrl(URL.createObjectURL(f));
+    setOutputUrl(null);
+    setOutputBlob(null);
+  };
+
+  // Auto-resize when settings change.
+  React.useEffect(() => {
+    if (!file) return;
+    clearTimeout(debounceRef.current);
+    debounceRef.current = setTimeout(() => {
+      void runResize();
+    }, 300);
+    return () => clearTimeout(debounceRef.current);
+  }, [file, presetId, fit, bg]);
 
   const reset = () => {
     setFile(null);
@@ -216,15 +226,14 @@ export function SocialMediaImageResizer({ tool }: { tool: ToolDefinition }) {
               </div>
             </div>
 
-            <Button onClick={runResize} disabled={busy} className="w-full sm:w-auto">
-              <Wand2 className="mr-1.5 h-4 w-4" />
-              {busy ? "Resizing…" : `Resize to ${preset.w} × ${preset.h}`}
-            </Button>
-
-            {outputUrl && (
-              <div className="grid gap-4 sm:grid-cols-2">
-                <PreviewTile src={originalUrl} label="Original" />
-                <PreviewTile src={outputUrl} label="Resized" caption={`${preset.w} × ${preset.h}px`} />
+            <div className="grid gap-4 sm:grid-cols-2">
+              <PreviewTile src={originalUrl} label="Original" />
+              <PreviewTile
+                src={outputUrl}
+                label={busy ? "Processing…" : "Resized"}
+                caption={outputUrl ? `${preset.w} × ${preset.h}px` : undefined}
+              />
+              {outputBlob && (
                 <div className="sm:col-span-2">
                   <Button
                     onClick={() => {
@@ -237,8 +246,8 @@ export function SocialMediaImageResizer({ tool }: { tool: ToolDefinition }) {
                     <Download className="mr-1.5 h-4 w-4" /> Download resized image
                   </Button>
                 </div>
-              </div>
-            )}
+              )}
+            </div>
           </div>
         )}
       </div>
@@ -259,8 +268,8 @@ export function SocialMediaImageResizer({ tool }: { tool: ToolDefinition }) {
           "Cover centre-crops the image to fill the frame; contain fits the whole image inside the frame with letterbox bars in your chosen background colour.",
       },
       {
-        title: "Resize and download",
-        description: "Click resize to render the new dimensions, preview the result, then download.",
+        title: "Preview and download",
+        description: "The preview updates automatically as you change settings. Download when you're happy with the result.",
       },
     ],
     useCases: [
