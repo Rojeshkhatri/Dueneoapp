@@ -40,10 +40,10 @@ export function CropImage({ tool }: { tool: ToolDefinition }) {
   const [originalUrl, setOriginalUrl] = React.useState<string | null>(null);
   const [outputUrl, setOutputUrl] = React.useState<string | null>(null);
   const [outputBlob, setOutputBlob] = React.useState<Blob | null>(null);
-  const [x, setX] = React.useState(0);
-  const [y, setY] = React.useState(0);
-  const [w, setW] = React.useState(0);
-  const [h, setH] = React.useState(0);
+  const [x, setX] = React.useState("0");
+  const [y, setY] = React.useState("0");
+  const [w, setW] = React.useState("0");
+  const [h, setH] = React.useState("0");
   const [aspect, setAspect] = React.useState<number | null>(null);
   const [busy, setBusy] = React.useState(false);
 
@@ -74,10 +74,10 @@ export function CropImage({ tool }: { tool: ToolDefinition }) {
         // Default crop: centered 80% region.
         const cw = Math.round(nw * 0.8);
         const ch = Math.round(nh * 0.8);
-        setX(Math.round((nw - cw) / 2));
-        setY(Math.round((nh - ch) / 2));
-        setW(cw);
-        setH(ch);
+        setX(String(Math.round((nw - cw) / 2)));
+        setY(String(Math.round((nh - ch) / 2)));
+        setW(String(cw));
+        setH(String(ch));
       })
       .catch((err) => toast.error(err instanceof Error ? err.message : "Load failed."));
   };
@@ -85,38 +85,35 @@ export function CropImage({ tool }: { tool: ToolDefinition }) {
   const applyAspect = (nextAspect: number | null) => {
     setAspect(nextAspect);
     if (!natural || nextAspect === null) return;
-    // Keep width; recompute height.
-    const newH = Math.max(1, Math.round(w / nextAspect));
-    const clampedH = Math.min(newH, natural.h - y);
-    setH(clampedH);
+    const curW = parseInt(w) || 0;
+    const curY = parseInt(y) || 0;
+    const newH = Math.max(1, Math.round(curW / nextAspect));
+    const clampedH = Math.min(newH, natural.h - curY);
+    setH(String(clampedH));
   };
 
-  const onChangeX = (val: number) => {
-    if (!natural) return;
-    const newX = Math.max(0, Math.min(val, natural.w - w));
-    setX(newX);
+  const onChangeX = (val: string) => {
+    setX(val);
   };
-  const onChangeY = (val: number) => {
-    if (!natural) return;
-    const newY = Math.max(0, Math.min(val, natural.h - h));
-    setY(newY);
+  const onChangeY = (val: string) => {
+    setY(val);
   };
-  const onChangeW = (val: number) => {
-    if (!natural) return;
-    const newW = Math.max(1, Math.min(val, natural.w - x));
-    setW(newW);
-    if (aspect) {
-      const newH = Math.max(1, Math.min(Math.round(newW / aspect), natural.h - y));
-      setH(newH);
+  const onChangeW = (val: string) => {
+    setW(val);
+    if (natural && aspect) {
+      const numW = parseInt(val) || 0;
+      const curY = parseInt(y) || 0;
+      const newH = Math.max(1, Math.min(Math.round(numW / aspect), natural.h - curY));
+      setH(String(newH));
     }
   };
-  const onChangeH = (val: number) => {
-    if (!natural) return;
-    const newH = Math.max(1, Math.min(val, natural.h - y));
-    setH(newH);
-    if (aspect) {
-      const newW = Math.max(1, Math.min(Math.round(newH * aspect), natural.w - x));
-      setW(newW);
+  const onChangeH = (val: string) => {
+    setH(val);
+    if (natural && aspect) {
+      const numH = parseInt(val) || 0;
+      const curX = parseInt(x) || 0;
+      const newW = Math.max(1, Math.min(Math.round(numH * aspect), natural.w - curX));
+      setW(String(newW));
     }
   };
 
@@ -125,7 +122,11 @@ export function CropImage({ tool }: { tool: ToolDefinition }) {
       toast.error("Please upload an image first.");
       return;
     }
-    if (w <= 0 || h <= 0) {
+    const cx = parseInt(x) || 0;
+    const cy = parseInt(y) || 0;
+    const cw = parseInt(w) || 0;
+    const ch = parseInt(h) || 0;
+    if (cw <= 0 || ch <= 0) {
       toast.error("Crop region is too small.");
       return;
     }
@@ -133,10 +134,10 @@ export function CropImage({ tool }: { tool: ToolDefinition }) {
     try {
       const img = await loadImageFromFile(file);
       const canvas = document.createElement("canvas");
-      canvas.width = w;
-      canvas.height = h;
+      canvas.width = cw;
+      canvas.height = ch;
       const ctx = getCanvas2D(canvas);
-      ctx.drawImage(img, x, y, w, h, 0, 0, w, h);
+      ctx.drawImage(img, cx, cy, cw, ch, 0, 0, cw, ch);
       const outType = file.type === "image/png" ? "image/png" : "image/jpeg";
       const blob = await new Promise<Blob | null>((resolve) =>
         canvas.toBlob(resolve, outType, 0.92)
@@ -145,7 +146,7 @@ export function CropImage({ tool }: { tool: ToolDefinition }) {
       if (outputUrl) URL.revokeObjectURL(outputUrl);
       setOutputUrl(URL.createObjectURL(blob));
       setOutputBlob(blob);
-      toast.success(`Cropped to ${w} × ${h}px.`);
+      toast.success(`Cropped to ${cw} × ${ch}px.`);
     } catch (err) {
       toast.error(err instanceof Error ? err.message : "Crop failed.");
     } finally {
@@ -159,7 +160,7 @@ export function CropImage({ tool }: { tool: ToolDefinition }) {
     setOutputUrl(null);
     setOutputBlob(null);
     setNatural(null);
-    setX(0); setY(0); setW(0); setH(0);
+    setX("0"); setY("0"); setW("0"); setH("0");
   };
 
   const downloadName = file
@@ -167,12 +168,16 @@ export function CropImage({ tool }: { tool: ToolDefinition }) {
     : "cropped.png";
 
   // Visual overlay rectangle as percentages for the preview.
+  const numX = parseInt(x) || 0;
+  const numY = parseInt(y) || 0;
+  const numW = parseInt(w) || 0;
+  const numH = parseInt(h) || 0;
   const overlayStyle = natural
     ? {
-        left: `${(x / natural.w) * 100}%`,
-        top: `${(y / natural.h) * 100}%`,
-        width: `${(w / natural.w) * 100}%`,
-        height: `${(h / natural.h) * 100}%`,
+        left: `${(numX / natural.w) * 100}%`,
+        top: `${(numY / natural.h) * 100}%`,
+        width: `${(numW / natural.w) * 100}%`,
+        height: `${(numH / natural.h) * 100}%`,
       }
     : undefined;
 
@@ -243,7 +248,7 @@ export function CropImage({ tool }: { tool: ToolDefinition }) {
                   type="number"
                   min={0}
                   value={x}
-                  onChange={(e) => onChangeX(parseInt(e.target.value || "0", 10))}
+                  onChange={(e) => onChangeX(e.target.value || "0")}
                   disabled={!natural}
                 />
               </div>
@@ -254,7 +259,7 @@ export function CropImage({ tool }: { tool: ToolDefinition }) {
                   type="number"
                   min={0}
                   value={y}
-                  onChange={(e) => onChangeY(parseInt(e.target.value || "0", 10))}
+                  onChange={(e) => onChangeY(e.target.value || "0")}
                   disabled={!natural}
                 />
               </div>
@@ -265,7 +270,7 @@ export function CropImage({ tool }: { tool: ToolDefinition }) {
                   type="number"
                   min={1}
                   value={w}
-                  onChange={(e) => onChangeW(parseInt(e.target.value || "0", 10))}
+                  onChange={(e) => onChangeW(e.target.value || "0")}
                   disabled={!natural}
                 />
               </div>
@@ -276,7 +281,7 @@ export function CropImage({ tool }: { tool: ToolDefinition }) {
                   type="number"
                   min={1}
                   value={h}
-                  onChange={(e) => onChangeH(parseInt(e.target.value || "0", 10))}
+                  onChange={(e) => onChangeH(e.target.value || "0")}
                   disabled={!natural}
                 />
               </div>
@@ -290,7 +295,7 @@ export function CropImage({ tool }: { tool: ToolDefinition }) {
             {outputUrl && (
               <div className="grid gap-4 sm:grid-cols-2">
                 <PreviewTile src={originalUrl} label="Original" />
-                <PreviewTile src={outputUrl} label="Cropped" caption={`${w} × ${h}px`} />
+                <PreviewTile src={outputUrl} label="Cropped" caption={`${numW} × ${numH}px`} />
                 <div className="sm:col-span-2">
                   <Button
                     onClick={() => {
