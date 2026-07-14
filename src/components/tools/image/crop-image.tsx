@@ -215,6 +215,57 @@ export function CropImage({ tool }: { tool: ToolDefinition }) {
       }
     : undefined;
 
+  // Draggable crop box.
+  const imgContainerRef = React.useRef<HTMLDivElement>(null);
+  const dragRef = React.useRef<{ type: "move" | "resize"; startX: number; startY: number; origX: number; origY: number; origW: number; origH: number; handle?: string } | null>(null);
+
+  const getPercent = (e: React.PointerEvent | PointerEvent): { px: number; py: number } => {
+    const rect = imgContainerRef.current?.getBoundingClientRect();
+    if (!rect || !natural) return { px: 0, py: 0 };
+    return {
+      px: ((e.clientX - rect.left) / rect.width) * natural.w,
+      py: ((e.clientY - rect.top) / rect.height) * natural.h,
+    };
+  };
+
+  const onOverlayPointerDown = (e: React.PointerEvent, type: "move" | "resize", handle?: string) => {
+    e.preventDefault();
+    e.stopPropagation();
+    (e.target as HTMLElement).setPointerCapture?.(e.pointerId);
+    dragRef.current = { type, startX: e.clientX, startY: e.clientY, origX: numX, origY: numY, origW: numW, origH: numH, handle };
+  };
+
+  const onContainerPointerMove = (e: React.PointerEvent) => {
+    if (!dragRef.current || !natural) return;
+    const dx = ((e.clientX - dragRef.current.startX) / (imgContainerRef.current?.getBoundingClientRect().width || 1)) * natural.w;
+    const dy = ((e.clientY - dragRef.current.startY) / (imgContainerRef.current?.getBoundingClientRect().height || 1)) * natural.h;
+
+    if (dragRef.current.type === "move") {
+      const newX = Math.max(0, Math.min(dragRef.current.origX + dx, natural.w - numW));
+      const newY = Math.max(0, Math.min(dragRef.current.origY + dy, natural.h - numH));
+      setX(String(Math.round(newX)));
+      setY(String(Math.round(newY)));
+    } else if (dragRef.current.type === "resize") {
+      const handle = dragRef.current.handle;
+      let newX = dragRef.current.origX;
+      let newY = dragRef.current.origY;
+      let newW = dragRef.current.origW;
+      let newH = dragRef.current.origH;
+
+      if (handle?.includes("e")) newW = Math.max(20, Math.min(dragRef.current.origW + dx, natural.w - newX));
+      if (handle?.includes("w")) { newX = Math.max(0, dragRef.current.origX + dx); newW = Math.max(20, dragRef.current.origW - (newX - dragRef.current.origX)); }
+      if (handle?.includes("s")) newH = Math.max(20, Math.min(dragRef.current.origH + dy, natural.h - newY));
+      if (handle?.includes("n")) { newY = Math.max(0, dragRef.current.origY + dy); newH = Math.max(20, dragRef.current.origH - (newY - dragRef.current.origY)); }
+
+      setX(String(Math.round(newX)));
+      setY(String(Math.round(newY)));
+      setW(String(Math.round(newW)));
+      setH(String(Math.round(newH)));
+    }
+  };
+
+  const onContainerPointerUp = () => { dragRef.current = null; };
+
   const content: ToolContent = {
     intro:
       "Crop images to a custom region or aspect ratio. Adjust the X, Y, width and height numerically, pick a preset aspect ratio, then download the cropped result — all locally in your browser.",
@@ -237,17 +288,52 @@ export function CropImage({ tool }: { tool: ToolDefinition }) {
             </div>
 
             {originalUrl && (
-              <div className="relative overflow-hidden rounded-lg border bg-muted/30">
+              <div
+                ref={imgContainerRef}
+                className="relative overflow-hidden rounded-lg border bg-muted/30"
+                onPointerMove={onContainerPointerMove}
+                onPointerUp={onContainerPointerUp}
+              >
                 <img
                   src={originalUrl}
                   alt="To crop"
                   className="block max-h-[420px] w-full object-contain"
                 />
+                {/* Dimmed overlay outside crop region */}
+                {overlayStyle && (
+                  <div className="pointer-events-none absolute inset-0">
+                    <div className="absolute inset-0 bg-black/30" />
+                    <div
+                      className="absolute bg-transparent"
+                      style={overlayStyle}
+                    />
+                  </div>
+                )}
+                {/* Draggable crop box */}
                 {overlayStyle && (
                   <div
-                    className="pointer-events-none absolute border-2 border-primary bg-primary/20"
+                    className="absolute cursor-move border-2 border-primary"
                     style={overlayStyle}
-                  />
+                    onPointerDown={(e) => onOverlayPointerDown(e, "move")}
+                  >
+                    {/* Resize handles */}
+                    {(["nw", "ne", "sw", "se", "n", "s", "e", "w"] as const).map((handle) => (
+                      <div
+                        key={handle}
+                        className={`absolute h-3 w-3 rounded-full bg-primary ${
+                          handle === "nw" ? "-left-1.5 -top-1.5 cursor-nw-resize" :
+                          handle === "ne" ? "-right-1.5 -top-1.5 cursor-ne-resize" :
+                          handle === "sw" ? "-bottom-1.5 -left-1.5 cursor-sw-resize" :
+                          handle === "se" ? "-bottom-1.5 -right-1.5 cursor-se-resize" :
+                          handle === "n" ? "-top-1.5 left-1/2 -translate-x-1/2 cursor-n-resize" :
+                          handle === "s" ? "-bottom-1.5 left-1/2 -translate-x-1/2 cursor-s-resize" :
+                          handle === "e" ? "-right-1.5 top-1/2 -translate-y-1/2 cursor-e-resize" :
+                          "-left-1.5 top-1/2 -translate-y-1/2 cursor-w-resize"
+                        }`}
+                        onPointerDown={(e) => onOverlayPointerDown(e, "resize", handle)}
+                      />
+                    ))}
+                  </div>
                 )}
               </div>
             )}
