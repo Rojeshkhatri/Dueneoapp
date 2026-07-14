@@ -201,17 +201,42 @@ export function CropImage({ tool }: { tool: ToolDefinition }) {
     ? replaceExtension(file.name, file.type === "image/png" ? "png" : "jpg")
     : "cropped.png";
 
-  // Visual overlay rectangle as percentages for the preview.
+  // Visual overlay rectangle — positioned relative to actual image area.
   const numX = parseInt(x) || 0;
   const numY = parseInt(y) || 0;
   const numW = parseInt(w) || 0;
   const numH = parseInt(h) || 0;
-  const overlayStyle = natural
+
+  // Calculate the image display area within the container (object-contain).
+  const imgDisplayRef = React.useRef<HTMLImageElement>(null);
+  const [imgDisplay, setImgDisplay] = React.useState<{ left: number; top: number; width: number; height: number } | null>(null);
+
+  React.useEffect(() => {
+    const updateDisplay = () => {
+      const img = imgDisplayRef.current;
+      if (!img || !natural) return;
+      const rect = img.getBoundingClientRect();
+      // object-contain: image is centered, may not fill full container.
+      const containerRect = img.parentElement?.getBoundingClientRect();
+      if (!containerRect) return;
+      setImgDisplay({
+        left: rect.left - containerRect.left,
+        top: rect.top - containerRect.top,
+        width: rect.width,
+        height: rect.height,
+      });
+    };
+    updateDisplay();
+    window.addEventListener("resize", updateDisplay);
+    return () => window.removeEventListener("resize", updateDisplay);
+  }, [natural, file]);
+
+  const overlayStyle = natural && imgDisplay
     ? {
-        left: `${(numX / natural.w) * 100}%`,
-        top: `${(numY / natural.h) * 100}%`,
-        width: `${(numW / natural.w) * 100}%`,
-        height: `${(numH / natural.h) * 100}%`,
+        left: `${imgDisplay.left + (numX / natural.w) * imgDisplay.width}px`,
+        top: `${imgDisplay.top + (numY / natural.h) * imgDisplay.height}px`,
+        width: `${(numW / natural.w) * imgDisplay.width}px`,
+        height: `${(numH / natural.h) * imgDisplay.height}px`,
       }
     : undefined;
 
@@ -295,9 +320,24 @@ export function CropImage({ tool }: { tool: ToolDefinition }) {
                 onPointerUp={onContainerPointerUp}
               >
                 <img
+                  ref={imgDisplayRef}
                   src={originalUrl}
                   alt="To crop"
                   className="block max-h-[420px] w-full object-contain"
+                  onLoad={() => {
+                    // Trigger display calculation after image loads.
+                    const img = imgDisplayRef.current;
+                    if (!img || !natural) return;
+                    const rect = img.getBoundingClientRect();
+                    const containerRect = img.parentElement?.getBoundingClientRect();
+                    if (!containerRect) return;
+                    setImgDisplay({
+                      left: rect.left - containerRect.left,
+                      top: rect.top - containerRect.top,
+                      width: rect.width,
+                      height: rect.height,
+                    });
+                  }}
                 />
                 {/* Dimmed overlay outside crop region */}
                 {overlayStyle && (
