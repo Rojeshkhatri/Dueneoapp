@@ -47,6 +47,40 @@ export function CropImage({ tool }: { tool: ToolDefinition }) {
   const [aspect, setAspect] = React.useState<number | null>(null);
   const [busy, setBusy] = React.useState(false);
 
+  // Auto-crop when crop values change (debounced).
+  React.useEffect(() => {
+    if (!file || !natural) return;
+    const cx = parseInt(x) || 0;
+    const cy = parseInt(y) || 0;
+    const cw = parseInt(w) || 0;
+    const ch = parseInt(h) || 0;
+    if (cw <= 0 || ch <= 0) return;
+
+    const timer = setTimeout(async () => {
+      try {
+        const img = await loadImageFromFile(file);
+        const canvas = document.createElement("canvas");
+        canvas.width = cw;
+        canvas.height = ch;
+        const ctx = getCanvas2D(canvas);
+        ctx.drawImage(img, cx, cy, cw, ch, 0, 0, cw, ch);
+        const outType = file.type === "image/png" ? "image/png" : "image/jpeg";
+        const blob = await new Promise<Blob | null>((resolve) =>
+          canvas.toBlob(resolve, outType, 0.92)
+        );
+        if (blob) {
+          if (outputUrl) URL.revokeObjectURL(outputUrl);
+          setOutputUrl(URL.createObjectURL(blob));
+          setOutputBlob(blob);
+        }
+      } catch {
+        // Silent fail for auto-crop — user can still click Crop button.
+      }
+    }, 300); // Debounce 300ms
+
+    return () => clearTimeout(timer);
+  }, [file, natural, x, y, w, h]);
+
   React.useEffect(() => {
     return () => {
       if (originalUrl) URL.revokeObjectURL(originalUrl);
