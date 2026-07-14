@@ -245,11 +245,12 @@ export function CropImage({ tool }: { tool: ToolDefinition }) {
   const dragRef = React.useRef<{ type: "move" | "resize"; startX: number; startY: number; origX: number; origY: number; origW: number; origH: number; handle?: string } | null>(null);
 
   const getPercent = (e: React.PointerEvent | PointerEvent): { px: number; py: number } => {
-    const rect = imgContainerRef.current?.getBoundingClientRect();
-    if (!rect || !natural) return { px: 0, py: 0 };
+    const img = imgDisplayRef.current;
+    if (!img || !natural) return { px: 0, py: 0 };
+    const rect = img.getBoundingClientRect();
     return {
-      px: ((e.clientX - rect.left) / rect.width) * natural.w,
-      py: ((e.clientY - rect.top) / rect.height) * natural.h,
+      px: Math.max(0, Math.min(((e.clientX - rect.left) / rect.width) * natural.w, natural.w)),
+      py: Math.max(0, Math.min(((e.clientY - rect.top) / rect.height) * natural.h, natural.h)),
     };
   };
 
@@ -262,8 +263,11 @@ export function CropImage({ tool }: { tool: ToolDefinition }) {
 
   const onContainerPointerMove = (e: React.PointerEvent) => {
     if (!dragRef.current || !natural) return;
-    const dx = ((e.clientX - dragRef.current.startX) / (imgContainerRef.current?.getBoundingClientRect().width || 1)) * natural.w;
-    const dy = ((e.clientY - dragRef.current.startY) / (imgContainerRef.current?.getBoundingClientRect().height || 1)) * natural.h;
+    const img = imgDisplayRef.current;
+    if (!img) return;
+    const rect = img.getBoundingClientRect();
+    const dx = ((e.clientX - dragRef.current.startX) / rect.width) * natural.w;
+    const dy = ((e.clientY - dragRef.current.startY) / rect.height) * natural.h;
 
     if (dragRef.current.type === "move") {
       const newX = Math.max(0, Math.min(dragRef.current.origX + dx, natural.w - numW));
@@ -503,7 +507,6 @@ export function CropImage({ tool }: { tool: ToolDefinition }) {
     ],
     limitations: (
       <ul className="list-disc space-y-1 pl-5">
-        <li>The crop rectangle is numeric — there is no drag-to-resize handle in this build.</li>
         <li>Crop coordinates are in pixels relative to the original image resolution.</li>
         <li>Animated images are not supported; only the first frame is cropped.</li>
       </ul>
