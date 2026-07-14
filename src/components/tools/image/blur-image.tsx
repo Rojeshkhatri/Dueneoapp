@@ -7,7 +7,7 @@ import { Button } from "@/components/ui/button";
 import { Slider } from "@/components/ui/slider";
 import { Label } from "@/components/ui/label";
 import { toast } from "sonner";
-import { Download, RotateCcw, Wand2 } from "lucide-react";
+import { Download, RotateCcw } from "lucide-react";
 import type { ToolDefinition } from "@/data/tools";
 import {
   PreviewTile,
@@ -25,6 +25,7 @@ export function BlurImage({ tool }: { tool: ToolDefinition }) {
   const [outputBlob, setOutputBlob] = React.useState<Blob | null>(null);
   const [radius, setRadius] = React.useState<number>(8);
   const [busy, setBusy] = React.useState(false);
+  const processGen = React.useRef(0);
 
   React.useEffect(() => {
     return () => {
@@ -32,6 +33,42 @@ export function BlurImage({ tool }: { tool: ToolDefinition }) {
       if (outputUrl) URL.revokeObjectURL(outputUrl);
     };
   }, [originalUrl, outputUrl]);
+
+  // Auto-process when radius changes (debounced).
+  React.useEffect(() => {
+    if (!file) return;
+    const gen = ++processGen.current;
+    const timer = setTimeout(async () => {
+      setBusy(true);
+      try {
+        const img = await loadImageFromFile(file);
+        const canvas = document.createElement("canvas");
+        canvas.width = img.naturalWidth;
+        canvas.height = img.naturalHeight;
+        const ctx = getCanvas2D(canvas);
+        ctx.filter = radius > 0 ? `blur(${radius}px)` : "none";
+        ctx.drawImage(img, 0, 0);
+        ctx.filter = "none";
+        if (gen !== processGen.current) return;
+        const outType = file.type === "image/png" ? "image/png" : "image/jpeg";
+        const blob = await new Promise<Blob | null>((resolve) =>
+          canvas.toBlob(resolve, outType, 0.92)
+        );
+        if (gen !== processGen.current) return;
+        if (!blob) throw new Error("Blur failed.");
+        if (outputUrl) URL.revokeObjectURL(outputUrl);
+        setOutputUrl(URL.createObjectURL(blob));
+        setOutputBlob(blob);
+      } catch (err) {
+        if (gen === processGen.current) {
+          toast.error(err instanceof Error ? err.message : "Blur failed.");
+        }
+      } finally {
+        if (gen === processGen.current) setBusy(false);
+      }
+    }, 300);
+    return () => clearTimeout(timer);
+  }, [file, radius]);
 
   const onFiles = (files: { file: File }[]) => {
     const f = files[0]?.file;
@@ -45,40 +82,6 @@ export function BlurImage({ tool }: { tool: ToolDefinition }) {
     setOriginalUrl(URL.createObjectURL(f));
     setOutputUrl(null);
     setOutputBlob(null);
-    // Auto-apply on first load.
-    applyBlur(f, radius);
-  };
-
-  const applyBlur = async (source: File, r: number) => {
-    setBusy(true);
-    try {
-      const img = await loadImageFromFile(source);
-      const canvas = document.createElement("canvas");
-      canvas.width = img.naturalWidth;
-      canvas.height = img.naturalHeight;
-      const ctx = getCanvas2D(canvas);
-      // ctx.filter is widely supported in modern browsers.
-      ctx.filter = r > 0 ? `blur(${r}px)` : "none";
-      ctx.drawImage(img, 0, 0);
-      ctx.filter = "none";
-      const outType = source.type === "image/png" ? "image/png" : "image/jpeg";
-      const blob = await new Promise<Blob | null>((resolve) =>
-        canvas.toBlob(resolve, outType, 0.92)
-      );
-      if (!blob) throw new Error("Blur failed.");
-      if (outputUrl) URL.revokeObjectURL(outputUrl);
-      setOutputUrl(URL.createObjectURL(blob));
-      setOutputBlob(blob);
-    } catch (err) {
-      toast.error(err instanceof Error ? err.message : "Blur failed.");
-    } finally {
-      setBusy(false);
-    }
-  };
-
-  const onRadiusChange = (v: number) => {
-    setRadius(v);
-    if (file) applyBlur(file, v);
   };
 
   const reset = () => {
@@ -120,34 +123,35 @@ export function BlurImage({ tool }: { tool: ToolDefinition }) {
                 min={0}
                 max={40}
                 step={1}
-                onValueChange={(v) => onRadiusChange(v[0] ?? 8)}
+                onValueChange={(v) => setRadius(v[0] ?? 8)}
               />
               <p className="text-xs text-muted-foreground">
                 Larger values produce a stronger blur. The preview updates automatically.
               </p>
             </div>
 
-            <Button onClick={() => file && applyBlur(file, radius)} disabled={busy} className="w-full sm:w-auto">
-              <Wand2 className="mr-1.5 h-4 w-4" />
-              {busy ? "Blurring…" : "Re-apply blur"}
-            </Button>
+            {busy && (
+              <p className="text-xs text-muted-foreground animate-pulse">Processing…</p>
+            )}
 
-            {outputUrl && (
+            {originalUrl && (
               <div className="grid gap-4 sm:grid-cols-2">
                 <PreviewTile src={originalUrl} label="Original" />
-                <PreviewTile src={outputUrl} label="Blurred" caption={outputBlob ? formatBytes(outputBlob.size) : undefined} />
-                <div className="sm:col-span-2">
-                  <Button
-                    onClick={() => {
-                      if (!downloadBlob(outputBlob, downloadName)) {
-                        toast.error("Nothing to download yet.");
-                      }
-                    }}
-                    className="w-full sm:w-auto"
-                  >
-                    <Download className="mr-1.5 h-4 w-4" /> Download blurred image
-                  </Button>
-                </div>
+                <PreviewTile src={outputUrl} label={outputUrl ? "Blurred" : "Result"} caption={outputBlob ? formatBytes(outputBlob.size) : undefined} />
+                {outputBlob && (
+                  <div className="sm:col-span-2">
+                    <Button
+                      onClick={() => {
+                        if (!downloadBlob(outputBlob, downloadName)) {
+                          toast.error("Nothing to download yet.");
+                        }
+                      }}
+                      className="w-full sm:w-auto"
+                    >
+                      <Download className="mr-1.5 h-4 w-4" /> Download blurred image
+                    </Button>
+                  </div>
+                )}
               </div>
             )}
           </div>

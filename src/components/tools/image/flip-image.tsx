@@ -22,8 +22,9 @@ export function FlipImage({ tool }: { tool: ToolDefinition }) {
   const [originalUrl, setOriginalUrl] = React.useState<string | null>(null);
   const [outputUrl, setOutputUrl] = React.useState<string | null>(null);
   const [outputBlob, setOutputBlob] = React.useState<Blob | null>(null);
-  const [lastFlip, setLastFlip] = React.useState<FlipDir | null>(null);
+  const [flipDir, setFlipDir] = React.useState<FlipDir | null>(null);
   const [busy, setBusy] = React.useState(false);
+  const processGen = React.useRef(0);
 
   React.useEffect(() => {
     return () => {
@@ -31,6 +32,53 @@ export function FlipImage({ tool }: { tool: ToolDefinition }) {
       if (outputUrl) URL.revokeObjectURL(outputUrl);
     };
   }, [originalUrl, outputUrl]);
+
+  // Auto-process when flip direction changes (debounced).
+  React.useEffect(() => {
+    if (!file || !flipDir) {
+      if (outputUrl) URL.revokeObjectURL(outputUrl);
+      setOutputUrl(null);
+      setOutputBlob(null);
+      return;
+    }
+    const gen = ++processGen.current;
+    const dir = flipDir;
+    const timer = setTimeout(async () => {
+      setBusy(true);
+      try {
+        const img = await loadImageFromFile(file);
+        const canvas = document.createElement("canvas");
+        canvas.width = img.naturalWidth;
+        canvas.height = img.naturalHeight;
+        const ctx = getCanvas2D(canvas);
+        if (dir === "horizontal") {
+          ctx.translate(canvas.width, 0);
+          ctx.scale(-1, 1);
+        } else {
+          ctx.translate(0, canvas.height);
+          ctx.scale(1, -1);
+        }
+        ctx.drawImage(img, 0, 0);
+        if (gen !== processGen.current) return;
+        const outType = file.type === "image/png" ? "image/png" : "image/jpeg";
+        const blob = await new Promise<Blob | null>((resolve) =>
+          canvas.toBlob(resolve, outType, 0.92)
+        );
+        if (gen !== processGen.current) return;
+        if (!blob) throw new Error("Flip failed.");
+        if (outputUrl) URL.revokeObjectURL(outputUrl);
+        setOutputUrl(URL.createObjectURL(blob));
+        setOutputBlob(blob);
+      } catch (err) {
+        if (gen === processGen.current) {
+          toast.error(err instanceof Error ? err.message : "Flip failed.");
+        }
+      } finally {
+        if (gen === processGen.current) setBusy(false);
+      }
+    }, 300);
+    return () => clearTimeout(timer);
+  }, [file, flipDir]);
 
   const onFiles = (files: { file: File }[]) => {
     const f = files[0]?.file;
@@ -44,44 +92,7 @@ export function FlipImage({ tool }: { tool: ToolDefinition }) {
     setOriginalUrl(URL.createObjectURL(f));
     setOutputUrl(null);
     setOutputBlob(null);
-    setLastFlip(null);
-  };
-
-  const runFlip = async (dir: FlipDir) => {
-    if (!file) {
-      toast.error("Please upload an image first.");
-      return;
-    }
-    setBusy(true);
-    try {
-      const img = await loadImageFromFile(file);
-      const canvas = document.createElement("canvas");
-      canvas.width = img.naturalWidth;
-      canvas.height = img.naturalHeight;
-      const ctx = getCanvas2D(canvas);
-      if (dir === "horizontal") {
-        ctx.translate(canvas.width, 0);
-        ctx.scale(-1, 1);
-      } else {
-        ctx.translate(0, canvas.height);
-        ctx.scale(1, -1);
-      }
-      ctx.drawImage(img, 0, 0);
-      const outType = file.type === "image/png" ? "image/png" : "image/jpeg";
-      const blob = await new Promise<Blob | null>((resolve) =>
-        canvas.toBlob(resolve, outType, 0.92)
-      );
-      if (!blob) throw new Error("Flip failed.");
-      if (outputUrl) URL.revokeObjectURL(outputUrl);
-      setOutputUrl(URL.createObjectURL(blob));
-      setOutputBlob(blob);
-      setLastFlip(dir);
-      toast.success(`Flipped ${dir === "horizontal" ? "horizontally" : "vertically"}.`);
-    } catch (err) {
-      toast.error(err instanceof Error ? err.message : "Flip failed.");
-    } finally {
-      setBusy(false);
-    }
+    setFlipDir(null);
   };
 
   const reset = () => {
@@ -89,7 +100,7 @@ export function FlipImage({ tool }: { tool: ToolDefinition }) {
     setOriginalUrl(null);
     setOutputUrl(null);
     setOutputBlob(null);
-    setLastFlip(null);
+    setFlipDir(null);
   };
 
   const downloadName = file
@@ -113,34 +124,39 @@ export function FlipImage({ tool }: { tool: ToolDefinition }) {
             </div>
 
             <div className="flex flex-wrap gap-2">
-              <Button onClick={() => runFlip("horizontal")} disabled={busy}>
+              <Button onClick={() => setFlipDir("horizontal")} variant={flipDir === "horizontal" ? "default" : "outline"}>
                 <FlipHorizontal className="mr-1.5 h-4 w-4" /> Flip horizontal
               </Button>
-              <Button onClick={() => runFlip("vertical")} disabled={busy}>
+              <Button onClick={() => setFlipDir("vertical")} variant={flipDir === "vertical" ? "default" : "outline"}>
                 <FlipVertical className="mr-1.5 h-4 w-4" /> Flip vertical
               </Button>
+              {busy && (
+                <p className="text-xs text-muted-foreground animate-pulse">Processing…</p>
+              )}
             </div>
 
-            {outputUrl && (
+            {originalUrl && (
               <div className="grid gap-4 sm:grid-cols-2">
                 <PreviewTile src={originalUrl} label="Original" />
                 <PreviewTile
                   src={outputUrl}
-                  label="Flipped"
-                  caption={lastFlip === "horizontal" ? "Mirrored horizontally" : "Mirrored vertically"}
+                  label={outputUrl ? "Flipped" : "Result"}
+                  caption={outputUrl && flipDir ? (flipDir === "horizontal" ? "Mirrored horizontally" : "Mirrored vertically") : undefined}
                 />
-                <div className="sm:col-span-2">
-                  <Button
-                    onClick={() => {
-                      if (!downloadBlob(outputBlob, downloadName)) {
-                        toast.error("Nothing to download yet.");
-                      }
-                    }}
-                    className="w-full sm:w-auto"
-                  >
-                    <Download className="mr-1.5 h-4 w-4" /> Download flipped image
-                  </Button>
-                </div>
+                {outputBlob && (
+                  <div className="sm:col-span-2">
+                    <Button
+                      onClick={() => {
+                        if (!downloadBlob(outputBlob, downloadName)) {
+                          toast.error("Nothing to download yet.");
+                        }
+                      }}
+                      className="w-full sm:w-auto"
+                    >
+                      <Download className="mr-1.5 h-4 w-4" /> Download flipped image
+                    </Button>
+                  </div>
+                )}
               </div>
             )}
           </div>

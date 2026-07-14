@@ -8,7 +8,7 @@ import { Slider } from "@/components/ui/slider";
 import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
 import { toast } from "sonner";
-import { Download, RotateCcw, Wand2 } from "lucide-react";
+import { Download, RotateCcw } from "lucide-react";
 import type { ToolDefinition } from "@/data/tools";
 import {
   PreviewTile,
@@ -27,6 +27,7 @@ export function AddBorderToImage({ tool }: { tool: ToolDefinition }) {
   const [width, setWidth] = React.useState<number>(20);
   const [color, setColor] = React.useState<string>("#000000");
   const [busy, setBusy] = React.useState(false);
+  const processGen = React.useRef(0);
 
   React.useEffect(() => {
     return () => {
@@ -34,6 +35,46 @@ export function AddBorderToImage({ tool }: { tool: ToolDefinition }) {
       if (outputUrl) URL.revokeObjectURL(outputUrl);
     };
   }, [originalUrl, outputUrl]);
+
+  // Auto-process when border settings change (debounced).
+  React.useEffect(() => {
+    if (!file) return;
+    const gen = ++processGen.current;
+    const timer = setTimeout(async () => {
+      setBusy(true);
+      try {
+        const img = await loadImageFromFile(file);
+        const w = img.naturalWidth;
+        const h = img.naturalHeight;
+        const scaleFactor = Math.max(0.5, w / 1000);
+        const scaledBorder = Math.max(1, Math.round(width * scaleFactor));
+        const canvas = document.createElement("canvas");
+        canvas.width = w + scaledBorder * 2;
+        canvas.height = h + scaledBorder * 2;
+        const ctx = getCanvas2D(canvas);
+        ctx.fillStyle = hexToRgba(color, 1);
+        ctx.fillRect(0, 0, canvas.width, canvas.height);
+        ctx.drawImage(img, scaledBorder, scaledBorder, w, h);
+        if (gen !== processGen.current) return;
+        const outType = file.type === "image/png" ? "image/png" : "image/jpeg";
+        const blob = await new Promise<Blob | null>((resolve) =>
+          canvas.toBlob(resolve, outType, 0.92)
+        );
+        if (gen !== processGen.current) return;
+        if (!blob) throw new Error("Could not add border.");
+        if (outputUrl) URL.revokeObjectURL(outputUrl);
+        setOutputUrl(URL.createObjectURL(blob));
+        setOutputBlob(blob);
+      } catch (err) {
+        if (gen === processGen.current) {
+          toast.error(err instanceof Error ? err.message : "Border failed.");
+        }
+      } finally {
+        if (gen === processGen.current) setBusy(false);
+      }
+    }, 300);
+    return () => clearTimeout(timer);
+  }, [file, width, color]);
 
   const onFiles = (files: { file: File }[]) => {
     const f = files[0]?.file;
@@ -47,48 +88,6 @@ export function AddBorderToImage({ tool }: { tool: ToolDefinition }) {
     setOriginalUrl(URL.createObjectURL(f));
     setOutputUrl(null);
     setOutputBlob(null);
-    applyBorder(f, width, color);
-  };
-
-  const applyBorder = async (source: File, bw: number, bc: string) => {
-    setBusy(true);
-    try {
-      const img = await loadImageFromFile(source);
-      const w = img.naturalWidth;
-      const h = img.naturalHeight;
-      // Scale border relative to image width so it looks proportional.
-      const scaleFactor = Math.max(0.5, w / 1000);
-      const scaledBorder = Math.max(1, Math.round(bw * scaleFactor));
-      const canvas = document.createElement("canvas");
-      canvas.width = w + scaledBorder * 2;
-      canvas.height = h + scaledBorder * 2;
-      const ctx = getCanvas2D(canvas);
-      ctx.fillStyle = hexToRgba(bc, 1);
-      ctx.fillRect(0, 0, canvas.width, canvas.height);
-      ctx.drawImage(img, scaledBorder, scaledBorder, w, h);
-
-      const outType = source.type === "image/png" ? "image/png" : "image/jpeg";
-      const blob = await new Promise<Blob | null>((resolve) =>
-        canvas.toBlob(resolve, outType, 0.92)
-      );
-      if (!blob) throw new Error("Could not add border.");
-      if (outputUrl) URL.revokeObjectURL(outputUrl);
-      setOutputUrl(URL.createObjectURL(blob));
-      setOutputBlob(blob);
-    } catch (err) {
-      toast.error(err instanceof Error ? err.message : "Border failed.");
-    } finally {
-      setBusy(false);
-    }
-  };
-
-  const onWidthChange = (v: number) => {
-    setWidth(v);
-    if (file) applyBorder(file, v, color);
-  };
-  const onColorChange = (c: string) => {
-    setColor(c);
-    if (file) applyBorder(file, width, c);
   };
 
   const reset = () => {
@@ -132,7 +131,7 @@ export function AddBorderToImage({ tool }: { tool: ToolDefinition }) {
                   min={1}
                   max={200}
                   step={1}
-                  onValueChange={(v) => onWidthChange(v[0] ?? 20)}
+                  onValueChange={(v) => setWidth(v[0] ?? 20)}
                 />
                 <p className="text-xs text-muted-foreground">
                   Border width auto-scales with the image dimensions.
@@ -145,36 +144,37 @@ export function AddBorderToImage({ tool }: { tool: ToolDefinition }) {
                     id="bd-color"
                     type="color"
                     value={color}
-                    onChange={(e) => onColorChange(e.target.value)}
+                    onChange={(e) => setColor(e.target.value)}
                     className="h-9 w-12 cursor-pointer rounded-md border bg-background p-1"
                     aria-label="Border colour"
                   />
-                  <Input value={color} onChange={(e) => onColorChange(e.target.value)} className="font-mono" />
+                  <Input value={color} onChange={(e) => setColor(e.target.value)} className="font-mono" />
                 </div>
               </div>
             </div>
 
-            <Button onClick={() => file && applyBorder(file, width, color)} disabled={busy} className="w-full sm:w-auto">
-              <Wand2 className="mr-1.5 h-4 w-4" />
-              {busy ? "Adding border…" : "Re-apply border"}
-            </Button>
+            {busy && (
+              <p className="text-xs text-muted-foreground animate-pulse">Processing…</p>
+            )}
 
-            {outputUrl && (
+            {originalUrl && (
               <div className="grid gap-4 sm:grid-cols-2">
                 <PreviewTile src={originalUrl} label="Original" />
-                <PreviewTile src={outputUrl} label="With border" />
-                <div className="sm:col-span-2">
-                  <Button
-                    onClick={() => {
-                      if (!downloadBlob(outputBlob, downloadName)) {
-                        toast.error("Nothing to download yet.");
-                      }
-                    }}
-                    className="w-full sm:w-auto"
-                  >
-                    <Download className="mr-1.5 h-4 w-4" /> Download image
-                  </Button>
-                </div>
+                <PreviewTile src={outputUrl} label={outputUrl ? "With border" : "Result"} />
+                {outputBlob && (
+                  <div className="sm:col-span-2">
+                    <Button
+                      onClick={() => {
+                        if (!downloadBlob(outputBlob, downloadName)) {
+                          toast.error("Nothing to download yet.");
+                        }
+                      }}
+                      className="w-full sm:w-auto"
+                    >
+                      <Download className="mr-1.5 h-4 w-4" /> Download image
+                    </Button>
+                  </div>
+                )}
               </div>
             )}
           </div>

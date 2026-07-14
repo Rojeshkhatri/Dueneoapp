@@ -7,7 +7,7 @@ import { Button } from "@/components/ui/button";
 import { Slider } from "@/components/ui/slider";
 import { Label } from "@/components/ui/label";
 import { toast } from "sonner";
-import { Download, RotateCcw, RotateCw, Wand2 } from "lucide-react";
+import { Download, RotateCcw, RotateCw } from "lucide-react";
 import type { ToolDefinition } from "@/data/tools";
 import {
   PreviewTile,
@@ -24,6 +24,7 @@ export function RotateImage({ tool }: { tool: ToolDefinition }) {
   const [outputBlob, setOutputBlob] = React.useState<Blob | null>(null);
   const [angle, setAngle] = React.useState<number>(0);
   const [busy, setBusy] = React.useState(false);
+  const processGen = React.useRef(0);
 
   React.useEffect(() => {
     return () => {
@@ -31,6 +32,56 @@ export function RotateImage({ tool }: { tool: ToolDefinition }) {
       if (outputUrl) URL.revokeObjectURL(outputUrl);
     };
   }, [originalUrl, outputUrl]);
+
+  // Auto-process when angle changes (debounced).
+  React.useEffect(() => {
+    if (!file || angle === 0) {
+      if (outputUrl) URL.revokeObjectURL(outputUrl);
+      setOutputUrl(null);
+      setOutputBlob(null);
+      return;
+    }
+    const gen = ++processGen.current;
+    const timer = setTimeout(async () => {
+      setBusy(true);
+      try {
+        const img = await loadImageFromFile(file);
+        const rad = (angle * Math.PI) / 180;
+        const cos = Math.abs(Math.cos(rad));
+        const sin = Math.abs(Math.sin(rad));
+        const w = img.naturalWidth;
+        const h = img.naturalHeight;
+        const newW = Math.round(w * cos + h * sin);
+        const newH = Math.round(w * sin + h * cos);
+        const canvas = document.createElement("canvas");
+        canvas.width = newW;
+        canvas.height = newH;
+        const ctx = getCanvas2D(canvas);
+        ctx.fillStyle = "#ffffff";
+        ctx.fillRect(0, 0, newW, newH);
+        ctx.translate(newW / 2, newH / 2);
+        ctx.rotate(rad);
+        ctx.drawImage(img, -w / 2, -h / 2);
+        if (gen !== processGen.current) return;
+        const outType = file.type === "image/png" ? "image/png" : "image/jpeg";
+        const blob = await new Promise<Blob | null>((resolve) =>
+          canvas.toBlob(resolve, outType, 0.92)
+        );
+        if (gen !== processGen.current) return;
+        if (!blob) throw new Error("Rotation failed.");
+        if (outputUrl) URL.revokeObjectURL(outputUrl);
+        setOutputUrl(URL.createObjectURL(blob));
+        setOutputBlob(blob);
+      } catch (err) {
+        if (gen === processGen.current) {
+          toast.error(err instanceof Error ? err.message : "Rotation failed.");
+        }
+      } finally {
+        if (gen === processGen.current) setBusy(false);
+      }
+    }, 300);
+    return () => clearTimeout(timer);
+  }, [file, angle]);
 
   const onFiles = (files: { file: File }[]) => {
     const f = files[0]?.file;
@@ -46,51 +97,6 @@ export function RotateImage({ tool }: { tool: ToolDefinition }) {
     setOutputBlob(null);
     setAngle(0);
   };
-
-  const renderRotation = async (deg: number) => {
-    if (!file) return;
-    setBusy(true);
-    try {
-      const img = await loadImageFromFile(file);
-      const rad = (deg * Math.PI) / 180;
-      const cos = Math.abs(Math.cos(rad));
-      const sin = Math.abs(Math.sin(rad));
-      const w = img.naturalWidth;
-      const h = img.naturalHeight;
-      const newW = Math.round(w * cos + h * sin);
-      const newH = Math.round(w * sin + h * cos);
-
-      const canvas = document.createElement("canvas");
-      canvas.width = newW;
-      canvas.height = newH;
-      const ctx = getCanvas2D(canvas);
-      ctx.fillStyle = "#ffffff";
-      ctx.fillRect(0, 0, newW, newH);
-      ctx.translate(newW / 2, newH / 2);
-      ctx.rotate(rad);
-      ctx.drawImage(img, -w / 2, -h / 2);
-
-      const outType = file.type === "image/png" ? "image/png" : "image/jpeg";
-      const blob = await new Promise<Blob | null>((resolve) =>
-        canvas.toBlob(resolve, outType, 0.92)
-      );
-      if (!blob) throw new Error("Rotation failed.");
-      if (outputUrl) URL.revokeObjectURL(outputUrl);
-      setOutputUrl(URL.createObjectURL(blob));
-      setOutputBlob(blob);
-    } catch (err) {
-      toast.error(err instanceof Error ? err.message : "Rotation failed.");
-    } finally {
-      setBusy(false);
-    }
-  };
-
-  const quick = (deg: number) => {
-    setAngle(deg);
-    renderRotation(deg);
-  };
-
-  const applyCustom = () => renderRotation(angle);
 
   const reset = () => {
     setFile(null);
@@ -121,13 +127,13 @@ export function RotateImage({ tool }: { tool: ToolDefinition }) {
             </div>
 
             <div className="flex flex-wrap gap-2">
-              <Button variant="outline" onClick={() => quick(90)} disabled={busy}>
+              <Button variant="outline" onClick={() => setAngle(90)}>
                 <RotateCw className="mr-1.5 h-4 w-4" /> 90°
               </Button>
-              <Button variant="outline" onClick={() => quick(180)} disabled={busy}>
+              <Button variant="outline" onClick={() => setAngle(180)}>
                 <RotateCw className="mr-1.5 h-4 w-4" /> 180°
               </Button>
-              <Button variant="outline" onClick={() => quick(270)} disabled={busy}>
+              <Button variant="outline" onClick={() => setAngle(270)}>
                 <RotateCw className="mr-1.5 h-4 w-4" /> 270°
               </Button>
             </div>
@@ -145,33 +151,36 @@ export function RotateImage({ tool }: { tool: ToolDefinition }) {
                 step={1}
                 onValueChange={(v) => setAngle(v[0] ?? 0)}
               />
-              <div className="flex items-center gap-2">
-                <Button onClick={applyCustom} disabled={busy} className="w-full sm:w-auto">
-                  <Wand2 className="mr-1.5 h-4 w-4" />
-                  {busy ? "Rotating…" : `Apply ${angle}°`}
-                </Button>
-              </div>
               <p className="text-xs text-muted-foreground">
                 Custom angles pad the canvas with a white background so no part of the image is cut off.
               </p>
+              {busy && (
+                <p className="text-xs text-muted-foreground animate-pulse">Processing…</p>
+              )}
             </div>
 
-            {outputUrl && (
+            {originalUrl && (
               <div className="grid gap-4 sm:grid-cols-2">
                 <PreviewTile src={originalUrl} label="Original" />
-                <PreviewTile src={outputUrl} label="Rotated" caption={`${angle}°`} />
-                <div className="sm:col-span-2">
-                  <Button
-                    onClick={() => {
-                      if (!downloadBlob(outputBlob, downloadName)) {
-                        toast.error("Nothing to download yet.");
-                      }
-                    }}
-                    className="w-full sm:w-auto"
-                  >
-                    <Download className="mr-1.5 h-4 w-4" /> Download rotated image
-                  </Button>
-                </div>
+                <PreviewTile
+                  src={outputUrl}
+                  label={outputUrl ? "Rotated" : "Result"}
+                  caption={outputUrl ? `${angle}°` : undefined}
+                />
+                {outputBlob && (
+                  <div className="sm:col-span-2">
+                    <Button
+                      onClick={() => {
+                        if (!downloadBlob(outputBlob, downloadName)) {
+                          toast.error("Nothing to download yet.");
+                        }
+                      }}
+                      className="w-full sm:w-auto"
+                    >
+                      <Download className="mr-1.5 h-4 w-4" /> Download rotated image
+                    </Button>
+                  </div>
+                )}
               </div>
             )}
           </div>

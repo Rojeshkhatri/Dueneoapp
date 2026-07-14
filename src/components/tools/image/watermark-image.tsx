@@ -15,7 +15,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { toast } from "sonner";
-import { Download, RotateCcw, Wand2 } from "lucide-react";
+import { Download, RotateCcw } from "lucide-react";
 import type { ToolDefinition } from "@/data/tools";
 import {
   POSITION_OPTIONS,
@@ -40,6 +40,7 @@ export function WatermarkImage({ tool }: { tool: ToolDefinition }) {
   const [opacity, setOpacity] = React.useState<number>(70);
   const [position, setPosition] = React.useState<Position>("bottom-right");
   const [busy, setBusy] = React.useState(false);
+  const processGen = React.useRef(0);
 
   React.useEffect(() => {
     return () => {
@@ -47,6 +48,68 @@ export function WatermarkImage({ tool }: { tool: ToolDefinition }) {
       if (outputUrl) URL.revokeObjectURL(outputUrl);
     };
   }, [originalUrl, outputUrl]);
+
+  // Auto-process when watermark settings change (debounced).
+  React.useEffect(() => {
+    if (!file || !text.trim()) {
+      if (outputUrl) URL.revokeObjectURL(outputUrl);
+      setOutputUrl(null);
+      setOutputBlob(null);
+      return;
+    }
+    const gen = ++processGen.current;
+    const timer = setTimeout(async () => {
+      setBusy(true);
+      try {
+        const img = await loadImageFromFile(file);
+        const canvas = document.createElement("canvas");
+        canvas.width = img.naturalWidth;
+        canvas.height = img.naturalHeight;
+        const ctx = getCanvas2D(canvas);
+        ctx.drawImage(img, 0, 0);
+        const scaleFactor = img.naturalWidth / 1000;
+        const fs = Math.max(8, fontSize * Math.max(0.5, scaleFactor));
+        ctx.font = `bold ${fs}px Inter, Arial, sans-serif`;
+        ctx.textBaseline = "top";
+        const metrics = ctx.measureText(text);
+        const boxW = metrics.width;
+        const boxH = fs * 1.2;
+        const padding = Math.max(8, fs * 0.5);
+        const [px, py] = positionFor(
+          position,
+          canvas.width,
+          canvas.height,
+          boxW,
+          boxH,
+          padding
+        );
+        ctx.globalAlpha = opacity / 100;
+        ctx.shadowColor = "rgba(0,0,0,0.5)";
+        ctx.shadowBlur = Math.max(2, fs * 0.08);
+        ctx.shadowOffsetX = 0;
+        ctx.shadowOffsetY = 0;
+        ctx.fillStyle = hexToRgba(color, 1);
+        ctx.fillText(text, px, py);
+        if (gen !== processGen.current) return;
+        const outType = file.type === "image/png" ? "image/png" : "image/jpeg";
+        const blob = await new Promise<Blob | null>((resolve) =>
+          canvas.toBlob(resolve, outType, 0.92)
+        );
+        if (gen !== processGen.current) return;
+        if (!blob) throw new Error("Watermarking failed.");
+        if (outputUrl) URL.revokeObjectURL(outputUrl);
+        setOutputUrl(URL.createObjectURL(blob));
+        setOutputBlob(blob);
+      } catch (err) {
+        if (gen === processGen.current) {
+          toast.error(err instanceof Error ? err.message : "Watermarking failed.");
+        }
+      } finally {
+        if (gen === processGen.current) setBusy(false);
+      }
+    }, 300);
+    return () => clearTimeout(timer);
+  }, [file, text, fontSize, color, opacity, position]);
 
   const onFiles = (files: { file: File }[]) => {
     const f = files[0]?.file;
@@ -60,66 +123,6 @@ export function WatermarkImage({ tool }: { tool: ToolDefinition }) {
     setOriginalUrl(URL.createObjectURL(f));
     setOutputUrl(null);
     setOutputBlob(null);
-  };
-
-  const runWatermark = async () => {
-    if (!file) {
-      toast.error("Please upload an image first.");
-      return;
-    }
-    if (!text.trim()) {
-      toast.error("Please enter watermark text.");
-      return;
-    }
-    setBusy(true);
-    try {
-      const img = await loadImageFromFile(file);
-      const canvas = document.createElement("canvas");
-      canvas.width = img.naturalWidth;
-      canvas.height = img.naturalHeight;
-      const ctx = getCanvas2D(canvas);
-      ctx.drawImage(img, 0, 0);
-
-      // Scale font relative to image width so it looks right on any size.
-      const scaleFactor = img.naturalWidth / 1000;
-      const fs = Math.max(8, fontSize * Math.max(0.5, scaleFactor));
-      ctx.font = `bold ${fs}px Inter, Arial, sans-serif`;
-      ctx.textBaseline = "top";
-      const metrics = ctx.measureText(text);
-      const boxW = metrics.width;
-      const boxH = fs * 1.2;
-      const padding = Math.max(8, fs * 0.5);
-      const [px, py] = positionFor(
-        position,
-        canvas.width,
-        canvas.height,
-        boxW,
-        boxH,
-        padding
-      );
-      ctx.globalAlpha = opacity / 100;
-      // Subtle shadow for legibility on bright images.
-      ctx.shadowColor = "rgba(0,0,0,0.5)";
-      ctx.shadowBlur = Math.max(2, fs * 0.08);
-      ctx.shadowOffsetX = 0;
-      ctx.shadowOffsetY = 0;
-      ctx.fillStyle = hexToRgba(color, 1);
-      ctx.fillText(text, px, py);
-
-      const outType = file.type === "image/png" ? "image/png" : "image/jpeg";
-      const blob = await new Promise<Blob | null>((resolve) =>
-        canvas.toBlob(resolve, outType, 0.92)
-      );
-      if (!blob) throw new Error("Watermarking failed.");
-      if (outputUrl) URL.revokeObjectURL(outputUrl);
-      setOutputUrl(URL.createObjectURL(blob));
-      setOutputBlob(blob);
-      toast.success("Watermark applied.");
-    } catch (err) {
-      toast.error(err instanceof Error ? err.message : "Watermarking failed.");
-    } finally {
-      setBusy(false);
-    }
   };
 
   const reset = () => {
@@ -225,27 +228,28 @@ export function WatermarkImage({ tool }: { tool: ToolDefinition }) {
               Font size is auto-scaled relative to the image width so it looks proportional on any resolution.
             </p>
 
-            <Button onClick={runWatermark} disabled={busy} className="w-full sm:w-auto">
-              <Wand2 className="mr-1.5 h-4 w-4" />
-              {busy ? "Applying…" : "Apply watermark"}
-            </Button>
+            {busy && (
+              <p className="text-xs text-muted-foreground animate-pulse">Processing…</p>
+            )}
 
-            {outputUrl && (
+            {originalUrl && (
               <div className="grid gap-4 sm:grid-cols-2">
                 <PreviewTile src={originalUrl} label="Original" />
-                <PreviewTile src={outputUrl} label="Watermarked" />
-                <div className="sm:col-span-2">
-                  <Button
-                    onClick={() => {
-                      if (!downloadBlob(outputBlob, downloadName)) {
-                        toast.error("Nothing to download yet.");
-                      }
-                    }}
-                    className="w-full sm:w-auto"
-                  >
-                    <Download className="mr-1.5 h-4 w-4" /> Download watermarked image
-                  </Button>
-                </div>
+                <PreviewTile src={outputUrl} label={outputUrl ? "Watermarked" : "Result"} />
+                {outputBlob && (
+                  <div className="sm:col-span-2">
+                    <Button
+                      onClick={() => {
+                        if (!downloadBlob(outputBlob, downloadName)) {
+                          toast.error("Nothing to download yet.");
+                        }
+                      }}
+                      className="w-full sm:w-auto"
+                    >
+                      <Download className="mr-1.5 h-4 w-4" /> Download watermarked image
+                    </Button>
+                  </div>
+                )}
               </div>
             )}
           </div>
