@@ -8,6 +8,7 @@ import { ConsentMode } from "@/components/dueneo/consent-mode";
 import { ConsentBanner } from "@/components/dueneo/consent-banner";
 import { ADSENSE } from "@/lib/dueneo/adsense";
 import { PwaRegister } from "@/components/dueneo/pwa-register";
+import { NoindexPagesDev } from "@/components/dueneo/noindex-pages-dev";
 
 const inter = Inter({
   variable: "--font-geist-sans",
@@ -99,6 +100,7 @@ export default function RootLayout({
           enableSystem
           disableTransitionOnChange
         >
+          <NoindexPagesDev />
           {children}
           <PwaRegister />
           <Toaster />
