@@ -2,7 +2,7 @@
 
 import { LegalPage } from "./legal-pages";
 
-const UPDATED = "January 2025";
+const UPDATED = "July 2026";
 
 export function PrivacyPolicyPage() {
   return (
@@ -101,7 +101,43 @@ export function PrivacyPolicyPage() {
           ),
         },
         {
-          heading: "8. Your choices",
+          heading: "8. Your data rights (GDPR & CCPA)",
+          body: (
+            <>
+              <p>
+                Although Dueneo does not collect personal data through its
+                tools, you have rights under data protection laws:
+              </p>
+              <ul className="mt-2 list-disc space-y-1 pl-5">
+                <li>
+                  <strong>Right to access</strong> — you can request what data,
+                  if any, we hold about you.
+                </li>
+                <li>
+                  <strong>Right to deletion</strong> — you can request deletion
+                  of any data we hold about you.
+                </li>
+                <li>
+                  <strong>Right to object</strong> — you can object to data
+                  processing, including personalised advertising.
+                </li>
+                <li>
+                  <strong>Right to data portability</strong> — you can request
+                  your data in a machine-readable format.
+                </li>
+              </ul>
+              <p className="mt-2">
+                To exercise any of these rights, email{" "}
+                <a href="mailto:privacy@dueneo.com" className="text-primary hover:underline">
+                  privacy@dueneo.com
+                </a>
+                . We will respond within 30 days.
+              </p>
+            </>
+          ),
+        },
+        {
+          heading: "9. Your choices",
           body: (
             <p>
               You can clear your browser&apos;s localStorage and cookies at any
@@ -112,7 +148,7 @@ export function PrivacyPolicyPage() {
           ),
         },
         {
-          heading: "9. Changes",
+          heading: "10. Changes",
           body: (
             <p>
               We may update this policy from time to time. The &quot;last
@@ -121,7 +157,7 @@ export function PrivacyPolicyPage() {
           ),
         },
         {
-          heading: "10. Contact",
+          heading: "11. Contact",
           body: (
             <p>
               Questions about privacy? Email{" "}

@@ -84,8 +84,8 @@ export function AboutPage() {
               solves a real user problem immediately — no fluff, no detours.
             </li>
             <li>
-              <strong className="text-foreground">Private.</strong> Tool
-              tools are designed to process inputs locally in your browser.
+              <strong className="text-foreground">Private.</strong> All tools
+              are designed to process inputs locally in your browser.
               Files and form data are not uploaded for tool processing.
             </li>
             <li>
@@ -94,6 +94,19 @@ export function AboutPage() {
               unnecessary network round trips.
             </li>
           </ul>
+        </section>
+
+        <section className="mt-8">
+          <h2 className="text-xl font-semibold tracking-tight">What Dueneo offers</h2>
+          <p className="mt-3 text-sm text-muted-foreground">
+            Dueneo provides over 240 browser-based tools across 16 categories:
+            image editing, PDF manipulation, developer utilities, text
+            processing, business document generation, financial calculators,
+            design helpers, SEO analysis, and more. There are also 15 lightweight
+            classic games you can play instantly. Every tool runs entirely in
+            your browser — no file uploads, no accounts, no server-side
+            processing.
+          </p>
         </section>
 
         <section className="mt-8">
@@ -115,6 +128,17 @@ export function AboutPage() {
             copy/download/play buttons, never use popups, and never use forced
             interstitials. Sensitive tools (like the password generator or JWT
             decoder) show fewer ads by default.
+          </p>
+        </section>
+
+        <section className="mt-8">
+          <h2 className="text-xl font-semibold tracking-tight">How the site is built</h2>
+          <p className="mt-3 text-sm text-muted-foreground">
+            Dueneo is built with modern web technologies and served as static
+            pages for fast loading worldwide. All tool logic runs client-side
+            using browser APIs like Canvas, Web Crypto, and File System Access.
+            The site is open about its architecture: your data stays on your
+            device because the code literally cannot send it elsewhere.
           </p>
         </section>
 
